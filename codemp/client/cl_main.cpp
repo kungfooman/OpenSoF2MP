@@ -2193,11 +2193,11 @@ void CL_InitRenderer( void ) {
 	re.BeginRegistration( &cls.glconfig );
 
 	// load character sets
-	cls.charSetShader = re.RegisterShaderNoMip("gfx/2d/charsgrid_med");
+	cls.charSetShader = re.RegisterShaderNoMip("gfx/2d/bigchars");
 
 	cls.whiteShader = re.RegisterShader( "white" );
-	cls.consoleShader = re.RegisterShader( "console" );
-	g_console_field_width = cls.glconfig.vidWidth / SMALLCHAR_WIDTH - 2;
+	cls.consoleShader = re.RegisterShader( "gfx/menus/console/console_mp" );
+	g_console_field_width = cls.glconfig.vidWidth / BIGCHAR_WIDTH - 2;
 	kg.g_consoleField.widthInChars = g_console_field_width;
 }
 
@@ -2524,7 +2524,7 @@ CL_Init
 ====================
 */
 void CL_Init( void ) {
-//	Com_Printf( "----- Client Initialization -----\n" );
+	Com_Printf( "----- Client Initialization -----\n" );
 
 	Con_Init ();	
 
@@ -2675,7 +2675,7 @@ void CL_Init( void ) {
 
 	G2VertSpaceClient = new CMiniHeap(G2_VERT_SPACE_CLIENT_SIZE * 1024);
 
-//	Com_Printf( "----- Client Initialization Complete -----\n" );
+	Com_Printf( "----- Client Initialization Complete -----\n" );
 }
 
 

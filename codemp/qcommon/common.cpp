@@ -10,7 +10,7 @@
 #include "qcommon/platform.h"
 #endif
 
-#include "../server/NPCNav/navigator.h"
+//#include "../server/NPCNav/navigator.h"
 
 #define	MAXPRINTMSG	4096
 
@@ -1082,7 +1082,7 @@ void Com_Init( char *commandLine ) {
 
 		Cvar_Init ();
 
-		navigator.Init();
+		//navigator.Init();
 
 		// prepare enough of the subsystems to handle
 		// cvar and command buffer management
@@ -1111,7 +1111,7 @@ void Com_Init( char *commandLine ) {
 
 		Com_InitJournaling();
 
-		Cbuf_AddText ("exec mpdefault.cfg\n");
+		Cbuf_AddText ("exec sof2mp_default.cfg\n");
 
 		// skip the jampconfig.cfg if "safe" is on the command line
 		if ( !Com_SafeMode() ) {
@@ -1144,9 +1144,9 @@ void Com_Init( char *commandLine ) {
 		com_maxfps = Cvar_Get ("com_maxfps", "125", CVAR_ARCHIVE);
 		com_blood = Cvar_Get ("com_blood", "1", CVAR_ARCHIVE);
 
-		com_developer = Cvar_Get ("developer", "0", CVAR_TEMP );
-		com_vmdebug = Cvar_Get ("vmdebug", "0", CVAR_TEMP );
-		com_logfile = Cvar_Get ("logfile", "0", CVAR_TEMP );
+		com_developer = Cvar_Get ("developer", "1", CVAR_TEMP );
+		com_vmdebug = Cvar_Get ("vmdebug", "1", CVAR_TEMP );
+		com_logfile = Cvar_Get ("logfile", "2", CVAR_TEMP );
 
 		com_timescale = Cvar_Get ("timescale", "1", CVAR_CHEAT | CVAR_SYSTEMINFO );
 		com_fixedtime = Cvar_Get ("fixedtime", "0", CVAR_CHEAT);

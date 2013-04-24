@@ -258,8 +258,8 @@ void Con_CheckResize (void)
 	else
 	{
 		// on wide screens, we will center the text
-		con.xadjust = 640.0f / cls.glconfig.vidWidth;
-		con.yadjust = 480.0f / cls.glconfig.vidHeight;
+		con.xadjust = 1;//640.0f / cls.glconfig.vidWidth;
+		con.yadjust = 1;//480.0f / cls.glconfig.vidHeight;
 
 		oldwidth = con.linewidth;
 		con.linewidth = width;
@@ -490,7 +490,7 @@ void Con_DrawInput (void) {
 	SCR_DrawSmallChar( (int)(con.xadjust + 1 * SMALLCHAR_WIDTH), y, ']' );
 
 	Field_Draw( &kg.g_consoleField, (int)(con.xadjust + 2 * SMALLCHAR_WIDTH), y,
-				SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue );
+				cls.glconfig.vidWidth - 3 * SMALLCHAR_WIDTH, qtrue );
 }
 
 
@@ -611,7 +611,7 @@ void Con_DrawNotify (void)
 		}
 
 		Field_BigDraw( &chatField, skip * BIGCHAR_WIDTH, v,
-			SCREEN_WIDTH - ( skip + 1 ) * BIGCHAR_WIDTH, qtrue );
+			cls.glconfig.vidWidth - ( skip + 1 ) * BIGCHAR_WIDTH, qtrue );
 
 		v += BIGCHAR_HEIGHT;
 	}
@@ -642,19 +642,19 @@ void Con_DrawSolidConsole( float frac ) {
 		lines = cls.glconfig.vidHeight;
 
 	// draw the background
-	y = (int) (frac * SCREEN_HEIGHT - 2);
+	y = (int) (frac * cls.glconfig.vidHeight - 2);
 	if ( y < 1 ) {
 		y = 0;
 	}
 	else {
-		SCR_DrawPic( 0, 0, SCREEN_WIDTH, (float) y, cls.consoleShader );
+		SCR_DrawPic( 0, 0, cls.glconfig.vidWidth, (float) y, cls.consoleShader );
 	}
 
 	const vec4_t color = { 0.509f, 0.609f, 0.847f,  1.0f};
 	// draw the bottom bar and version number
 
 	re.SetColor( color );
-	re.DrawStretchPic( 0, y, SCREEN_WIDTH, 2, 0, 0, 0, 0, cls.whiteShader );
+	re.DrawStretchPic( 0, y, cls.glconfig.vidWidth, 2, 0, 0, 0, 0, cls.whiteShader );
 
 	i = strlen( JK_VERSION );
 

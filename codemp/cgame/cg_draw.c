@@ -4287,7 +4287,7 @@ void CG_DrawSiegeMessage( const char *str, int objectiveScreen )
 {
 //	if (!( trap_Key_GetCatcher() & KEYCATCH_UI ))
 	{
-		trap_OpenUIMenu(UIMENU_CLOSEALL);
+		/*trap_OpenUIMenu(UIMENU_CLOSEALL);
 		trap_Cvar_Set("cg_siegeMessage", str);
 		if (objectiveScreen)
 		{
@@ -4296,7 +4296,7 @@ void CG_DrawSiegeMessage( const char *str, int objectiveScreen )
 		else
 		{
 			trap_OpenUIMenu(UIMENU_SIEGEMESSAGE);
-		}
+		}*/
 	}
 }
 

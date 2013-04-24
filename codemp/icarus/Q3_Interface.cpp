@@ -308,7 +308,7 @@ Q3_PlaySound
 Plays a sound from an entity
 =============
 */
-static int Q3_PlaySound( int taskID, int entID, const char *name, const char *channel )
+/*static int Q3_PlaySound( int taskID, int entID, const char *name, const char *channel )
 {
 	T_G_ICARUS_PLAYSOUND *sharedMem = (T_G_ICARUS_PLAYSOUND *)sv.mSharedMemory;
 
@@ -318,7 +318,7 @@ static int Q3_PlaySound( int taskID, int entID, const char *name, const char *ch
 	strcpy(sharedMem->channel, channel);
 
 	return VM_Call(gvm, GAME_ICARUS_PLAYSOUND);
-}
+}*/
 
 
 /*
@@ -383,7 +383,7 @@ Q3_Set
   Argument		: const char *data
 ============
 */
-static void Q3_Set( int taskID, int entID, const char *type_name, const char *data )
+/*static void Q3_Set( int taskID, int entID, const char *type_name, const char *data )
 {
 	T_G_ICARUS_SET *sharedMem = (T_G_ICARUS_SET *)sv.mSharedMemory;
 
@@ -396,7 +396,7 @@ static void Q3_Set( int taskID, int entID, const char *type_name, const char *da
 	{
 		gTaskManagers[entID]->Completed( taskID );
 	}
-}
+}*/
 
 
 /*

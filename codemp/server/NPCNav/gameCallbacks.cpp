@@ -3,7 +3,7 @@
 #include "game/g_public.h"
 #include "server/server.h"
 
-qboolean GNavCallback_NAV_ClearPathToPoint( sharedEntity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t point, int clipmask, int okToHitEntNum )
+/*qboolean GNavCallback_NAV_ClearPathToPoint( sharedEntity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t point, int clipmask, int okToHitEntNum )
 {
 	return (qboolean)VM_Call(gvm, GAME_NAV_CLEARPATHTOPOINT, self->s.number, pmins, pmaxs, point, clipmask, okToHitEntNum);
 }
@@ -47,3 +47,4 @@ void GNavCallback_CP_FindCombatPointWaypoints( void )
 {
 	VM_Call(gvm, GAME_NAV_FINDCOMBATPOINTWAYPOINTS);
 }
+*/

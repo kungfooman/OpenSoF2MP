@@ -22,10 +22,99 @@ Ghoul2 Insert End
 #include "renderer/tr_lightmanager.h"
 #endif
 
+#if !defined(GENERICPARSER2_H_INC)
+#include "qcommon/GenericParser2.h"
+#endif
+
 extern	botlib_export_t	*botlib_export;
 void SP_Register(const char *Package);
 
 vm_t *uivm;
+
+#ifdef QAGAME
+#define MAX_POOL_SIZE	3000000 //1024000
+#elif defined CGAME //don't need as much for cgame stuff. 2mb will be fine.
+#define MAX_POOL_SIZE	2048000
+#else //And for the ui the only thing we'll be using this for anyway is allocating anim data for g2 menu models
+#define MAX_POOL_SIZE	512000
+#endif
+
+//I am using this for all the stuff like NPC client structures on server/client and
+//non-humanoid animations as well until/if I can get dynamic memory working properly
+//with casted datatypes, which is why it is so large.
+
+
+static char		bg_pool[MAX_POOL_SIZE];
+static int		bg_poolSize = 0;
+static int		bg_poolTail = MAX_POOL_SIZE;
+
+void *BG_Alloc ( int size )
+{
+	bg_poolSize = ((bg_poolSize + 0x00000003) & 0xfffffffc);
+
+	if (bg_poolSize + size > bg_poolTail)
+	{
+		Com_Error( ERR_DROP, "BG_Alloc: buffer exceeded tail (%d > %d)", bg_poolSize + size, bg_poolTail);
+		return 0;
+	}
+
+	bg_poolSize += size;
+
+	return &bg_pool[bg_poolSize-size];
+}
+
+void *BG_AllocUnaligned ( int size )
+{
+	if (bg_poolSize + size > bg_poolTail)
+	{
+		Com_Error( ERR_DROP, "BG_AllocUnaligned: buffer exceeded tail (%d > %d)", bg_poolSize + size, bg_poolTail);
+		return 0;
+	}
+
+	bg_poolSize += size;
+
+	return &bg_pool[bg_poolSize-size];
+}
+
+void *BG_TempAlloc( int size )
+{
+	size = ((size + 0x00000003) & 0xfffffffc);
+
+	if (bg_poolTail - size < bg_poolSize)
+	{
+		Com_Error( ERR_DROP, "BG_TempAlloc: buffer exceeded head (%d > %d)", bg_poolTail - size, bg_poolSize);
+		return 0;
+	}
+
+	bg_poolTail -= size;
+
+	return &bg_pool[bg_poolTail];
+}
+
+void BG_TempFree( int size )
+{
+	size = ((size + 0x00000003) & 0xfffffffc);
+
+	if (bg_poolTail+size > MAX_POOL_SIZE)
+	{
+		Com_Error( ERR_DROP, "BG_TempFree: tail greater than size (%d > %d)", bg_poolTail+size, MAX_POOL_SIZE );
+	}
+
+	bg_poolTail += size;
+}
+
+char *BG_StringAlloc ( const char *source )
+{
+	char *dest = (char*)BG_Alloc( strlen ( source ) + 1 );
+	strcpy( dest, source );
+	return dest;
+}
+
+qboolean BG_OutOfMemory ( void )
+{
+	return (qboolean) (bg_poolSize >= MAX_POOL_SIZE);
+}
+
 
 /*
 ====================
@@ -877,12 +966,13 @@ int CL_UISystemCalls( int *args ) {
 		return re.RegisterModel( (const char *)VMA(1) );
 
 	case UI_R_REGISTERSKIN:
-		return re.RegisterSkin( (const char *)VMA(1) );
+		//KLAAS TODO
+		return re.RegisterSkin( (const char *)VMA(1), 0, NULL );
 
 	case UI_R_REGISTERSHADERNOMIP:
 		return re.RegisterShaderNoMip( (const char *)VMA(1) );
 
-	case UI_R_SHADERNAMEFROMINDEX:
+	/*case UI_R_SHADERNAMEFROMINDEX:
 		{
 			char *gameMem = (char *)VMA(1);
 			const char *retMem = re.ShaderNameFromIndex(args[2]);
@@ -895,7 +985,7 @@ int CL_UISystemCalls( int *args ) {
 				gameMem[0] = 0;
 			}
 		}
-		return 0;
+		return 0;*/
 
 	case UI_R_CLEARSCENE:
 		re.ClearScene();
@@ -906,6 +996,7 @@ int CL_UISystemCalls( int *args ) {
 		return 0;
 
 	case UI_R_ADDPOLYTOSCENE:
+		//KLAAS TODO
 		re.AddPolyToScene( args[1], args[2], (const polyVert_t *)VMA(3), 1 );
 		return 0;
 
@@ -926,7 +1017,9 @@ int CL_UISystemCalls( int *args ) {
 		return 0;
 
 	case UI_R_DRAWSTRETCHPIC:
-		re.DrawStretchPic( VMF(1), VMF(2), VMF(3), VMF(4), VMF(5), VMF(6), VMF(7), VMF(8), args[9] );
+		//re.SetColor( (const float *)VMA(9) );
+		re.DrawStretchPic( VMF(1), VMF(2), VMF(3), VMF(4), VMF(5), VMF(6), VMF(7), VMF(8), args[10] );
+		//re.DrawRotatePic( VMF(1), VMF(2), VMF(3), VMF(4), VMF(5), VMF(6), VMF(7), VMF(8), 0.0f, args[10] );
 		return 0;
 
   case UI_R_MODELBOUNDS:
@@ -1066,10 +1159,19 @@ int CL_UISystemCalls( int *args ) {
 	case UI_R_REGISTERFONT:
 		return re.RegisterFont( (const char *)VMA(1) );
 
-	case UI_R_FONT_STRLENPIXELS:
-		return re.Font_StrLenPixels( (const char *)VMA(1), args[2], VMF(3) );
+	case UI_R_GETTEXTWIDTH:
+		//KLAAS TODO
+		return re.Font_StrLenPixels((const char *)VMA(1), args[2], VMF(3));
 
-	case UI_R_FONT_STRLENCHARS:
+	case UI_R_GETTEXTHEIGHT:
+		//KLAAS TODO
+		return re.Font_HeightPixels(args[2], VMF(3));
+
+	case UI_R_DRAWTEXT:
+		re.Font_DrawString(args[1], args[2], (const char *)VMA(6), (float *)VMA(5), args[3], args[7], VMF(4));
+		return 0;
+
+	/*case UI_R_FONT_STRLENCHARS:
 		return re.Font_StrLenChars( (const char *)VMA(1) );
 
 	case UI_R_FONT_STRHEIGHTPIXELS:
@@ -1086,7 +1188,7 @@ int CL_UISystemCalls( int *args ) {
 		return re.Language_UsesSpaces();
 
 	case UI_ANYLANGUAGE_READCHARFROMSTRING:
-		return re.AnyLanguage_ReadCharFromString( (const char *)VMA(1), (int *) VMA(2), (qboolean *) VMA(3) );
+		return re.AnyLanguage_ReadCharFromString( (const char *)VMA(1), (int *) VMA(2), (qboolean *) VMA(3) );*/
 
 	case UI_PC_ADD_GLOBAL_DEFINE:
 		return botlib_export->PC_AddGlobalDefine( (char *)VMA(1) );
@@ -1136,7 +1238,7 @@ int CL_UISystemCalls( int *args ) {
 		re.RemapShader( (const char *)VMA(1), (const char *)VMA(2), (const char *)VMA(3) );
 		return 0;
 
-	case UI_SP_GETNUMLANGUAGES:
+	/*case UI_SP_GETNUMLANGUAGES:
 		return SE_GetNumLanguages();
 
 	case UI_SP_GETLANGUAGENAME:
@@ -1154,7 +1256,7 @@ int CL_UISystemCalls( int *args ) {
 		assert(VMA(2));
 		text = SE_GetString((const char *) VMA(1));
 		Q_strncpyz( (char *) VMA(2), text, args[3] );
-		return qtrue;
+		return qtrue;*/
 
 /*
 Ghoul2 Insert Start
@@ -1181,7 +1283,7 @@ Ghoul2 Insert Start
 	case UI_G2_GETBOLT:
 		return re.G2API_GetBoltMatrix(*((CGhoul2Info_v *)args[1]), args[2], args[3], (mdxaBone_t *)VMA(4), (const float *)VMA(5),(const float *)VMA(6), args[7], (qhandle_t *)VMA(8), (float *)VMA(9));
 
-	case UI_G2_GETBOLT_NOREC:
+	/*case UI_G2_GETBOLT_NOREC:
 		re.G2API_BoltMatrixReconstruction( qfalse );//gG2_GBMNoReconstruct = qtrue;
 		return re.G2API_GetBoltMatrix(*((CGhoul2Info_v *)args[1]), args[2], args[3], (mdxaBone_t *)VMA(4), (const float *)VMA(5),(const float *)VMA(6), args[7], (qhandle_t *)VMA(8), (float *)VMA(9));
 
@@ -1189,7 +1291,7 @@ Ghoul2 Insert Start
 		//RAZFIXME: cgame reconstructs bolt matrix, why is this different?
 		re.G2API_BoltMatrixReconstruction( qfalse );//gG2_GBMNoReconstruct = qtrue;
 		re.G2API_BoltMatrixSPMethod( qtrue );//gG2_GBMUseSPMethod = qtrue;
-		return re.G2API_GetBoltMatrix(*((CGhoul2Info_v *)args[1]), args[2], args[3], (mdxaBone_t *)VMA(4), (const float *)VMA(5),(const float *)VMA(6), args[7], (qhandle_t *)VMA(8), (float *)VMA(9));
+		return re.G2API_GetBoltMatrix(*((CGhoul2Info_v *)args[1]), args[2], args[3], (mdxaBone_t *)VMA(4), (const float *)VMA(5),(const float *)VMA(6), args[7], (qhandle_t *)VMA(8), (float *)VMA(9));*/
 
 	case UI_G2_INITGHOUL2MODEL:
 #ifdef _FULL_G2_LEAK_CHECKING
@@ -1199,9 +1301,9 @@ Ghoul2 Insert Start
 									  (qhandle_t) args[5], args[6], args[7]);
 
 
-	case UI_G2_COLLISIONDETECT:
+	/*case UI_G2_COLLISIONDETECT:
 	case UI_G2_COLLISIONDETECTCACHE:
-		return 0; //not supported for ui
+		return 0; //not supported for ui*/
 
 	case UI_G2_ANGLEOVERRIDE:
 		return re.G2API_SetBoneAngles(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3), (float *)VMA(4), args[5],
@@ -1220,7 +1322,7 @@ Ghoul2 Insert Start
 		return re.G2API_SetBoneAnim(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3), args[4], args[5],
 								args[6], VMF(7), args[8], VMF(9), args[10]);
 
-	case UI_G2_GETBONEANIM:
+	/*case UI_G2_GETBONEANIM:
 		{
 			CGhoul2Info_v &g2 = *((CGhoul2Info_v *)args[1]);
 			int modelIndex = args[10];
@@ -1238,7 +1340,7 @@ Ghoul2 Insert Start
 
 			return re.G2API_GetBoneAnim(&g2[modelIndex], (const char*)VMA(2), args[3], (float *)VMA(4), &iDontCare1,
 								&iDontCare2, &iDontCare3, &fDontCare1, (int *)VMA(5));
-		}
+		}*/
 
 	case UI_G2_GETGLANAME:
 		//	return (int)G2API_GetGLAName(*((CGhoul2Info_v *)VMA(1)), args[2]);
@@ -1267,8 +1369,8 @@ Ghoul2 Insert Start
 		re.G2API_DuplicateGhoul2Instance(*((CGhoul2Info_v *)args[1]), (CGhoul2Info_v **)VMA(2));
 		return 0;
 
-	case UI_G2_HASGHOUL2MODELONINDEX:
-		return (int)re.G2API_HasGhoul2ModelOnIndex((CGhoul2Info_v **)VMA(1), args[2]);
+	/*case UI_G2_HASGHOUL2MODELONINDEX:
+		return (int)re.G2API_HasGhoul2ModelOnIndex((CGhoul2Info_v **)VMA(1), args[2]);*/
 		//return (int)G2API_HasGhoul2ModelOnIndex((CGhoul2Info_v **)args[1], args[2]);
 
 	case UI_G2_REMOVEGHOUL2MODEL:
@@ -1284,9 +1386,9 @@ Ghoul2 Insert Start
 //	case UI_G2_REMOVEBOLT:
 //		return G2API_RemoveBolt(*((CGhoul2Info_v *)VMA(1)), args[2]);
 
-	case UI_G2_SETBOLTON:
+	/*case UI_G2_SETBOLTON:
 		re.G2API_SetBoltInfo(*((CGhoul2Info_v *)args[1]), args[2], args[3]);
-		return 0;
+		return 0;*/
 
 #ifdef _SOF2	
 	case UI_G2_ADDSKINGORE:
@@ -1296,14 +1398,20 @@ Ghoul2 Insert Start
 /*
 Ghoul2 Insert End
 */
-	case UI_G2_SETROOTSURFACE:
-		return re.G2API_SetRootSurface(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3));
+	/*case UI_G2_SETROOTSURFACE:
+		return re.G2API_SetRootSurface(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3));*/
 
 	case UI_G2_SETSURFACEONOFF:
-		return re.G2API_SetSurfaceOnOff(*((CGhoul2Info_v *)args[1]), (const char *)VMA(2), /*(const int)VMA(3)*/args[3]);
+		{
+			CGhoul2Info_v &g2 = *((CGhoul2Info_v *)args[1]);
+			//KLAAS TODO
+			int modelIndex = args[2];
 
-	case UI_G2_SETNEWORIGIN:
-		return re.G2API_SetNewOrigin(*((CGhoul2Info_v *)args[1]), /*(const int)VMA(2)*/args[2]);
+			return re.G2API_SetSurfaceOnOff(g2, (const char *)VMA(3), args[4]);
+		}
+
+	/*case UI_G2_SETNEWORIGIN:
+		return re.G2API_SetNewOrigin(*((CGhoul2Info_v *)args[1]), args[2]);
 
 	case UI_G2_GETTIME:
 		return re.G2API_GetTime(0);
@@ -1337,7 +1445,7 @@ Ghoul2 Insert End
 			{
 				strcpy(point, local);
 			}
-		}
+		}*/
 
 		return 0;
 	case UI_G2_SETSKIN:
@@ -1355,11 +1463,100 @@ Ghoul2 Insert End
 			
 			return re.G2API_AttachG2Model(*g2From, args[2], *g2To, args[4], args[5]);
 		}
+	case UI_G2_GETANIMFILENAMEINDEX:
+		{
+			CGhoul2Info_v &ghoul2 = *((CGhoul2Info_v *)args[1]);
+			qhandle_t modelIndex = (qhandle_t) args[2];
+			char * srcFilename;
+			qboolean retval = re.G2API_GetAnimFileName(&ghoul2[modelIndex], &srcFilename);
+			strncpy((char *) args[3], srcFilename, MAX_QPATH);
+			return (int) retval;
+		}
+
+	case UI_G2_REGISTERSKIN:
+		return re.RegisterSkin((const char *)VMA(1), args[2], (char *)VMA(3) );
 /*
 Ghoul2 Insert End
 */
+
+	case UI_GP_PARSE:
+		return (int)GP_Parse((char **) VMA(1), (bool) args[2], (bool) args[3]);
+	case UI_GP_PARSE_FILE:
+		{
+			char * data;
+			FS_ReadFile((char *) args[1], (void **) &data);
+			return (int)GP_Parse(&data, (bool) args[2], (bool) args[3]);
+		}
+	case UI_GP_CLEAN:
+		GP_Clean((TGenericParser2) args[1]);
+		return 0;
+	case UI_GP_DELETE:
+		GP_Delete((TGenericParser2 *) args[1]);
+		return 0;
+	case UI_GP_GET_BASE_PARSE_GROUP:
+		return (int)GP_GetBaseParseGroup((TGenericParser2) args[1]);
+
+	case UI_VM_LOCALALLOC:
+		return (int)BG_Alloc((int) args[1]);
+	case UI_VM_LOCALALLOCUNALIGNED:
+		return (int)BG_AllocUnaligned((int) args[1]);
+	case UI_VM_LOCALTEMPALLOC:
+		return (int)BG_TempAlloc((int) args[1]);
+	case UI_VM_LOCALTEMPFREE:
+		BG_TempFree((int) args[1]);
+		return 0;
+	case UI_VM_LOCALSTRINGALLOC:
+		return (int)BG_StringAlloc((char *) VMA(1));
+
+	case UI_GET_CDKEY:
+		return 0;
+	case UI_SET_CDKEY:
+		return 0;
+	case UI_VERIFY_CDKEY:
+		return 1;
+
+	case UI_GPG_GET_NAME:
+		return (int)GPG_GetName((TGPGroup) args[1], (char *) VMA(2));
+	case UI_GPG_GET_NEXT:
+		return (int)GPG_GetNext((TGPGroup) args[1]);
+	case UI_GPG_GET_INORDER_NEXT:
+		return (int)GPG_GetInOrderNext((TGPGroup) args[1]);
+	case UI_GPG_GET_INORDER_PREVIOUS:
+		return (int)GPG_GetInOrderPrevious((TGPGroup) args[1]);
+	case UI_GPG_GET_PAIRS:
+		return (int)GPG_GetPairs((TGPGroup) args[1]);
+	case UI_GPG_GET_INORDER_PAIRS:
+		return (int)GPG_GetInOrderPairs((TGPGroup) args[1]);
+	case UI_GPG_GET_SUBGROUPS:
+		return (int)GPG_GetSubGroups((TGPGroup) args[1]);
+	case UI_GPG_GET_INORDER_SUBGROUPS:
+		return (int)GPG_GetInOrderSubGroups((TGPGroup) args[1]);
+	case UI_GPG_FIND_SUBGROUP:
+		return (int)GPG_FindSubGroup((TGPGroup) args[1], (char *) VMA(2));
+	case UI_GPG_FIND_PAIR:
+		return (int)GPG_FindPair((TGPGroup) args[1], (const char *) VMA(2));
+	case UI_GPG_FIND_PAIRVALUE:
+		return (int)GPG_FindPairValue((TGPGroup) args[1], (const char *) VMA(2), (const char *) VMA(2), (char *) VMA(4));
+		
+	case UI_GPV_GET_NAME:
+		return (int)GPV_GetName((TGPValue) args[1], (char *) VMA(2));
+	case UI_GPV_GET_NEXT:
+		return (int)GPV_GetNext((TGPValue) args[1]);
+	case UI_GPV_GET_INORDER_NEXT:
+		return (int)GPV_GetInOrderNext((TGPValue) args[1]);
+	case UI_GPV_GET_INORDER_PREVIOUS:
+		return (int)GPV_GetInOrderPrevious((TGPValue) args[1]);
+
+	case UI_GPV_IS_LIST:
+		return (int)GPV_IsList((TGPValue) args[1]);
+	case UI_GPV_GET_TOP_VALUE:
+		return (int)GPV_GetTopValue((TGPValue) args[1]);
+	case UI_GPV_GET_LIST:
+		return (int)GPV_GetList((TGPValue) args[1]);
+
 	default:
-		Com_Error( ERR_DROP, "Bad UI system trap: %i", args[0] );
+		Com_Printf("Bad UI system trap: %i", args[0] );
+		//Com_Error( ERR_DROP, "Bad UI system trap: %i", args[0] );
 
 	}
 
@@ -1378,7 +1575,7 @@ void CL_ShutdownUI( void ) {
 		return;
 	}
 	VM_Call( uivm, UI_SHUTDOWN );
-	VM_Call( uivm, UI_MENU_RESET );
+	//VM_Call( uivm, UI_MENU_RESET );
 	VM_Free( uivm );
 	uivm = NULL;
 }

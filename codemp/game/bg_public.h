@@ -125,9 +125,10 @@ Ghoul2 Insert End
 
 #define CS_MAX					(CS_BSP_MODELS + MAX_SUB_BSP)
 
-#if (CS_MAX) > MAX_CONFIGSTRINGS
-#error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
-#endif
+//KLAAS TODO
+//#if (CS_MAX) > MAX_CONFIGSTRINGS
+//#error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
+//#endif
 
 typedef enum {
 	G2_MODELPART_HEAD = 10,
@@ -1036,55 +1037,47 @@ typedef enum {
 // means of death
 typedef enum {
 	MOD_UNKNOWN,
-	MOD_STUN_BATON,
-	MOD_MELEE,
-	MOD_SABER,
-	MOD_BRYAR_PISTOL,
-	MOD_BRYAR_PISTOL_ALT,
-	MOD_BLASTER,
-	MOD_TURBLAST,
-	MOD_DISRUPTOR,
-	MOD_DISRUPTOR_SPLASH,
-	MOD_DISRUPTOR_SNIPER,
-	MOD_BOWCASTER,
-	MOD_REPEATER,
-	MOD_REPEATER_ALT,
-	MOD_REPEATER_ALT_SPLASH,
-	MOD_DEMP2,
-	MOD_DEMP2_ALT,
-	MOD_FLECHETTE,
-	MOD_FLECHETTE_ALT_SPLASH,
-	MOD_ROCKET,
-	MOD_ROCKET_SPLASH,
-	MOD_ROCKET_HOMING,
-	MOD_ROCKET_HOMING_SPLASH,
-	MOD_THERMAL,
-	MOD_THERMAL_SPLASH,
-	MOD_TRIP_MINE_SPLASH,
-	MOD_TIMED_MINE_SPLASH,
-	MOD_DET_PACK_SPLASH,
-	MOD_VEHICLE,
-	MOD_CONC,
-	MOD_CONC_ALT,
-	MOD_FORCE_DARK,
-	MOD_SENTRY,
+
+	// Knife
+	MOD_KNIFE,
+
+	// Pistols
+	MOD_M1911A1_PISTOL,
+	MOD_USSOCOM_PISTOL,         
+	MOD_SILVER_TALON,
+
+	// Secondarys
+	MOD_M590_SHOTGUN,
+	MOD_MICRO_UZI_SUBMACHINEGUN, 
+	MOD_M3A1_SUBMACHINEGUN,      
+	MOD_MP5,
+
+	// Primaries
+	MOD_USAS_12_SHOTGUN,         
+	MOD_M4_ASSAULT_RIFLE,        
+	MOD_AK74_ASSAULT_RIFLE,      
+	MOD_SIG551,
+
+	MOD_MSG90A1_SNIPER_RIFLE,    
+	MOD_M60_MACHINEGUN,          
+	MOD_MM1_GRENADE_LAUNCHER,    
+	MOD_RPG7_LAUNCHER,           
+
+	// Grenades
+	MOD_M84_GRENADE,
+	MOD_SMOHG92_GRENADE,
+	MOD_ANM14_GRENADE,
+	MOD_M15_GRENADE,
+
 	MOD_WATER,
-	MOD_SLIME,
-	MOD_LAVA,
 	MOD_CRUSH,
 	MOD_TELEFRAG,
 	MOD_FALLING,
 	MOD_SUICIDE,
+	MOD_TEAMCHANGE,
 	MOD_TARGET_LASER,
 	MOD_TRIGGER_HURT,
-	MOD_TEAM_CHANGE,
-	//AURELIO: when/if you put this back in, remember to make a case for it in all the other places where
-	//mod's are checked. Also, it probably isn't the most elegant solution for what you want - just add
-	//a frag back to the player after you call the player_die (and keep a local of his pre-death score to
-	//make sure he actually lost points, there may be cases where you don't lose points on changing teams
-	//or suiciding, and so you would actually be giving him a point) -Rich
-	// I put it back in for now, if it becomes a problem we'll work around it later (it shouldn't though)...
-	MOD_MAX
+	MOD_TRIGGER_HURT_NOSUICIDE
 } meansOfDeath_t;
 
 

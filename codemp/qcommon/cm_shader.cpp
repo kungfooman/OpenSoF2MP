@@ -490,7 +490,7 @@ void CM_ShutdownShaderProperties(void)
 {
 	if(cmShaderTable.count())
 	{
-//		Com_Printf("Shutting down cmShaderTable .....\n");
+		Com_Printf("Shutting down cmShaderTable .....\n");
 		cmShaderTable.clear();
 	}
 }

@@ -5,7 +5,7 @@
 
 // tr_shader.c -- this file deals with the parsing and definition of shaders
 
-#define USE_NEW_SHADER_HASH
+//#define USE_NEW_SHADER_HASH
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -358,7 +358,7 @@ static void Shader_SkipRestOfLine ( const char **data ) {
 #define Shader_GetCurrentParseLine COM_GetCurrentParseLine
 #define Shader_Parse COM_Parse
 #define Shader_Shader_SkipWhitespace SkipWhitespace
-#define Shader_Compress COM_Comress
+#define Shader_Compress COM_Compress
 #define Shader_ParseExt COM_ParseExt
 #define Shader_SkipBracedSection SkipBracedSection
 #define Shader_SkipRestOfLine SkipRestOfLine
@@ -2754,6 +2754,38 @@ static qboolean ParseShader( const char **text )
 			ParseSort( text );
 			continue;
 		}
+/*
+Ghoul2 Insert Start
+*/
+
+		// 
+		// location hit mesh load
+		//
+		else if ( !Q_stricmp( token, "hitLocation" ) )
+		{
+		   
+			// grab the filename of the hit location texture
+			token = COM_ParseExt( text, qfalse );
+			if ( token[0] == 0 )
+				break;
+			continue;
+		}
+		// 
+		// location hit material mesh load
+		//
+		else if ( !Q_stricmp( token, "hitMaterial" ) )
+		{
+
+			// grab the filename of the hit location texture
+			token = COM_ParseExt( text, qfalse );
+			if ( token[0] == 0 )
+				break;
+			continue;
+
+		}
+/*
+Ghoul2 Insert End
+*/
 		else
 		{
 			Com_Printf (S_COLOR_YELLOW  "WARNING: unknown general shader parameter '%s' in '%s'\n", token, shader.name );
@@ -3748,8 +3780,8 @@ most world construction surfaces.
 */
 shader_t *R_FindShader( const char *name, const int *lightmapIndex, const byte *styles, qboolean mipRawImage ) 
 {
-	char		strippedName[MAX_QPATH];
-	char		fileName[MAX_QPATH];
+	char		strippedName[MAX_OSPATH];
+	char		fileName[MAX_OSPATH];
 	int			hash;
 	const char	*shaderText;
 	image_t		*image;
@@ -4074,8 +4106,8 @@ For menu graphics that should never be picmiped
 qhandle_t RE_RegisterShaderNoMip( const char *name ) {
 	shader_t	*sh;
 
-	if ( strlen( name ) >= MAX_QPATH ) {
-		Com_Printf( "Shader name exceeds MAX_QPATH\n" );
+	if ( strlen( name ) >= MAX_OSPATH ) {
+		Com_Printf( "Shader name exceeds MAX_OSPATH\n" );
 		return 0;
 	}
 
@@ -4339,7 +4371,7 @@ static void ScanAndLoadShaderFiles( const char *path )
 		ri.Printf( PRINT_DEVELOPER, "...loading '%s'\n", filename );
 		summand = ri.FS_ReadFile( filename, (void **)&buffers[i] );
 		if ( !buffers[i] ) {
-			ri.Com_Error( ERR_DROP, "Couldn't load %s", filename );
+			Com_Error( ERR_DROP, "Couldn't load %s", filename );
 		}
 
 		// Do a simple check on the shader structure in that file to make sure one bad shader file cannot fuck up all other shaders.
@@ -4712,7 +4744,7 @@ R_InitShaders
 */
 void R_InitShaders(qboolean server)
 {
-	//Com_Printf ("Initializing Shaders\n" );
+	Com_Printf ("Initializing Shaders\n" );
 
 #if defined(USE_NEW_SHADER_HASH) && !(DEDICATED)
 	int time, mem;

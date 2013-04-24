@@ -523,7 +523,7 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 	int			i, num;
 	sharedEntity_t *touch;
 	int			passOwnerNum;
-	trace_t		trace, oldTrace= {0};
+	trace_t		trace, oldTrace= {qfalse};
 	clipHandle_t	clipHandle;
 	float		*origin, *angles;
 	int			thisOwnerShared = 1;

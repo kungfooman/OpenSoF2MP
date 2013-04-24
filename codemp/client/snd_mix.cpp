@@ -427,7 +427,7 @@ void S_PaintChannels( int endtime ) {
 				continue;
 			}
 
-			if ( ch->entchannel == CHAN_VOICE || ch->entchannel == CHAN_VOICE_ATTEN || ch->entchannel == CHAN_VOICE_GLOBAL )
+			if ( ch->entchannel == CHAN_VOICE/* || ch->entchannel == CHAN_VOICE_ATTEN || ch->entchannel == CHAN_VOICE_GLOBAL */)
 				snd_vol = voice_vol;
 			else
 				snd_vol = normal_vol;

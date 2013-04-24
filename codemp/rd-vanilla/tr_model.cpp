@@ -1200,6 +1200,10 @@ Ghoul2 Insert Start
 	//
 	for (mh=mhHashTable[hash]; mh; mh=mh->next) {
 		if (Q_stricmp(mh->name, name) == 0) {
+			if (tr.models[mh->handle]->type == MOD_BAD)
+			{
+				return 0;
+			}
 			return mh->handle;
 		}
 	}
@@ -1256,7 +1260,7 @@ Ghoul2 Insert End
 	Q_strncpyz( mod->name, name, sizeof( mod->name ) );
 
 	// make sure the render thread is stopped
-	R_SyncRenderThread();
+	//R_SyncRenderThread();
 
 	int iLODStart = 0;
 	if (strstr (name, ".md3")) {

@@ -715,6 +715,7 @@ static rserr_t GLW_SetMode( int mode,
 		Com_Printf (" invalid mode\n" );
 		return RSERR_INVALID_MODE;
 	}
+	glConfig.windowAspect = glConfig.vidWidth / (glConfig.vidHeight * 1.0f);
 	Com_Printf (" %d %d %s\n", glConfig.vidWidth, glConfig.vidHeight, win_fs[cdsFullscreen] );
 
 	//
@@ -972,13 +973,13 @@ static void GLW_InitTextureCompression( void )
 	if ( !r_ext_compressed_textures->value )
 	{
 		// Compressed textures are off
-		glConfig.textureCompression = TC_NONE;
+		//glConfig.textureCompression = TC_NONE;
 		Com_Printf ("...ignoring texture compression\n" );
 	}
 	else if ( !old_tc && !newer_tc )
 	{
 		// Requesting texture compression, but no method found
-		glConfig.textureCompression = TC_NONE;
+		//glConfig.textureCompression = TC_NONE;
 		Com_Printf ("...no supported texture compression method found\n" );
 		Com_Printf (".....ignoring texture compression\n" );
 	}
@@ -992,13 +993,13 @@ static void GLW_InitTextureCompression( void )
 			{
 				Com_Printf ("...no tc preference specified\n" );
 				Com_Printf (".....using GL_EXT_texture_compression_s3tc\n" );
-				glConfig.textureCompression = TC_S3TC_DXT;
+				//glConfig.textureCompression = TC_S3TC_DXT;
 			}
 			else
 			{
 				Com_Printf ("...no tc preference specified\n" );
 				Com_Printf (".....using GL_S3_s3tc\n" );
-				glConfig.textureCompression = TC_S3TC;
+				//glConfig.textureCompression = TC_S3TC;
 			}
 		}
 		else
@@ -1010,12 +1011,12 @@ static void GLW_InitTextureCompression( void )
 				if ( r_ext_preferred_tc_method->integer == TC_S3TC )
 				{
 					Com_Printf ("...using preferred tc method, GL_S3_s3tc\n" );
-					glConfig.textureCompression = TC_S3TC;
+					//glConfig.textureCompression = TC_S3TC;
 				}
 				else
 				{
 					Com_Printf ("...using preferred tc method, GL_EXT_texture_compression_s3tc\n" );
-					glConfig.textureCompression = TC_S3TC_DXT;
+					//glConfig.textureCompression = TC_S3TC_DXT;
 				}
 			}
 			else
@@ -1027,14 +1028,14 @@ static void GLW_InitTextureCompression( void )
 					if ( old_tc )
 					{
 						Com_Printf ("...using GL_S3_s3tc\n" );
-						glConfig.textureCompression = TC_S3TC;
+						//glConfig.textureCompression = TC_S3TC;
 					}
 					else
 					{
 						// Drat, preference can't be honored 
 						Com_Printf ("...preferred tc method, GL_S3_s3tc not available\n" );
 						Com_Printf (".....falling back to GL_EXT_texture_compression_s3tc\n" );
-						glConfig.textureCompression = TC_S3TC_DXT;
+						//glConfig.textureCompression = TC_S3TC_DXT;
 					}
 				}
 				else
@@ -1043,14 +1044,14 @@ static void GLW_InitTextureCompression( void )
 					if ( newer_tc )
 					{
 						Com_Printf ("...using GL_EXT_texture_compression_s3tc\n" );
-						glConfig.textureCompression = TC_S3TC_DXT;
+						//glConfig.textureCompression = TC_S3TC_DXT;
 					}
 					else
 					{
 						// Drat, preference can't be honored 
 						Com_Printf ("...preferred tc method, GL_EXT_texture_compression_s3tc not available\n" );
 						Com_Printf (".....falling back to GL_S3_s3tc\n" );
-						glConfig.textureCompression = TC_S3TC;
+						//glConfig.textureCompression = TC_S3TC;
 					}
 				}
 			}
@@ -1097,7 +1098,7 @@ static void GLW_InitExtensions( void )
 	}
 
 	// GL_EXT_texture_filter_anisotropic
-	glConfig.maxTextureFilterAnisotropy = 0;
+	/*glConfig.maxTextureFilterAnisotropy = 0;
 	if ( strstr( glConfig.extensions_string, "EXT_texture_filter_anisotropic" ) )
 	{
 #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF	//can't include glext.h here ... sigh
@@ -1119,10 +1120,10 @@ static void GLW_InitExtensions( void )
 		}
 	}
 	else
-	{
+	{*/
 		Com_Printf ("...GL_EXT_texture_filter_anisotropic not found\n" );
 		ri.Cvar_Set( "r_ext_texture_filter_anisotropic_avail", "0" );
-	}
+	//}
 
 	// GL_EXT_clamp_to_edge
 	glConfig.clampToEdgeAvailable = qfalse;
@@ -1657,10 +1658,10 @@ void GLimp_Init( void )
 	GLW_StartOpenGL();
 
 	// get our config strings
-	glConfig.vendor_string = (const char *) qglGetString (GL_VENDOR);
-	glConfig.renderer_string = (const char *) qglGetString (GL_RENDERER);
-	glConfig.version_string = (const char *) qglGetString (GL_VERSION);
-	glConfig.extensions_string = (const char *) qglGetString (GL_EXTENSIONS);
+	strcpy(glConfig.vendor_string, (const char *) qglGetString (GL_VENDOR));
+	strcpy(glConfig.renderer_string, (const char *) qglGetString (GL_RENDERER));
+	strcpy(glConfig.version_string, (const char *) qglGetString (GL_VERSION));
+	strcpy(glConfig.extensions_string, (const char *) qglGetString (GL_EXTENSIONS));
 	
 	if (!glConfig.vendor_string || !glConfig.renderer_string || !glConfig.version_string || !glConfig.extensions_string)
 	{
@@ -1722,7 +1723,7 @@ void GLimp_Init( void )
 		
 		GLW_InitExtensions();	//get the values for test below
 		//this must be a really sucky card!
-		if ( (glConfig.textureCompression == TC_NONE) || (glConfig.maxActiveTextures < 2)  || (glConfig.maxTextureSize <= 512) )
+		if (/* (glConfig.textureCompression == TC_NONE) ||*/ (glConfig.maxActiveTextures < 2)  || (glConfig.maxTextureSize <= 512) )
 		{
 			ri.Cvar_Set( "r_picmip", "2");
 			ri.Cvar_Set( "r_colorbits", "16");
@@ -1747,7 +1748,7 @@ void GLimp_Init( void )
 void GLimp_Shutdown( void )
 {
 //	const char *strings[] = { "soft", "hard" };
-//	const char *success[] = { "failed", "success" };
+	const char *success[] = { "failed", "success" };
 	int retVal;
 
 	// FIXME: Brian, we need better fallbacks from partially initialized failures
@@ -1765,14 +1766,14 @@ void GLimp_Shutdown( void )
 	{
 		retVal = qwglMakeCurrent( NULL, NULL ) != 0;
 
-//		Com_Printf ("...wglMakeCurrent( NULL, NULL ): %s\n", success[retVal] );
+		Com_Printf ("...wglMakeCurrent( NULL, NULL ): %s\n", success[retVal] );
 	}
 
 	// delete HGLRC
 	if ( glw_state.hGLRC )
 	{
 		retVal = qwglDeleteContext( glw_state.hGLRC ) != 0;
-//		Com_Printf ("...deleting GL context: %s\n", success[retVal] );
+		Com_Printf ("...deleting GL context: %s\n", success[retVal] );
 		glw_state.hGLRC = NULL;
 	}
 
@@ -1780,14 +1781,14 @@ void GLimp_Shutdown( void )
 	if ( glw_state.hDC )
 	{
 		retVal = ReleaseDC( tr.wv->hWnd, glw_state.hDC ) != 0;
-//		Com_Printf ("...releasing DC: %s\n", success[retVal] );
+		Com_Printf ("...releasing DC: %s\n", success[retVal] );
 		glw_state.hDC   = NULL;
 	}
 
 	// destroy window
 	if ( tr.wv->hWnd )
 	{
-//		Com_Printf ("...destroying window\n" );
+		Com_Printf ("...destroying window\n" );
 		ShowWindow( tr.wv->hWnd, SW_HIDE );
 		DestroyWindow( tr.wv->hWnd );
 		tr.wv->hWnd = NULL;
@@ -1804,7 +1805,7 @@ void GLimp_Shutdown( void )
 	// reset display settings
 	if ( glw_state.cdsFullscreen )
 	{
-//		Com_Printf ("...resetting display\n" );
+		Com_Printf ("...resetting display\n" );
 		ChangeDisplaySettings( 0, 0 );
 		glw_state.cdsFullscreen = qfalse;
 	}

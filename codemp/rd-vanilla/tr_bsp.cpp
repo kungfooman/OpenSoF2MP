@@ -2012,7 +2012,7 @@ void RE_LoadWorldMap_Actual( const char *name, world_t &worldData, int index )
 
 	if (!index)
 	{
-		skyboxportal = 0;
+		//skyboxportal = 0;
 
 		// set default sun direction to be used if it isn't
 		// overridden by a shader

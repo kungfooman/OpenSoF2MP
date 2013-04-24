@@ -320,7 +320,7 @@ void R_Splash()
 		pImage = R_FindImageFile( "menu/splash", qfalse, qfalse, qfalse, GL_CLAMP);
 	}
 */
-	pImage = R_FindImageFile( "menu/splash", qfalse, qfalse, qfalse, GL_CLAMP);
+	pImage = R_FindImageFile( "gfx/menus/backdrop/pra1_sof2_logo.jpg", qfalse, qfalse, qfalse, GL_CLAMP);
 	extern void	RB_SetGL2D (void);
 	RB_SetGL2D();	
 	if (pImage )
@@ -329,12 +329,12 @@ void R_Splash()
 	}
 	GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO);
 
-	const int width = 640;
-	const int height = 480;
-	const float x1 = 320 - width / 2;
-	const float x2 = 320 + width / 2;
-	const float y1 = 240 - height / 2;
-	const float y2 = 240 + height / 2;
+	const int width = glConfig.vidWidth;
+	const int height = glConfig.vidHeight;
+	const float x1 = 0;//320 - width / 2;
+	const float x2 = width;//320 + width / 2;
+	const float y1 = 0;//240 - height / 2;
+	const float y2 = height;//240 + height / 2;
 
 
 	qglBegin (GL_TRIANGLE_STRIP);
@@ -1081,11 +1081,11 @@ void GfxInfo_f( void )
 	Com_Printf ("multitexture: %s\n", enablestrings[qglActiveTextureARB != 0] );
 	Com_Printf ("compiled vertex arrays: %s\n", enablestrings[qglLockArraysEXT != 0 ] );
 	Com_Printf ("texenv add: %s\n", enablestrings[glConfig.textureEnvAddAvailable != 0] );
-	Com_Printf ("compressed textures: %s\n", enablestrings[glConfig.textureCompression != TC_NONE] );
-	Com_Printf ("compressed lightmaps: %s\n", enablestrings[(r_ext_compressed_lightmaps->integer != 0 && glConfig.textureCompression != TC_NONE)] );
-	Com_Printf ("texture compression method: %s\n", tc_table[glConfig.textureCompression] );
-	Com_Printf ("anisotropic filtering: %s  ", enablestrings[(r_ext_texture_filter_anisotropic->integer != 0) && glConfig.maxTextureFilterAnisotropy] );
-		Com_Printf ("(%f of %f)\n", r_ext_texture_filter_anisotropic->value, glConfig.maxTextureFilterAnisotropy );
+	//Com_Printf ("compressed textures: %s\n", enablestrings[glConfig.textureCompression != TC_NONE] );
+	//Com_Printf ("compressed lightmaps: %s\n", enablestrings[(r_ext_compressed_lightmaps->integer != 0 && glConfig.textureCompression != TC_NONE)] );
+	//Com_Printf ("texture compression method: %s\n", tc_table[glConfig.textureCompression] );
+	//Com_Printf ("anisotropic filtering: %s  ", enablestrings[(r_ext_texture_filter_anisotropic->integer != 0) && glConfig.maxTextureFilterAnisotropy] );
+	//	Com_Printf ("(%f of %f)\n", r_ext_texture_filter_anisotropic->value, glConfig.maxTextureFilterAnisotropy );
 	Com_Printf ("Dynamic Glow: %s\n", enablestrings[r_DynamicGlow->integer] );
 	if (g_bTextureRectangleHack) Com_Printf ("Dynamic Glow ATI BAD DRIVER HACK %s\n", enablestrings[g_bTextureRectangleHack] );
 
@@ -1305,7 +1305,7 @@ void R_Init( void ) {
 	int i;
 	byte *ptr;
 
-//	Com_Printf ("----- R_Init -----\n" );
+	Com_Printf ("----- R_Init -----\n" );
 	// clear all our internal state
 	memset( &tr, 0, sizeof( tr ) );
 	memset( &backEnd, 0, sizeof( backEnd ) );
@@ -1392,7 +1392,7 @@ void R_Init( void ) {
 	if ( err != GL_NO_ERROR )
 		Com_Printf ( "glGetError() = 0x%x\n", err);
 
-//	Com_Printf ("----- finished R_Init -----\n" );
+	Com_Printf ("----- finished R_Init -----\n" );
 }
 
 /*

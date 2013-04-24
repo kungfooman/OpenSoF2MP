@@ -851,7 +851,8 @@ int CL_CgameSystemCalls( int *args ) {
 	case CG_R_REGISTERMODEL:
 		return re.RegisterModel( (const char *)VMA(1) );
 	case CG_R_REGISTERSKIN:
-		return re.RegisterSkin( (const char *)VMA(1) );
+		//KLAAS TODO
+		return re.RegisterSkin( (const char *)VMA(1), 0, NULL );
 	case CG_R_REGISTERSHADER:
 		return re.RegisterShader( (const char *)VMA(1) );
 	case CG_R_REGISTERSHADERNOMIP:

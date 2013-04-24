@@ -1084,7 +1084,7 @@ static sboolean S_CheckChannelStomp( int chan1, int chan2 )
 		}
 	}
 
-	if ( ( chan1 == CHAN_VOICE || chan1 == CHAN_VOICE_ATTEN || chan1 == CHAN_VOICE_GLOBAL  ) && ( chan2 == CHAN_VOICE || chan2 == CHAN_VOICE_ATTEN || chan2 == CHAN_VOICE_GLOBAL ) )
+	if ( ( chan1 == CHAN_VOICE/* || chan1 == CHAN_VOICE_ATTEN || chan1 == CHAN_VOICE_GLOBAL */ ) && ( chan2 == CHAN_VOICE/* || chan2 == CHAN_VOICE_ATTEN || chan2 == CHAN_VOICE_GLOBAL*/ ) )
 	{
 		return qtrue;
 	}
@@ -1123,11 +1123,11 @@ channel_t *S_PickChannel(int entnum, int entchannel)
 
     firstToDie = &s_channels[0];
 
-	for ( int pass = 0; (pass < ((entchannel == CHAN_AUTO || entchannel == CHAN_LESS_ATTEN)?1:2)) && !foundChan; pass++ )
+	for ( int pass = 0; (pass < ((entchannel == CHAN_AUTO/* || entchannel == CHAN_LESS_ATTEN*/)?1:2)) && !foundChan; pass++ )
 	{
 		for (ch_idx = 0, ch = &s_channels[0]; ch_idx < MAX_CHANNELS ; ch_idx++, ch++ ) 
 		{
-			if ( entchannel == CHAN_AUTO || entchannel == CHAN_LESS_ATTEN || pass > 0 )
+			if ( entchannel == CHAN_AUTO/* || entchannel == CHAN_LESS_ATTEN*/ || pass > 0 )
 			{//if we're on the second pass, just find the first open chan
 				if ( !ch->thesfx )
 				{//grab the first open channel
@@ -1383,7 +1383,7 @@ void S_SpatializeOrigin (const vec3_t origin, float master_vol, int *left_vol, i
 		dist -= SOUND_FULLVOLUME * 3.0f;
 //		dist_mult = VOICE_ATTENUATE;	// tweak added (this fixes an NPC dialogue "in your ears" bug, but we're not sure if it'll make a bunch of others fade too early. Too close to shipping...)
 	}
-	else if ( channel == CHAN_LESS_ATTEN )
+	/*else if ( channel == CHAN_LESS_ATTEN )
 	{
 		dist -= SOUND_FULLVOLUME * 8.0f; // maybe is too large
 	}
@@ -1395,7 +1395,7 @@ void S_SpatializeOrigin (const vec3_t origin, float master_vol, int *left_vol, i
 	else if ( channel == CHAN_VOICE_GLOBAL )
 	{
 		dist = -1;
-	}
+	}*/
 	else	// use normal attenuation.
 	{
 		dist -= SOUND_FULLVOLUME;
@@ -1655,7 +1655,7 @@ void S_StartSound(const vec3_t origin, int entityNum, int entchannel, sfxHandle_
 	if (entchannel < CHAN_AMBIENT && entityNum == listener_number) {	//only do it for body sounds not local sounds
 		ch->master_vol = SOUND_MAXVOL * SOUND_FMAXVOL;	//this won't be attenuated so let it scale down
 	}
-	if ( entchannel == CHAN_VOICE || entchannel == CHAN_VOICE_ATTEN || entchannel == CHAN_VOICE_GLOBAL ) 
+	if ( entchannel == CHAN_VOICE/* || entchannel == CHAN_VOICE_ATTEN || entchannel == CHAN_VOICE_GLOBAL*/ ) 
 	{
 		s_entityWavVol[ ch->entnum ] = -1;	//we've started the sound but it's silent for now
 	}
@@ -2332,7 +2332,7 @@ void S_UpdateEntityPosition( int entityNum, const vec3_t origin )
 			if ((s_channels[i].bPlaying) & (s_channels[i].entnum == entityNum) & (!s_channels[i].bLooping))
 			{
 				// Ignore position updates for CHAN_VOICE_GLOBAL
-				if (ch->entchannel != CHAN_VOICE_GLOBAL && ch->entchannel != CHAN_ANNOUNCER)
+				if (/*ch->entchannel != CHAN_VOICE_GLOBAL && */ch->entchannel != CHAN_ANNOUNCER)
 				{
 					pos[0] = origin[0];
 					pos[1] = origin[2];
@@ -2631,7 +2631,7 @@ void S_Respatialize( int entityNum, const vec3_t head, vec3_t axis[3], int inwat
 
 			//NOTE: Made it so that voice sounds keep playing, even out of range
 			//		so that tasks waiting for sound completion keep proper timing
-			if ( !( ch->entchannel == CHAN_VOICE || ch->entchannel == CHAN_VOICE_ATTEN || ch->entchannel == CHAN_VOICE_GLOBAL ) && !ch->leftvol && !ch->rightvol ) {
+			if ( !( ch->entchannel == CHAN_VOICE/* || ch->entchannel == CHAN_VOICE_ATTEN || ch->entchannel == CHAN_VOICE_GLOBAL*/ ) && !ch->leftvol && !ch->rightvol ) {
 				Channel_Clear(ch);	// memset (ch, 0, sizeof(*ch));
 				continue;
 			}
@@ -2712,7 +2712,7 @@ void S_DoLipSynchs( const unsigned s_oldpaintedtime )
 
 		// if we are playing a sample that should override the lip texture on its owning model, lets figure out
 		// what the amplitude is, stick it in a table, then return it 
-		if ( ch->entchannel == CHAN_VOICE || ch->entchannel == CHAN_VOICE_ATTEN || ch->entchannel == CHAN_VOICE_GLOBAL )
+		if ( ch->entchannel == CHAN_VOICE/* || ch->entchannel == CHAN_VOICE_ATTEN || ch->entchannel == CHAN_VOICE_GLOBAL*/ )
 		{
 			// go away and work out amplitude for this sound we are playing right now.
 			s_entityWavVol[ ch->entnum ] = S_CheckAmplitude( ch, s_oldpaintedtime );
@@ -2855,7 +2855,7 @@ void S_Update_(void) {
 
 			source = ch - s_channels;
 
-			if (ch->entchannel == CHAN_VOICE_GLOBAL || ch->entchannel == CHAN_ANNOUNCER)
+			if (/*ch->entchannel == CHAN_VOICE_GLOBAL || */ch->entchannel == CHAN_ANNOUNCER)
 			{
 				// Always play these sounds at 0,0,-1 (in front of listener)
 				pos[0] = 0.0f;
@@ -2921,7 +2921,7 @@ void S_Update_(void) {
 					alSourcef(s_channels[source].alSource, AL_REFERENCE_DISTANCE, DEFAULT_VOICE_REF_DISTANCE);
 					alSourcef(s_channels[source].alSource, AL_GAIN, ((float)(ch->master_vol) * s_volumeVoice->value) / 255.0f);
 				}
-				else if (ch->entchannel == CHAN_VOICE_ATTEN)
+				/*else if (ch->entchannel == CHAN_VOICE_ATTEN)
 				{
 					// Normal fall-off, affected by Voice Volume
 					alSourcef(s_channels[source].alSource, AL_REFERENCE_DISTANCE, DEFAULT_REF_DISTANCE);
@@ -2932,7 +2932,7 @@ void S_Update_(void) {
 					// Reduced fall-off, affected by Sound Effect Volume
 					alSourcef(s_channels[source].alSource, AL_REFERENCE_DISTANCE, DEFAULT_VOICE_REF_DISTANCE);
 					alSourcef(s_channels[source].alSource, AL_GAIN, ((float)(ch->master_vol) * s_volume->value) / 255.f);
-				}
+				}*/
 				else
 				{
 					// Normal fall-off, affect by Sound Effect Volume
@@ -2967,7 +2967,7 @@ void S_Update_(void) {
 					{
 						nBytesDecoded = C_MP3Stream_Decode(&ch->MP3StreamHeader, 0);	// added ,0 ?
 						memcpy(ch->buffers[i].Data + nTotalBytesDecoded, ch->MP3StreamHeader.bDecodeBuffer, nBytesDecoded);
-						if (ch->entchannel == CHAN_VOICE || ch->entchannel == CHAN_VOICE_ATTEN || ch->entchannel == CHAN_VOICE_GLOBAL )
+						if (ch->entchannel == CHAN_VOICE/* || ch->entchannel == CHAN_VOICE_ATTEN || ch->entchannel == CHAN_VOICE_GLOBAL */)
 						{
 							if (ch->thesfx->lipSyncData)
 							{
@@ -3020,7 +3020,7 @@ void S_Update_(void) {
 
 				ch->bStreaming = true;
 
-				if ( ch->entchannel == CHAN_VOICE || ch->entchannel == CHAN_VOICE_ATTEN || ch->entchannel == CHAN_VOICE_GLOBAL )
+				if ( ch->entchannel == CHAN_VOICE/* || ch->entchannel == CHAN_VOICE_ATTEN || ch->entchannel == CHAN_VOICE_GLOBAL*/ )
 				{
 					if (ch->thesfx->lipSyncData)
 					{
@@ -3054,7 +3054,7 @@ void S_Update_(void) {
 				if (alGetError() == AL_NO_ERROR)
 					s_channels[source].bPlaying = true;
 
-				if ( ch->entchannel == CHAN_VOICE || ch->entchannel == CHAN_VOICE_ATTEN || ch->entchannel == CHAN_VOICE_GLOBAL )
+				if ( ch->entchannel == CHAN_VOICE/* || ch->entchannel == CHAN_VOICE_ATTEN || ch->entchannel == CHAN_VOICE_GLOBAL*/ )
 				{
 					if (ch->thesfx->lipSyncData)
 					{
@@ -3216,7 +3216,7 @@ void UpdateSingleShotSounds()
 								{
 									memcpy(ch->buffers[j].Data + nTotalBytesDecoded, ch->MP3StreamHeader.bDecodeBuffer, nBytesDecoded);
 
-									if (ch->entchannel == CHAN_VOICE || ch->entchannel == CHAN_VOICE_ATTEN || ch->entchannel == CHAN_VOICE_GLOBAL )
+									if (ch->entchannel == CHAN_VOICE/* || ch->entchannel == CHAN_VOICE_ATTEN || ch->entchannel == CHAN_VOICE_GLOBAL*/ )
 									{
 										if (ch->thesfx->lipSyncData)
 										{
@@ -3655,7 +3655,7 @@ void S_SetLipSyncs()
 		if ((!ch->thesfx)||(!ch->bPlaying))
 			continue;
 		
-		if ( ch->entchannel == CHAN_VOICE || ch->entchannel == CHAN_VOICE_ATTEN || ch->entchannel == CHAN_VOICE_GLOBAL )
+		if ( ch->entchannel == CHAN_VOICE/* || ch->entchannel == CHAN_VOICE_ATTEN || ch->entchannel == CHAN_VOICE_GLOBAL*/ )
 		{
 			// Calculate how much time has passed since the sample was started
 			timePlayed = currentTime - ch->iStartTime;
@@ -6353,7 +6353,7 @@ void UpdateEAXBuffer(channel_t *ch)
 			OutputDebugString("UpdateEAXBuffer : Failed to set exclusion to -1000\n");
 	}
 
-	if ((ch->entchannel == CHAN_VOICE) || (ch->entchannel == CHAN_VOICE_ATTEN) || (ch->entchannel == CHAN_VOICE_GLOBAL))
+	if ((ch->entchannel == CHAN_VOICE)/* || (ch->entchannel == CHAN_VOICE_ATTEN) || (ch->entchannel == CHAN_VOICE_GLOBAL)*/)
 	{
 		// Remove any Occlusion + Obstruction
 		eaxOBProp.lObstruction = EAXSOURCE_DEFAULTOBSTRUCTION;

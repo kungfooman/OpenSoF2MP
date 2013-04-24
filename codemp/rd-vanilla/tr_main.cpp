@@ -403,14 +403,14 @@ static void SetFarClip( void )
 	// if not rendering the world (icons, menus, etc)
 	// set a 2k far clip plane
 	if ( tr.refdef.rdflags & RDF_NOWORLDMODEL ) {
-		if (tr.refdef.rdflags & RDF_AUTOMAP)
+		/*if (tr.refdef.rdflags & RDF_AUTOMAP)
 		{ //override the zfar then
 			tr.viewParms.zFar = 32768.0f;
 		}
 		else
-		{
+		{*/
 			tr.viewParms.zFar = 2048.0f;
-		}
+		//}
 		return;
 	}
 
@@ -1224,14 +1224,14 @@ void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader,
 				   int fogIndex, int dlightMap ) {
 	int			index;
 
-	if (tr.refdef.rdflags & RDF_NOFOG)
+	/*if (tr.refdef.rdflags & RDF_NOFOG)
 	{
 		fogIndex = 0;
 	}
 	else
-	{
+	{*/
 		fogIndex = fogIndex;
-	}
+	//}
 
 	// instead of checking for overflow, we just mask the index
 	// so it wraps around
@@ -1358,7 +1358,7 @@ void R_AddEntitySurfaces (void) {
 		case RT_LINE:
 		case RT_ORIENTEDLINE:
 		case RT_CYLINDER:
-		case RT_SABER_GLOW:
+		/*case RT_SABER_GLOW:
 			// self blood sprites, talk balloons, etc should not be drawn in the primary
 			// view.  We can't just do this check for all entities, because md3
 			// entities may still want to cast shadows from them
@@ -1367,7 +1367,7 @@ void R_AddEntitySurfaces (void) {
 			}
 			shader = R_GetShaderByHandle( ent->e.customShader );
 			R_AddDrawSurf( &entitySurface, shader, R_SpriteFogNum( ent ), 0 );
-			break;
+			break;*/
 
 		case RT_MODEL:
 			// we must set up parts of tr.ori for model culling
@@ -1395,13 +1395,13 @@ Ghoul2 Insert Start
 					}
   					break;
 				case MOD_BAD:		// null model axis
-					if ( (ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal)
+					/*if ( (ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal)
 					{
 						if (!(ent->e.renderfx & RF_SHADOW_ONLY))
 						{
 							break;
 						}
-					}
+					}*/
 
   					if (ent->e.ghoul2 && G2API_HaveWeGhoul2Models(*((CGhoul2Info_v *)ent->e.ghoul2)))
   					{

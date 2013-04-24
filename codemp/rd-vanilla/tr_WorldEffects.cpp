@@ -1383,7 +1383,7 @@ void RB_RenderWorldEffects(void)
 {
 	if (!tr.world || 
 		(tr.refdef.rdflags & RDF_NOWORLDMODEL) || 
-		(backEnd.refdef.rdflags & RDF_SKYBOXPORTAL) || 
+		//(backEnd.refdef.rdflags & RDF_SKYBOXPORTAL) || 
 		!mParticleClouds.size()) 
 	{	//  no world rendering or no world or no particle clouds
 		return;

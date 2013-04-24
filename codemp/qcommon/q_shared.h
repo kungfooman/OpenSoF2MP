@@ -7,10 +7,10 @@
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#define PRODUCT_NAME			"openjk"
+#define PRODUCT_NAME			"sof2mp"
 
-#define CLIENT_WINDOW_TITLE "OpenJK (MP)"
-#define CLIENT_CONSOLE_TITLE "OpenJK Console (MP)"
+#define CLIENT_WINDOW_TITLE "Soldier Of Fortune 2 (MP)"
+#define CLIENT_CONSOLE_TITLE "Soldier Of Fortune 2 (MP)"
 
 //NOTENOTE: Only change this to re-point ICARUS to a new script directory
 #define Q3_SCRIPT_DIR	"scripts"
@@ -628,12 +628,12 @@ typedef enum {
 
 // font rendering values used by ui and cgame
 
-/*#define PROP_GAP_WIDTH			3
+#define PROP_GAP_WIDTH			3
 #define PROP_SPACE_WIDTH		8
 #define PROP_HEIGHT				27
-#define PROP_SMALL_SIZE_SCALE	0.75*/
+#define PROP_SMALL_SIZE_SCALE	0.75
 
-#define PROP_GAP_WIDTH			2
+/*#define PROP_GAP_WIDTH			2
 //#define PROP_GAP_WIDTH			3
 #define PROP_SPACE_WIDTH		4
 #define PROP_HEIGHT				16
@@ -649,7 +649,7 @@ typedef enum {
 
 #define PROP_BIG_HEIGHT			24
 #define PROP_GAP_BIG_WIDTH		3
-#define PROP_SPACE_BIG_WIDTH	6
+#define PROP_SPACE_BIG_WIDTH	6*/
 
 #define BLINK_DIVISOR			200
 #define PULSE_DIVISOR			75
@@ -1199,8 +1199,8 @@ extern	vec3_t	bytedirs[NUMVERTEXNORMALS];
 #define SMALLCHAR_WIDTH		8
 #define SMALLCHAR_HEIGHT	16
 
-#define BIGCHAR_WIDTH		16
-#define BIGCHAR_HEIGHT		16
+#define BIGCHAR_WIDTH		12	// 16
+#define BIGCHAR_HEIGHT		13	// 16
 
 #define	GIANTCHAR_WIDTH		32
 #define	GIANTCHAR_HEIGHT	48
@@ -1616,7 +1616,11 @@ typedef enum {
 	FS_READ,
 	FS_WRITE,
 	FS_APPEND,
-	FS_APPEND_SYNC
+	FS_APPEND_SYNC,
+	FS_READ_TEXT,
+	FS_WRITE_TEXT,
+	FS_APPEND_TEXT,
+	FS_APPEND_SYNC_TEXT
 } fsMode_t;
 
 typedef enum {
@@ -1740,6 +1744,7 @@ default values.
 // These flags are only returned by the Cvar_Flags() function
 #define CVAR_MODIFIED		0x40000000		// Cvar was modified
 #define CVAR_NONEXISTENT	0x80000000		// Cvar doesn't exist.
+#define CVAR_LOCK_RANGE		0x00002000		// enforces the mins / maxs
 
 // nothing outside the Cvar_*() functions should modify these fields!
 typedef struct cvar_s {
@@ -1747,16 +1752,14 @@ typedef struct cvar_s {
 	char		*string;
 	char		*resetString;		// cvar_restart will reset to this value
 	char		*latchedString;		// for CVAR_LATCH vars
+	float		mMinValue, mMaxValue;
 	int			flags;
 	qboolean	modified;			// set each time the cvar is changed
 	int			modificationCount;	// incremented each time the cvar is changed
 	float		value;				// atof( string )
 	int			integer;			// atoi( string )
 	struct cvar_s *next;
-	struct cvar_s *prev;
 	struct cvar_s *hashNext;
-	struct cvar_s *hashPrev;
-	int			hashIndex;
 } cvar_t;
 
 #define	MAX_CVAR_VALUE_STRING	256
@@ -1836,15 +1839,15 @@ Ghoul2 Insert End
 */
 // a trace is returned when a box is swept through the world
 typedef struct {
-	byte		allsolid;	// if true, plane is not valid
-	byte		startsolid;	// if true, the initial point was in a solid area
-	short		entityNum;	// entity the contacted sirface is a part of
+	qboolean	allsolid;	// if true, plane is not valid
+	qboolean	startsolid;	// if true, the initial point was in a solid area
 
 	float		fraction;	// time completed, 1.0 = didn't hit anything
 	vec3_t		endpos;		// final position
 	cplane_t	plane;		// surface normal at impact, transformed to world space
 	int			surfaceFlags;	// surface hit
 	int			contents;	// contents on other side of surface hit
+	int			entityNum;	// entity the contacted sirface is a part of
 /*
 Ghoul2 Insert Start
 */
@@ -1881,6 +1884,7 @@ typedef struct {
 #define	KEYCATCH_UI					0x0002
 #define	KEYCATCH_MESSAGE		0x0004
 #define	KEYCATCH_CGAME			0x0008
+#define KEYCATCH_NUMBERSONLY	0x0010
 
 
 // sound channels
@@ -1891,16 +1895,16 @@ typedef enum {
 	CHAN_LOCAL,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" # menu sounds, etc
 	CHAN_WEAPON,//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" 
 	CHAN_VOICE, //## %s !!"W:\game\base\!!sound\voice\*.wav;*.mp3" # Voice sounds cause mouth animation
-	CHAN_VOICE_ATTEN, //## %s !!"W:\game\base\!!sound\voice\*.wav;*.mp3" # Causes mouth animation but still use normal sound falloff 
+	//CHAN_VOICE_ATTEN, //## %s !!"W:\game\base\!!sound\voice\*.wav;*.mp3" # Causes mouth animation but still use normal sound falloff 
 	CHAN_ITEM,  //## %s !!"W:\game\base\!!sound\*.wav;*.mp3"
 	CHAN_BODY,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3"
-	CHAN_AMBIENT,//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" # added for ambient sounds
 	CHAN_LOCAL_SOUND,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #chat messages, etc
 	CHAN_ANNOUNCER,		//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #announcer voices, etc
-	CHAN_LESS_ATTEN,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #attenuates similar to chan_voice, but uses empty channel auto-pick behaviour
-	CHAN_MENU1,		//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #menu stuff, etc
-	CHAN_VOICE_GLOBAL,  //## %s !!"W:\game\base\!!sound\voice\*.wav;*.mp3" # Causes mouth animation and is broadcast, like announcer
-	CHAN_MUSIC,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #music played as a looping sound - added by BTO (VV)
+	CHAN_AMBIENT,//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" # added for ambient sounds
+	//CHAN_LESS_ATTEN,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #attenuates similar to chan_voice, but uses empty channel auto-pick behaviour
+	//CHAN_MENU1,		//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #menu stuff, etc
+	//CHAN_VOICE_GLOBAL,  //## %s !!"W:\game\base\!!sound\voice\*.wav;*.mp3" # Causes mouth animation and is broadcast, like announcer
+	//CHAN_MUSIC,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #music played as a looping sound - added by BTO (VV)
 } soundChannel_t;
 
 
@@ -1922,10 +1926,13 @@ typedef enum {
 //
 // per-level limits
 //
-#define	MAX_CLIENTS			32		// absolute limit
-#define MAX_RADAR_ENTITIES	MAX_GENTITIES
-#define MAX_TERRAINS		1//32 //rwwRMG: inserted
+#define	MAX_CLIENTS			64		// absolute limit
+//#define MAX_RADAR_ENTITIES	MAX_GENTITIES
+#define MAX_TERRAINS		32 //rwwRMG: inserted
 #define MAX_LOCATIONS		64
+#define MAX_LADDERS			64
+
+#define MAX_INSTANCE_TYPES		16
 
 #define	GENTITYNUM_BITS	10		// don't need to send any more
 #define	MAX_GENTITIES	(1<<GENTITYNUM_BITS)
@@ -1952,8 +1959,9 @@ typedef enum {
 
 
 // these are also in be_aas_def.h - argh (rjr)
-#define	MAX_MODELS			512		// these are sent over the net as -12 bits
-#define	MAX_SOUNDS			256		// so they cannot be blindly increased
+#define	MAX_MODELS				256		// these are sent over the net as -12 bits
+#define	MAX_SOUNDS				256		// so they cannot be blindly increased
+#define MAX_AMBIENT_SOUNDSETS	64
 #define MAX_ICONS			64		// max registered icons you can have per map 
 #define MAX_FX				64		// max effects strings, I'm hoping that 64 will be plenty
 
@@ -1969,7 +1977,7 @@ Ghoul2 Insert End
 
 #define MAX_AMBIENT_SETS		256 //rww - ambient soundsets must be sent over in config strings.
 
-#define	MAX_CONFIGSTRINGS	1700 //this is getting pretty high. Try not to raise it anymore than it already is.
+#define	MAX_CONFIGSTRINGS	1400 //this is getting pretty high. Try not to raise it anymore than it already is.
 
 // these are the only configstrings that the system reserves, all the
 // other ones are strictly for servergame to clientgame communication
@@ -2068,19 +2076,13 @@ typedef enum {
 // bit field limits
 #define	MAX_STATS				16
 #define	MAX_PERSISTANT			16
-#define	MAX_POWERUPS			16
-#define	MAX_WEAPONS				19		
+#define	MAX_AMMO				16
+#define	MAX_WEAPONS				32		
+#define MAX_GAMETYPE_ITEMS		5
 
-#define	MAX_PS_EVENTS			2
+#define	MAX_PS_EVENTS			4
 
 #define PS_PMOVEFRAMECOUNTBITS	6
-
-#define FORCE_LIGHTSIDE			1
-#define FORCE_DARKSIDE			2
-
-#define MAX_FORCE_RANK			7
-
-#define FALL_FADE_TIME			3000
 
 //#define _ONEBIT_COMBO
 //Crazy optimization attempt to take all those 1 bit values and shove them into a single
@@ -2176,7 +2178,7 @@ typedef struct playerState_s {
 
 	int			stats[MAX_STATS];
 	int			persistant[MAX_PERSISTANT];	// stats that aren't cleared on death
-	int			powerups[MAX_POWERUPS];	// level.time that the powerup runs out
+	//int			powerups[MAX_POWERUPS];	// level.time that the powerup runs out
 	int			ammo[MAX_WEAPONS];
 
 	int			generic1;

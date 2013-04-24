@@ -29,7 +29,7 @@ typedef struct {
 	void				(*BeginRegistration)					( glconfig_t *config );
 	qhandle_t			(*RegisterModel)						( const char *name );
 	qhandle_t			(*RegisterServerModel)					( const char *name );
-	qhandle_t			(*RegisterSkin)							( const char *name );
+	qhandle_t			(*RegisterSkin)							( const char *name, int numPairs, char *skinPairs );
 	qhandle_t			(*RegisterServerSkin)					( const char *name );
 	qhandle_t			(*RegisterShader)						( const char *name );
 	qhandle_t			(*RegisterShaderNoMip)					( const char *name );

@@ -323,10 +323,10 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 
 	// link the variable in
 	var->next = cvar_vars;
-	if(cvar_vars)
-		cvar_vars->prev = var;
+	/*if(cvar_vars)
+		cvar_vars->prev = var;*/
 
-	var->prev = NULL;
+	//var->prev = NULL;
 	cvar_vars = var;
 
 	var->flags = flags;
@@ -334,13 +334,13 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 	cvar_modifiedFlags |= var->flags;
 
 	hash = generateHashValue(var_name);
-	var->hashIndex = hash;
+	//var->hashIndex = hash;
 
 	var->hashNext = hashTable[hash];
-	if(hashTable[hash])
-		hashTable[hash]->hashPrev = var;
+	/*if(hashTable[hash])
+		hashTable[hash]->hashPrev = var;*/
 
-	var->hashPrev = NULL;
+	//var->hashPrev = NULL;
 	hashTable[hash] = var;
 
 	return var;
@@ -972,19 +972,19 @@ cvar_t *Cvar_Unset(cvar_t *cv)
 	if(cv->resetString)
 		Cvar_FreeString(cv->resetString);
 
-	if(cv->prev)
+	/*if(cv->prev)
 		cv->prev->next = cv->next;
-	else
+	else*/
 		cvar_vars = cv->next;
-	if(cv->next)
-		cv->next->prev = cv->prev;
+	/*if(cv->next)
+		cv->next->prev = cv->prev;*/
 
-	if(cv->hashPrev)
+	/*if(cv->hashPrev)
 		cv->hashPrev->hashNext = cv->hashNext;
 	else
 		hashTable[cv->hashIndex] = cv->hashNext;
 	if(cv->hashNext)
-		cv->hashNext->hashPrev = cv->hashPrev;
+		cv->hashNext->hashPrev = cv->hashPrev;*/
 
 	Com_Memset(cv, '\0', sizeof(*cv));
 

@@ -1402,7 +1402,7 @@ void		RE_SetWorldVisData( const byte *vis );
 
 qhandle_t	RE_RegisterServerModel( const char *name );
 qhandle_t	RE_RegisterModel( const char *name );
-qhandle_t	RE_RegisterSkin( const char *name );
+qhandle_t	RE_RegisterSkin( const char *name, int numPairs, char *skinPairs );
 void		RE_Shutdown( qboolean destroyWindow );
 
 void		RE_RegisterMedia_LevelLoadBegin(const char *psMapName, ForceReload_e eForceReload);
@@ -1795,8 +1795,8 @@ void	RB_CalcColorFromOneMinusEntity( unsigned char *dstColors );
 void	RB_CalcSpecularAlpha( unsigned char *alphas );
 void	RB_CalcDisintegrateColors( unsigned char *colors );
 void	RB_CalcDiffuseColor( unsigned char *colors );
-void	RB_CalcDiffuseEntityColor( unsigned char *colors );
-void	RB_CalcDisintegrateVertDeform( void );
+//void	RB_CalcDiffuseEntityColor( unsigned char *colors );
+//void	RB_CalcDisintegrateVertDeform( void );
 
 /*
 =============================================================

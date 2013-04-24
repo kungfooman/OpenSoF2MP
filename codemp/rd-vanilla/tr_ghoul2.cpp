@@ -4196,6 +4196,7 @@ qboolean R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, qboolean 
 	mdxmSurface_t		*surf;
 	int					version;
 	int					size;
+	shader_t			*sh;
 	mdxmSurfHierarchy_t	*surfInfo;
 
 #ifndef _M_IX86
@@ -4291,27 +4292,33 @@ qboolean R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, qboolean 
 			surfInfo->name[strlen(surfInfo->name)-4]=0;	//remove "_off" from name
 		}
 
+		if ( surfInfo->shader[0] == '[' )
+		{
+			surfInfo->shader[0] = 0;	//kill the stupid [nomaterial] since carcass doesn't
+		}
+		
 		// do all the children indexs
 		for (j=0; j<surfInfo->numChildren; j++)
 		{
 			LL(surfInfo->childIndexes[j]);
 		}
 
-		shader_t	*sh;
 		// get the shader name
 		sh = R_FindShader( surfInfo->shader, lightmapsNone, stylesDefault, qtrue );
 		// insert it in the surface list
-		if ( sh->defaultShader ) 
-		{
-			surfInfo->shaderIndex = 0;
-		}
-		else
+		if ( !sh->defaultShader ) 
 		{
 			surfInfo->shaderIndex = sh->index;
 		}
 
-		RE_RegisterModels_StoreShaderRequest(mod_name, &surfInfo->shader[0], &surfInfo->shaderIndex);		
+		
+		if (surfInfo->shaderIndex)
 
+		{
+			RE_RegisterModels_StoreShaderRequest(mod_name, &surfInfo->shader[0], &surfInfo->shaderIndex);		
+
+		}
+		
 		// find the next surface
 		surfInfo = (mdxmSurfHierarchy_t *)( (byte *)surfInfo + (int)( &((mdxmSurfHierarchy_t *)0)->childIndexes[ surfInfo->numChildren ] ));
   	}

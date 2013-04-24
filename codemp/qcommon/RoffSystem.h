@@ -147,7 +147,7 @@ private:
 	qboolean	ApplyROFF( SROFFEntity *roff_ent,
 					CROFFSystem::CROFF *roff );	// True = success; False = roff complete
 
-	void	ProcessNote(SROFFEntity *roff_ent, char *note);
+	//void	ProcessNote(SROFFEntity *roff_ent, char *note);
 
 	void	SetLerp( trajectory_t *tr, 
 					trType_t, vec3_t origin, 

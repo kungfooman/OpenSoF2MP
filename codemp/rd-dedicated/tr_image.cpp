@@ -924,11 +924,13 @@ qhandle_t RE_RegisterServerSkin( const char *name ) {
 		ri.Com_TheHunkMarkHasBeenMade() &&
 		ShaderHashTableExists())
 	{ //If the client is running then we can go straight into the normal registerskin func
-		return RE_RegisterSkin(name);
+		//KLAAS TODO
+		return RE_RegisterSkin(name, NULL);
 	}
 
 	gServerSkinHack = true;
-	r = RE_RegisterSkin(name);
+	//KLAAS TODO
+	r = RE_RegisterSkin(name, NULL);
 	gServerSkinHack = false;
 
 	return r;

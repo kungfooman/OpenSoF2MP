@@ -213,6 +213,7 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 	if (ent->reType == RT_MODEL)
 	{
 		assert(ent->hModel || ent->ghoul2 || ent->customShader);
+		return;
 	}
 #endif
 
@@ -747,7 +748,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 	tr.refdef.frametime = fd->time - lastTime;
 	lastTime = fd->time;
 
-	if (fd->rdflags & RDF_SKYBOXPORTAL)
+	/*if (fd->rdflags & RDF_SKYBOXPORTAL)
 	{
 		skyboxportal = 1;
 	}
@@ -757,9 +758,9 @@ void RE_RenderScene( const refdef_t *fd ) {
 		drawskyboxportal = 1;
 	}
 	else
-	{
+	{*/
 		drawskyboxportal = 0;
-	}
+	//}
 
 	if (tr.refdef.frametime > 500)
 	{
@@ -873,10 +874,10 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	RE_RenderWorldEffects();
 
-	if (tr.refdef.rdflags & RDF_AUTOMAP)
+	/*if (tr.refdef.rdflags & RDF_AUTOMAP)
 	{
 		RE_RenderAutoMap();
-	}
+	}*/
 }
 
 #if 0 //rwwFIXMEFIXME: Disable this before release!!!!!! I am just trying to find a crash bug.

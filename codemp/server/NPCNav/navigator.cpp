@@ -18,7 +18,7 @@
 DWORD timeGetTime(void);
 #endif
 
-extern qboolean GNavCallback_NAV_ClearPathToPoint( sharedEntity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t point, int clipmask, int okToHitEntNum );
+/*extern qboolean GNavCallback_NAV_ClearPathToPoint( sharedEntity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t point, int clipmask, int okToHitEntNum );
 extern qboolean GNavCallback_NPC_ClearLOS( sharedEntity_t *ent, const vec3_t end );
 extern int GNavCallback_NAVNEW_ClearPathBetweenPoints(vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs, int ignore, int clipmask);
 extern qboolean GNavCallback_NAV_CheckNodeFailedForEnt( sharedEntity_t *ent, int nodeNum );
@@ -26,7 +26,7 @@ extern qboolean GNavCallback_G_EntIsUnlockedDoor( int entityNum );
 extern qboolean GNavCallback_G_EntIsDoor( int entityNum );
 extern qboolean GNavCallback_G_EntIsBreakable( int entityNum );
 extern qboolean GNavCallback_G_EntIsRemovableUsable( int entNum );
-extern void GNavCallback_CP_FindCombatPointWaypoints( void );
+extern void GNavCallback_CP_FindCombatPointWaypoints( void );*/
 
 //Global navigator
 CNavigator		navigator;

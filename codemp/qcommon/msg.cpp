@@ -2245,12 +2245,12 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 			ammobits |= 1<<i;
 		}
 	}
-	powerupbits = 0;
+	/*powerupbits = 0;
 	for (i=0 ; i<16 ; i++) {
 		if (to->powerups[i] != from->powerups[i]) {
 			powerupbits |= 1<<i;
 		}
-	}
+	}*/
 
 	if (!statsbits && !persistantbits && !ammobits && !powerupbits) {
 		MSG_WriteBits( msg, 0, 1 );	// no change
@@ -2308,7 +2308,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 	}
 
 
-	if ( powerupbits ) {
+	/*if ( powerupbits ) {
 		MSG_WriteBits( msg, 1, 1 );	// changed
 		MSG_WriteShort( msg, powerupbits );
 		for (i=0 ; i<16 ; i++)
@@ -2316,7 +2316,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 				MSG_WriteLong( msg, to->powerups[i] );
 	} else {
 		MSG_WriteBits( msg, 0, 1 );	// no change
-	}
+	}*/
 
 #ifdef _ONEBIT_COMBO
 sendBitMask:
@@ -2542,7 +2542,7 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 #ifdef _DONETPROFILE_
 		startBytes=msg->readcount;
 #endif
-		if ( MSG_ReadBits( msg, 1 ) ) {
+		/*if ( MSG_ReadBits( msg, 1 ) ) {
 			LOG("PS_POWERUPS");
 			bits = MSG_ReadShort (msg);
 			for (i=0 ; i<16 ; i++) {
@@ -2550,7 +2550,7 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 					to->powerups[i] = MSG_ReadLong(msg);
 				}
 			}
-		}
+		}*/
 	}
 #ifdef _DONETPROFILE_
 		endBytes=msg->readcount;

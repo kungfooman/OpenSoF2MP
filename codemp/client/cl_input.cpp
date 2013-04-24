@@ -369,7 +369,7 @@ void IN_VoiceChatButton(void)
 	{ //ui not loaded so this command is useless
 		return;
 	}
-	VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_VOICECHAT );
+	//VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_VOICECHAT );
 }
 
 void IN_KeyDown( kbutton_t *b ) {

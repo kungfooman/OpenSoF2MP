@@ -454,7 +454,7 @@ static void DoSprite( vec3_t origin, float radius, float rotation )
 //------------------
 // RB_SurfaceSaber
 //------------------
-static void RB_SurfaceSaberGlow()
+/*static void RB_SurfaceSaberGlow()
 { 
 	vec3_t		end;
 	refEntity_t *e;
@@ -474,7 +474,7 @@ static void RB_SurfaceSaberGlow()
 	// Please don't kill me Pat...I liked the hilt glow blob, but wanted a subtle pulse.:)  Feel free to ditch it if you don't like it.  --Jeff
 	// Please don't kill me Jeff...  The pulse is good, but now I want the halo bigger if the saber is shorter...  --Pat
 	DoSprite( e->origin, 5.5f + random() * 0.25f, 0.0f );//random() * 360.0f );
-}
+}*/
 
 /*
 ==============
@@ -1603,9 +1603,9 @@ void RB_SurfaceEntity( surfaceType_t *surfType ) {
 	case RT_ORIENTEDLINE:
 		RB_SurfaceOrientedLine();
 		break;
-	case RT_SABER_GLOW:
+	/*case RT_SABER_GLOW:
 		RB_SurfaceSaberGlow();
-		break;
+		break;*/
 	case RT_CYLINDER:
 		RB_SurfaceCylinder();
 		break;

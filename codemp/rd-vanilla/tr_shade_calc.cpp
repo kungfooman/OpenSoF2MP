@@ -1257,7 +1257,7 @@ void RB_CalcDiffuseEntityColor( unsigned char *colors )
 }
 
 //---------------------------------------------------------
-void RB_CalcDisintegrateColors( unsigned char *colors )
+/*void RB_CalcDisintegrateColors( unsigned char *colors )
 {
 	int			i, numVertexes;
 	float		dis, threshold;
@@ -1348,10 +1348,10 @@ void RB_CalcDisintegrateColors( unsigned char *colors )
 			}
 		}
 	}
-}
+}*/
 
 //---------------------------------------------------------
-void RB_CalcDisintegrateVertDeform( void )
+/*void RB_CalcDisintegrateVertDeform( void )
 {
 	float	*xyz = ( float * ) tess.xyz;
 	float	*normal = ( float * ) tess.normal;
@@ -1383,3 +1383,4 @@ void RB_CalcDisintegrateVertDeform( void )
 		}
 	}
 }
+*/

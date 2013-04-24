@@ -232,12 +232,12 @@ void R_BindAnimatedImage( textureBundle_t *bundle ) {
 		return;
 	}
 
-	if (backEnd.currentEntity->e.renderfx & RF_SETANIMINDEX )
+	/*if (backEnd.currentEntity->e.renderfx & RF_SETANIMINDEX )
 	{
 		index = backEnd.currentEntity->e.skinNum;
 	}
 	else
-	{
+	{*/
 		// it is necessary to do this messy calc to make sure animations line up
 		// exactly with waveforms of the same frequency
 		index = myftol( tess.shaderTime * bundle->imageAnimationSpeed * FUNCTABLE_SIZE );
@@ -246,7 +246,7 @@ void R_BindAnimatedImage( textureBundle_t *bundle ) {
 		if ( index < 0 ) {
 			index = 0;	// may happen with shader time offsets
 		}
-	}
+	//}
 
 	if ( bundle->oneShotAnimMap )
 	{
@@ -710,6 +710,16 @@ static void ProjectDlightTexture2( void ) {
 			fogging = 0;
 		}
 
+		if (!needResetVerts)
+		{
+			needResetVerts=1;
+			if (qglUnlockArraysEXT) 
+			{
+				qglUnlockArraysEXT();
+				GLimp_LogComment( "glUnlockArraysEXT\n" );
+			}
+		}
+		qglVertexPointer (3, GL_FLOAT, 16, vertCoordsArray);	// padded for SIMD
 
 		dStage = NULL;
 		if (tess.shader && qglActiveTextureARB)
@@ -728,16 +738,7 @@ static void ProjectDlightTexture2( void ) {
 				i++;
 			}
 		}
-		if (!needResetVerts)
-		{
-			needResetVerts=1;
-			if (qglUnlockArraysEXT) 
-			{
-				qglUnlockArraysEXT();
-				GLimp_LogComment( "glUnlockArraysEXT\n" );
-			}
-		}
-		qglVertexPointer (3, GL_FLOAT, 16, vertCoordsArray);	// padded for SIMD
+
 
 		if (dStage)
 		{
@@ -781,12 +782,12 @@ static void ProjectDlightTexture2( void ) {
 			GL_Bind( tr.dlightImage );
 			// include GLS_DEPTHFUNC_EQUAL so alpha tested surfaces don't add light
 			// where they aren't rendered
-			if ( dl->additive ) {
-				GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
-			}
-			else {
+			//if ( dl->additive ) {
+			//	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
+			//}
+			//else {
 				GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
-			}
+			//}
 
 			R_DrawElements( numIndexes, hitIndexes );
 		}
@@ -1122,12 +1123,12 @@ static void ProjectDlightTexture( void ) {
 			GL_Bind( tr.dlightImage );
 			// include GLS_DEPTHFUNC_EQUAL so alpha tested surfaces don't add light
 			// where they aren't rendered
-			if ( dl->additive ) {
-				GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
-			}
-			else {
+			//if ( dl->additive ) {
+			//	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
+			//}
+			//else {
 				GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
-			}
+			//}
 
 			R_DrawElements( numIndexes, hitIndexes );
 		}
@@ -1194,15 +1195,15 @@ static void ComputeColors( shaderStage_t *pStage, int forceRGBGen )
 	qboolean killGen = qfalse;
 	alphaGen_t forceAlphaGen = pStage->alphaGen;//set this up so we can override below
 
-	if ( tess.shader != tr.projectionShadowShader && tess.shader != tr.shadowShader && 
-			( backEnd.currentEntity->e.renderfx & (RF_DISINTEGRATE1|RF_DISINTEGRATE2)))
-	{
-		RB_CalcDisintegrateColors( (unsigned char *)tess.svars.colors );
-		RB_CalcDisintegrateVertDeform();
+	//if ( tess.shader != tr.projectionShadowShader && tess.shader != tr.shadowShader && 
+	//		( backEnd.currentEntity->e.renderfx & (RF_DISINTEGRATE1|RF_DISINTEGRATE2)))
+	//{
+		/*RB_CalcDisintegrateColors( (unsigned char *)tess.svars.colors );
+		RB_CalcDisintegrateVertDeform();*/
 
 		// We've done some custom alpha and color stuff, so we can skip the rest.  Let it do fog though
-		killGen = qtrue;
-	}
+	//	killGen = qtrue;
+	//}
 
 	//
 	// rgbGen
@@ -1212,7 +1213,7 @@ static void ComputeColors( shaderStage_t *pStage, int forceRGBGen )
 		forceRGBGen = pStage->rgbGen;
 	}
 
-	if ( backEnd.currentEntity->e.renderfx & RF_VOLUMETRIC ) // does not work for rotated models, technically, this should also be a CGEN type, but that would entail adding new shader commands....which is too much work for one thing
+	/*if ( backEnd.currentEntity->e.renderfx & RF_VOLUMETRIC ) // does not work for rotated models, technically, this should also be a CGEN type, but that would entail adding new shader commands....which is too much work for one thing
 	{
 		int			i;
 		float		*normal, dot;
@@ -1239,7 +1240,7 @@ static void ComputeColors( shaderStage_t *pStage, int forceRGBGen )
 		}
 
 		killGen = qtrue;
-	}
+	}*/
 
 	if (killGen)
 	{
@@ -1261,7 +1262,7 @@ static void ComputeColors( shaderStage_t *pStage, int forceRGBGen )
 		case CGEN_LIGHTING_DIFFUSE:
 			RB_CalcDiffuseColor( ( unsigned char * ) tess.svars.colors );
 			break;
-		case CGEN_LIGHTING_DIFFUSE_ENTITY:
+		/*case CGEN_LIGHTING_DIFFUSE_ENTITY:
 			RB_CalcDiffuseEntityColor( ( unsigned char * ) tess.svars.colors );
 			if ( forceAlphaGen == AGEN_IDENTITY && 
 				 backEnd.currentEntity->e.shaderRGBA[3] == 0xff 
@@ -1269,7 +1270,7 @@ static void ComputeColors( shaderStage_t *pStage, int forceRGBGen )
 			{
 				forceAlphaGen = AGEN_SKIP;	//already got it in this set since it does all 4 components
 			}
-			break;
+			break;*/
 		case CGEN_EXACT_VERTEX:
 			memcpy( tess.svars.colors, tess.vertexColors, tess.numVertexes * sizeof( tess.vertexColors[0] ) );
 			break;
@@ -1692,7 +1693,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 
 		stateBits = pStage->stateBits;
 
-		if ( backEnd.currentEntity )
+		/*if ( backEnd.currentEntity )
 		{
 			assert(backEnd.currentEntity->e.renderfx >= 0);
 
@@ -1706,7 +1707,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 			{//want to use RGBGen from ent
 				forceRGBGen = CGEN_ENTITY;
 			}
-		}
+		}*/
 
 		if (pStage->ss && pStage->ss->surfaceSpriteType)
 		{
@@ -1812,14 +1813,14 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 			//
 			// set state
 			//
-			if ( (tess.shader == tr.distortionShader) || 
+			/*if ( (tess.shader == tr.distortionShader) || 
 				 (backEnd.currentEntity && (backEnd.currentEntity->e.renderfx & RF_DISTORTION)) )
 			{ //special distortion effect -rww
 				//tr.screenImage should have been set for this specific entity before we got in here.
 				GL_Bind( tr.screenImage );
 				GL_Cull(CT_TWO_SIDED);
 			}
-			else if ( pStage->bundle[0].vertexLightmap && ( r_vertexLight->integer && !r_uiFullScreen->integer ) && r_lightmap->integer )
+			else*/ if ( pStage->bundle[0].vertexLightmap && ( r_vertexLight->integer && !r_uiFullScreen->integer ) && r_lightmap->integer )
 			{
 				GL_Bind( tr.whiteImage );
 			}
@@ -1839,7 +1840,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 				//don't depthmask, don't blend.. don't do anything
 				GL_State(0);
 			}
-			else if (backEnd.currentEntity && (backEnd.currentEntity->e.renderfx & RF_FORCE_ENT_ALPHA))
+			/*else if (backEnd.currentEntity && (backEnd.currentEntity->e.renderfx & RF_FORCE_ENT_ALPHA))
 			{
 				ForceAlpha((unsigned char *) tess.svars.colors, backEnd.currentEntity->e.shaderRGBA[3]);
 				if (backEnd.currentEntity->e.renderfx & RF_ALPHA_DEPTH)
@@ -1851,7 +1852,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 				{
 					GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
 				}
-			}
+			}*/
 			else
 			{
 				GL_State( stateBits );
@@ -2064,7 +2065,7 @@ void RB_EndSurface( void ) {
 		return;
 	}
 
-	if ( skyboxportal )
+	/*if ( skyboxportal )
 	{
 		// world
 		if(!(backEnd.refdef.rdflags & RDF_SKYBOXPORTAL)) 
@@ -2085,7 +2086,7 @@ void RB_EndSurface( void ) {
 				}
 			}
 		}
-	}
+	}*/
 
 	//
 	// update performance counters

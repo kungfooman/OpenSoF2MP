@@ -66,7 +66,7 @@
 #define iG2_BONEWEIGHT_TOPBITS_AND		0x300	// 2 bits, giving 10 total, or 10 bits, for 1023/1024 above
 
 
-#define sDEFAULT_GLA_NAME "*default"	// used when making special simple ghoul2 models, usually from MD3 files
+#define sDEFAULT_GLA_NAME "*default_mp"	// used when making special simple ghoul2 models, usually from MD3 files
 
 
 ////////////////////////////////////

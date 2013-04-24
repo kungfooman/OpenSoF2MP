@@ -38,7 +38,7 @@ int		trap_Milliseconds( void ) {
 //Start should be suppled with a pointer to an empty pointer (e.g. void *blah; trap_PrecisionTimer_Start(&blah);),
 //the empty pointer will be filled with an exe address to our timer (this address means nothing in vm land however).
 //You must pass this pointer back unmodified to the timer end func.
-void trap_PrecisionTimer_Start(void **theNewTimer)
+/*void trap_PrecisionTimer_Start(void **theNewTimer)
 {
 	Q_syscall(G_PRECISIONTIMER_START, theNewTimer);
 }
@@ -47,7 +47,7 @@ void trap_PrecisionTimer_Start(void **theNewTimer)
 int trap_PrecisionTimer_End(void *theTimer)
 {
 	return Q_syscall(G_PRECISIONTIMER_END, theTimer);
-}
+}*/
 
 void	trap_Cvar_Register( vmCvar_t *cvar, const char *var_name, const char *value, int flags ) {
 	Q_syscall( G_CVAR_REGISTER, cvar, var_name, value, flags );
@@ -139,10 +139,10 @@ void trap_GetServerinfo( char *buffer, int bufferSize ) {
 }
 
 //server culling to reduce traffic on open maps -rww
-void trap_SetServerCull(float cullDistance)
+/*void trap_SetServerCull(float cullDistance)
 {
 	Q_syscall(G_SET_SERVER_CULL, PASSFLOAT(cullDistance));
-}
+}*/
 
 void trap_SetBrushModel( gentity_t *ent, const char *name ) {
 	Q_syscall( G_SET_BRUSH_MODEL, ent, name );
@@ -153,22 +153,22 @@ void trap_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const 
 }
 
 //g2TraceType 0 is no g2 col, 1 is collision against anything not EF_DEAD, 2 is collision against all.
-void trap_G2Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask, int g2TraceType, int traceLod ) {
+/*void trap_G2Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask, int g2TraceType, int traceLod ) {
 	Q_syscall( G_G2TRACE, results, start, mins, maxs, end, passEntityNum, contentmask, g2TraceType, traceLod );
-}
+}*/
 
 int trap_PointContents( const vec3_t point, int passEntityNum ) {
 	return Q_syscall( G_POINT_CONTENTS, point, passEntityNum );
 }
 
 
-qboolean trap_InPVS( const vec3_t p1, const vec3_t p2 ) {
+/*qboolean trap_InPVS( const vec3_t p1, const vec3_t p2 ) {
 	return Q_syscall( G_IN_PVS, p1, p2 );
 }
 
 qboolean trap_InPVSIgnorePortals( const vec3_t p1, const vec3_t p2 ) {
 	return Q_syscall( G_IN_PVS_IGNORE_PORTALS, p1, p2 );
-}
+}*/
 
 void trap_AdjustAreaPortalState( gentity_t *ent, qboolean open ) {
 	Q_syscall( G_ADJUST_AREA_PORTAL_STATE, ent, open );
@@ -210,14 +210,14 @@ qboolean trap_GetEntityToken( char *buffer, int bufferSize ) {
 	return Q_syscall( G_GET_ENTITY_TOKEN, buffer, bufferSize );
 }
 
-void trap_SiegePersSet(siegePers_t *pers)
+/*void trap_SiegePersSet(siegePers_t *pers)
 {
 	Q_syscall(G_SIEGEPERSSET, pers);
 }
 void trap_SiegePersGet(siegePers_t *pers)
 {
 	Q_syscall(G_SIEGEPERSGET, pers);
-}
+}*/
 
 int trap_FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize ) {
 	return Q_syscall( G_FS_GETFILELIST, path, extension, listbuf, bufsize );
@@ -252,7 +252,7 @@ qboolean trap_EntityContactCapsule( const vec3_t mins, const vec3_t maxs, const 
 //	return Q_syscall( SP_REGISTER_SERVER_CMD, package );
 //}
 
-int trap_SP_GetStringTextString(const char *text, char *buffer, int bufferLength)
+/*int trap_SP_GetStringTextString(const char *text, char *buffer, int bufferLength)
 {
 	return Q_syscall( SP_GETSTRINGTEXTSTRING, text, buffer, bufferLength );
 }
@@ -604,7 +604,7 @@ void trap_Nav_SetPathsCalculated(qboolean newVal)
 void trap_SV_RegisterSharedMemory(char *memory)
 {
 	Q_syscall(G_SET_SHARED_BUFFER, memory);
-}
+}*/
 
 // BotLib traps start here
 int trap_BotLibSetup( void ) {
@@ -1179,10 +1179,10 @@ int trap_PC_SourceFileAndLine( int handle, char *filename, int *line ) {
 /*
 Ghoul2 Insert Start
 */
-qhandle_t trap_R_RegisterSkin( const char *name )
+/*qhandle_t trap_R_RegisterSkin( const char *name )
 {
 	return Q_syscall( G_R_REGISTERSKIN, name );
-}
+}*/
 
 // CG Specific API calls
 void trap_G2_ListModelBones(void *ghlInfo, int frame)
@@ -1211,7 +1211,7 @@ qboolean trap_G2API_GetBoltMatrix(void *ghoul2, const int modelIndex, const int 
 	return (qboolean)(Q_syscall(G_G2_GETBOLT, ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, scale));
 }
 
-qboolean trap_G2API_GetBoltMatrix_NoReconstruct(void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix,
+/*qboolean trap_G2API_GetBoltMatrix_NoReconstruct(void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix,
 								const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale)
 { //Same as above but force it to not reconstruct the skeleton before getting the bolt position
 	return (qboolean)(Q_syscall(G_G2_GETBOLT_NOREC, ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, scale));
@@ -1221,7 +1221,7 @@ qboolean trap_G2API_GetBoltMatrix_NoRecNoRot(void *ghoul2, const int modelIndex,
 								const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale)
 { //Same as above but force it to not reconstruct the skeleton before getting the bolt position
 	return (qboolean)(Q_syscall(G_G2_GETBOLT_NOREC_NOROT, ghoul2, modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, scale));
-}
+}*/
 
 int trap_G2API_InitGhoul2Model(void **ghoul2Ptr, const char *fileName, int modelIndex, qhandle_t customSkin,
 						  qhandle_t customShader, int modelFlags, int lodBias)
@@ -1234,10 +1234,10 @@ qboolean trap_G2API_SetSkin(void *ghoul2, int modelIndex, qhandle_t customSkin, 
 	return Q_syscall(G_G2_SETSKIN, ghoul2, modelIndex, customSkin, renderSkin);
 }
 
-int trap_G2API_Ghoul2Size ( void* ghlInfo )
+/*int trap_G2API_Ghoul2Size ( void* ghlInfo )
 {
 	return Q_syscall(G_G2_SIZE, ghlInfo );
-}
+}*/
 
 int trap_G2API_AddBolt(void *ghoul2, int modelIndex, const char *boneName)
 {
@@ -1262,11 +1262,11 @@ qboolean trap_G2API_SetBoneAnim(void *ghoul2, const int modelIndex, const char *
 	return Q_syscall(G_G2_PLAYANIM, ghoul2, modelIndex, boneName, startFrame, endFrame, flags, PASSFLOAT(animSpeed), currentTime, PASSFLOAT(setFrame), blendTime);
 }
 
-qboolean trap_G2API_GetBoneAnim(void *ghoul2, const char *boneName, const int currentTime, float *currentFrame,
+/*qboolean trap_G2API_GetBoneAnim(void *ghoul2, const char *boneName, const int currentTime, float *currentFrame,
 						   int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex)
 {
 	return Q_syscall(G_G2_GETBONEANIM, ghoul2, boneName, currentTime, currentFrame, startFrame, endFrame, flags, animSpeed, modelList, modelIndex);
-}
+}*/
 
 void trap_G2API_GetGLAName(void *ghoul2, int modelIndex, char *fillBuf)
 {
@@ -1288,20 +1288,20 @@ void trap_G2API_DuplicateGhoul2Instance(void *g2From, void **g2To)
 	Q_syscall(G_G2_DUPLICATEGHOUL2INSTANCE, g2From, g2To);
 }
 
-qboolean trap_G2API_HasGhoul2ModelOnIndex(void *ghlInfo, int modelIndex)
+/*qboolean trap_G2API_HasGhoul2ModelOnIndex(void *ghlInfo, int modelIndex)
 {
 	return Q_syscall(G_G2_HASGHOUL2MODELONINDEX, ghlInfo, modelIndex);
-}
+}*/
 
 qboolean trap_G2API_RemoveGhoul2Model(void *ghlInfo, int modelIndex)
 {
 	return Q_syscall(G_G2_REMOVEGHOUL2MODEL, ghlInfo, modelIndex);
 }
 
-qboolean trap_G2API_RemoveGhoul2Models(void *ghlInfo)
+/*qboolean trap_G2API_RemoveGhoul2Models(void *ghlInfo)
 {
 	return Q_syscall(G_G2_REMOVEGHOUL2MODELS, ghlInfo);
-}
+}*/
 
 void trap_G2API_CleanGhoul2Models(void **ghoul2Ptr)
 {
@@ -1326,7 +1326,7 @@ void trap_G2API_CollisionDetect (
 	Q_syscall ( G_G2_COLLISIONDETECT, collRecMap, ghoul2, angles, position, frameNumber, entNum, rayStart, rayEnd, scale, traceFlags, useLod, PASSFLOAT(fRadius) );
 }
 
-void trap_G2API_CollisionDetectCache ( 
+/*void trap_G2API_CollisionDetectCache ( 
 	CollisionRecord_t *collRecMap, 
 	void* ghoul2, 
 	const vec3_t angles, 
@@ -1462,7 +1462,7 @@ void trap_G2API_CleanEntAttachments(void)
 qboolean trap_G2API_OverrideServer(void *serverInstance)
 {
 	return Q_syscall(G_G2_OVERRIDESERVER, serverInstance);
-}
+}*/
 
 /*
 Ghoul2 Insert End
@@ -1483,7 +1483,7 @@ void trap_RMG_Init(int terrainID)
 	Q_syscall(G_RMG_INIT, terrainID);
 }
 
-void trap_Bot_UpdateWaypoints(int wpnum, wpobject_t **wps)
+/*void trap_Bot_UpdateWaypoints(int wpnum, wpobject_t **wps)
 {
 	Q_syscall(G_BOT_UPDATEWAYPOINTS, wpnum, wps);
 }
@@ -1491,4 +1491,4 @@ void trap_Bot_UpdateWaypoints(int wpnum, wpobject_t **wps)
 void trap_Bot_CalculatePaths(int rmg)
 {
 	Q_syscall(G_BOT_CALCULATEPATHS, rmg);
-}
+}*/

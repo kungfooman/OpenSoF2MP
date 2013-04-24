@@ -113,8 +113,8 @@ static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 	case WM_CTLCOLORSTATIC:
 		if ( ( HWND ) lParam == s_wcd.hwndBuffer )
 		{
-			SetBkColor( ( HDC ) wParam, RGB( 0, 0, 0 ) );
-			SetTextColor( ( HDC ) wParam, RGB( 249, 249, 000 ) );
+			SetBkColor( ( HDC ) wParam, RGB( 142, 162, 98 ) );
+			SetTextColor( ( HDC ) wParam, RGB( 0, 0, 0 ) );
 			return ( long ) s_wcd.hbrEditBackground;
 		}
 		else if ( ( HWND ) lParam == s_wcd.hwndErrorBox )
@@ -160,7 +160,7 @@ static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 		}
 		break;
 	case WM_CREATE:
-		s_wcd.hbrEditBackground =  CreateSolidBrush( RGB( 0x00, 0x00, 0x00 ) );
+		s_wcd.hbrEditBackground =  CreateSolidBrush( RGB( 142, 162, 98 ) );
 		s_wcd.hbrErrorBackground = CreateSolidBrush( RGB( 0x80, 0x80, 0x80 ) );
 		SetTimer( hWnd, 1, 1000, NULL );
 		break;
@@ -262,7 +262,7 @@ void Sys_CreateConsole( void )
 	HDC hDC;
 	WNDCLASS wc;
 	RECT rect;
-	const char *DEDCLASS = "JAMP WinConsole";
+	const char *DEDCLASS = "SOF2MP WinConsole";
 	int nHeight;
 	int swidth, sheight;
 	int DEDSTYLE = WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX;
@@ -276,7 +276,7 @@ void Sys_CreateConsole( void )
 	wc.hInstance     = g_wv.hInstance;
 	wc.hIcon         = LoadIcon( g_wv.hInstance, MAKEINTRESOURCE(IDI_ICON1));
 	wc.hCursor       = LoadCursor (NULL,IDC_ARROW);
-	wc.hbrBackground = (HBRUSH__ *)COLOR_INACTIVEBORDER;
+	wc.hbrBackground = (HBRUSH__ *)GetSysColorBrush(COLOR_3DFACE);
 	wc.lpszMenuName  = 0;
 	wc.lpszClassName = DEDCLASS;
 
@@ -285,7 +285,7 @@ void Sys_CreateConsole( void )
 	}
 
 	rect.left = 0;
-	rect.right = 600;
+	rect.right = 540;
 	rect.top = 0;
 	rect.bottom = 450;
 	AdjustWindowRect( &rect, DEDSTYLE, FALSE );
@@ -302,7 +302,7 @@ void Sys_CreateConsole( void )
 							   DEDCLASS,
 							   CLIENT_CONSOLE_TITLE,
 							   DEDSTYLE,
-							   ( swidth - 600 ) / 2, ( sheight - 450 ) / 2 , rect.right - rect.left + 1, rect.bottom - rect.top + 1,
+							   ( swidth - 540 ) / 2, ( sheight - 450 ) / 2 , rect.right - rect.left + 1, rect.bottom - rect.top + 1,
 							   NULL,
 							   NULL,
 							   g_wv.hInstance,

@@ -99,15 +99,25 @@ qboolean SFxHelper::GetOriginAxisFromBolt(CGhoul2Info_v *pGhoul2, int mEntNum, i
 {
 	qboolean doesBoltExist;
 	mdxaBone_t 		boltMatrix;
-	TCGGetBoltData	*data = (TCGGetBoltData*)cl.mSharedMemory;
-	data->mEntityNum = mEntNum;
-	VM_Call( cgvm, CG_GET_LERP_DATA );//this func will zero out pitch and roll for players, and ridable vehicles
 
-	//Fixme: optimize these VM calls away by storing 
+	TCGVectorData *data = (TCGVectorData*)cl.mSharedMemory;
+	data->mEntityNum = mEntNum;
+
+	VM_Call(cgvm, CG_GET_LERP_ANGLES);
+	vec3_t lerpAngles;
+	VectorCopy(data->mPoint, lerpAngles);
+
+	VM_Call(cgvm, CG_GET_LERP_ORIGIN);
+	vec3_t lerpOrigin;
+	VectorCopy(data->mPoint, lerpOrigin);
+
+	VM_Call(cgvm, CG_GET_MODEL_SCALE);
+	vec3_t modelScale;
+	VectorCopy(data->mPoint, modelScale);
 
 	// go away and get me the bolt position for this frame please
 	doesBoltExist = re.G2API_GetBoltMatrix(*pGhoul2, modelNum, boltNum, 
-		&boltMatrix, data->mAngles, data->mOrigin, theFxHelper.mOldTime, 0, data->mScale);
+		&boltMatrix, lerpAngles, lerpOrigin, theFxHelper.mOldTime, 0, modelScale);
 
 	if (doesBoltExist)
 	{	// set up the axis and origin we need for the actual effect spawning

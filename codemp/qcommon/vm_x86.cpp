@@ -1025,8 +1025,21 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 
 	// copy to an exact size buffer on the hunk
 	vm->codeLength = compiledOfs;
+#ifdef _WIN32
+	vm->codeBase = (byte *) VirtualAlloc(NULL, compiledOfs, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+#else
 	vm->codeBase = (unsigned char *)Hunk_Alloc( compiledOfs, h_low );
+#endif
 	Com_Memcpy( vm->codeBase, buf, compiledOfs );
+#ifdef _WIN32
+    {
+            DWORD oldProtect = 0;
+                
+            // remove write permissions.
+            if(!VirtualProtect(vm->codeBase, compiledOfs, PAGE_EXECUTE_READ, &oldProtect))
+                    Com_Error(ERR_DROP, "VM_CompileX86: VirtualProtect failed");
+    }
+#endif
 	Z_Free( buf );
 	Z_Free( jused );
 	Com_Printf( "VM file %s compiled to %i bytes of code\n", vm->name, compiledOfs);

@@ -499,8 +499,8 @@ void FS_InitFilesystem( void ) {
 	// if we can't find default.cfg, assume that the paths are
 	// busted and error out now, rather than getting an unreadable
 	// graphics screen when the font fails to load
-	if ( FS_ReadFile( "mpdefault.cfg", NULL ) <= 0 ) {
-		Com_Error( ERR_FATAL, "Couldn't load mpdefault.cfg" );
+	if ( FS_ReadFile( "sof2mp_default.cfg", NULL ) <= 0 ) {
+		Com_Error( ERR_FATAL, "Couldn't load sof2mp_default.cfg" );
 		// bk001208 - SafeMode see below, FIXME?
 	}
 

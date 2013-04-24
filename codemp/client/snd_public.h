@@ -8,7 +8,7 @@ void S_Shutdown( void );
 void S_AddAmbientLoopingSound( const vec3_t origin, unsigned char volume, sfxHandle_t sfxHandle );
 void S_StartAmbientSound( const vec3_t origin, int entityNum, unsigned char volume, sfxHandle_t sfxHandle );
 void S_MuteSound(int entityNum, int entchannel);
-void S_StartSound( const vec3_t origin, int entnum, int entchannel, sfxHandle_t sfx );
+void S_StartSound( const vec3_t origin, int entnum, int entchannel, sfxHandle_t sfx, int volume, int radius );
 void S_StartLocalSound( sfxHandle_t sfx, int channelNum );
 void S_StartLocalLoopingSound( sfxHandle_t sfx);
 
@@ -30,9 +30,9 @@ void S_StopAllSounds( void );
 void S_MP3_CalcVols_f( void );
 
 // all continuous looping sounds must be added before calling S_Update
-void S_ClearLoopingSounds( void );
+void S_ClearLoopingSounds( qboolean killall );
 void S_StopLoopingSound( int entityNum );
-void S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx );
+void S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, float radius, sfxHandle_t sfx );
 
 // recompute the reletive volumes for all running sounds
 // relative to the given entityNum / orientation

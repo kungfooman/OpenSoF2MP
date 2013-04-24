@@ -4,7 +4,6 @@
 // console.c
 
 #include "client.h"
-#include "qcommon/stringed_ingame.h"
 #include "qcommon/game_version.h"
 
 
@@ -148,7 +147,7 @@ void Con_Dump_f (void)
 
 	if (Cmd_Argc() != 2)
 	{
-		Com_Printf ("%s\n", SE_GetString("CON_TEXT_DUMP_USAGE"));
+		Com_Printf ("usage: condump <filename>\n" );
 		return;
 	}
 
@@ -258,8 +257,8 @@ void Con_CheckResize (void)
 	else
 	{
 		// on wide screens, we will center the text
-		con.xadjust = 640.0f / cls.glconfig.vidWidth;
-		con.yadjust = 480.0f / cls.glconfig.vidHeight;
+		con.xadjust = 1;//640.0f / cls.glconfig.vidWidth;
+		con.yadjust = 1;//480.0f / cls.glconfig.vidHeight;
 
 		oldwidth = con.linewidth;
 		con.linewidth = width;
@@ -373,10 +372,10 @@ void CL_ConsolePrint( const char *txt) {
 	int prev;							// NERVE - SMF
 
 	// TTimo - prefix for text that shows up in console but not in notify
-	// backported from RTCW
-	if ( !Q_strncmp( txt, "[skipnotify]", 12 ) ) {
+	// backported from RTCW adjusted for SOF2
+	if ( txt[0] == '@' ) {
 		skipnotify = qtrue;
-		txt += 12;
+		txt += 1;
 	}
 	if ( txt[0] == '*' ) {
 		skipnotify = qtrue;
@@ -483,14 +482,14 @@ void Con_DrawInput (void) {
 		return;
 	}
 
-	y = con.vislines - ( SMALLCHAR_HEIGHT * (re.Language_IsAsian() ? 1.5 : 2) );
+	y = con.vislines - ( SMALLCHAR_HEIGHT * 2 );
 
 	re.SetColor( con.color );
 
 	SCR_DrawSmallChar( (int)(con.xadjust + 1 * SMALLCHAR_WIDTH), y, ']' );
 
 	Field_Draw( &kg.g_consoleField, (int)(con.xadjust + 2 * SMALLCHAR_WIDTH), y,
-				SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue );
+				cls.glconfig.vidWidth - 3 * SMALLCHAR_WIDTH, qtrue );
 }
 
 
@@ -539,53 +538,22 @@ void Con_DrawNotify (void)
 			cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", 0);
 		}
 
-		// asian language needs to use the new font system to print glyphs...
-		//
-		// (ignore colours since we're going to print the whole thing as one string)
-		//
-		if (re.Language_IsAsian())
-		{
-			static int iFontIndex = re.RegisterFont("ocr_a");	// this seems naughty
-			const float fFontScale = 0.75f*con.yadjust;
-			const int iPixelHeightToAdvance =   2+(1.3/con.yadjust) * re.Font_HeightPixels(iFontIndex, fFontScale);	// for asian spacing, since we don't want glyphs to touch.
-
-			// concat the text to be printed...
-			//
-			char sTemp[4096]={0};	// ott
-			for (x = 0 ; x < con.linewidth ; x++) 
+		for (x = 0 ; x < con.linewidth ; x++) {
+			if ( ( text[x] & 0xff ) == ' ' ) {
+				continue;
+			}
+			if ( ( (text[x]>>8)&7 ) != currentColor ) {
+				currentColor = (text[x]>>8)&7;
+				re.SetColor( g_color_table[currentColor] );
+			}
+			if (!cl_conXOffset)
 			{
-				if ( ( (text[x]>>8)&7 ) != currentColor ) {
-					currentColor = (text[x]>>8)&7;
-					strcat(sTemp,va("^%i", (text[x]>>8)&7) );
-				}
-				strcat(sTemp,va("%c",text[x] & 0xFF));				
+				cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", 0);
 			}
-			//
-			// and print...
-			//
-			re.Font_DrawString(cl_conXOffset->integer + con.xadjust*(con.xadjust + (1*SMALLCHAR_WIDTH/*aesthetics*/)), con.yadjust*(v), sTemp, g_color_table[currentColor], iFontIndex, -1, fFontScale);
-
-			v +=  iPixelHeightToAdvance;
+			SCR_DrawSmallChar( (int)(cl_conXOffset->integer + con.xadjust + (x+1)*SMALLCHAR_WIDTH), v, text[x] & 0xff );
 		}
-		else
-		{		
-			for (x = 0 ; x < con.linewidth ; x++) {
-				if ( ( text[x] & 0xff ) == ' ' ) {
-					continue;
-				}
-				if ( ( (text[x]>>8)&7 ) != currentColor ) {
-					currentColor = (text[x]>>8)&7;
-					re.SetColor( g_color_table[currentColor] );
-				}
-				if (!cl_conXOffset)
-				{
-					cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", 0);
-				}
-				SCR_DrawSmallChar( (int)(cl_conXOffset->integer + con.xadjust + (x+1)*SMALLCHAR_WIDTH), v, text[x] & 0xff );
-			}
 
-			v += SMALLCHAR_HEIGHT;
-		}
+		v += SMALLCHAR_HEIGHT;
 	}
 
 	re.SetColor( NULL );
@@ -599,21 +567,21 @@ void Con_DrawNotify (void)
 	{
 		if (chat_team)
 		{
-			chattext = SE_GetString("MP_SVGAME", "SAY_TEAM");
-			SCR_DrawBigString (8, v, chattext, 1.0f );
+			chattext = "say_team:";
+			SCR_DrawBigString (16, v, chattext, 1.0f );
 			skip = strlen(chattext)+1;
 		}
 		else
 		{
-			chattext = SE_GetString("MP_SVGAME", "SAY");
-			SCR_DrawBigString (8, v, chattext, 1.0f );
+			chattext = "say:";
+			SCR_DrawBigString (16, v, chattext, 1.0f );
 			skip = strlen(chattext)+1;
 		}
 
-		Field_BigDraw( &chatField, skip * BIGCHAR_WIDTH, v,
-			SCREEN_WIDTH - ( skip + 1 ) * BIGCHAR_WIDTH, qtrue );
+		Field_BigDraw( &chatField, skip * GIANTCHAR_HEIGHT/2, v,
+			cls.glconfig.vidWidth - ( skip + 1 ) * GIANTCHAR_HEIGHT/2, qtrue );
 
-		v += BIGCHAR_HEIGHT;
+		v += GIANTCHAR_HEIGHT/2;
 	}
 
 }
@@ -642,19 +610,19 @@ void Con_DrawSolidConsole( float frac ) {
 		lines = cls.glconfig.vidHeight;
 
 	// draw the background
-	y = (int) (frac * SCREEN_HEIGHT - 2);
+	y = (int) (frac * cls.glconfig.vidHeight - 2);
 	if ( y < 1 ) {
 		y = 0;
 	}
 	else {
-		SCR_DrawPic( 0, 0, SCREEN_WIDTH, (float) y, cls.consoleShader );
+		SCR_DrawPic( 0, 0, cls.glconfig.vidWidth, (float) y, cls.consoleShader );
 	}
 
-	const vec4_t color = { 0.509f, 0.609f, 0.847f,  1.0f};
-	// draw the bottom bar and version number
+	const vec4_t color = { 1.0f, 0.0f, 0.0f,  1.0f};
 
+	// draw the bottom bar and version number
 	re.SetColor( color );
-	re.DrawStretchPic( 0, y, SCREEN_WIDTH, 2, 0, 0, 0, 0, cls.whiteShader );
+	re.DrawStretchPic( 0, y, cls.glconfig.vidWidth, 4, 0, 0, 0, 0, cls.whiteShader );
 
 	i = strlen( JK_VERSION );
 
@@ -690,17 +658,7 @@ void Con_DrawSolidConsole( float frac ) {
 	currentColor = 7;
 	re.SetColor( g_color_table[currentColor] );
 
-	static int iFontIndexForAsian = 0;
-	const float fFontScaleForAsian = 0.75f*con.yadjust;
 	int iPixelHeightToAdvance = SMALLCHAR_HEIGHT;
-	if (re.Language_IsAsian())
-	{
-		if (!iFontIndexForAsian) 
-		{
-			iFontIndexForAsian = re.RegisterFont("ocr_a");
-		}
-		iPixelHeightToAdvance = (1.3/con.yadjust) * re.Font_HeightPixels(iFontIndexForAsian, fFontScaleForAsian);	// for asian spacing, since we don't want glyphs to touch.
-	}
 
 	for (i=0 ; i<rows ; i++, y -= iPixelHeightToAdvance, row--)
 	{
@@ -713,41 +671,16 @@ void Con_DrawSolidConsole( float frac ) {
 
 		text = con.text + (row % con.totallines)*con.linewidth;
 
-		// asian language needs to use the new font system to print glyphs...
-		//
-		// (ignore colours since we're going to print the whole thing as one string)
-		//
-		if (re.Language_IsAsian())
-		{
-			// concat the text to be printed...
-			//
-			char sTemp[4096]={0};	// ott
-			for (x = 0 ; x < con.linewidth ; x++) 
-			{
-				if ( ( (text[x]>>8)&7 ) != currentColor ) {
-					currentColor = (text[x]>>8)&7;
-					strcat(sTemp,va("^%i", (text[x]>>8)&7) );
-				}
-				strcat(sTemp,va("%c",text[x] & 0xFF));				
+		for (x=0 ; x<con.linewidth ; x++) {
+			if ( ( text[x] & 0xff ) == ' ' ) {
+				continue;
 			}
-			//
-			// and print...
-			//
-			re.Font_DrawString(con.xadjust*(con.xadjust + (1*SMALLCHAR_WIDTH/*(aesthetics)*/)), con.yadjust*(y), sTemp, g_color_table[currentColor], iFontIndexForAsian, -1, fFontScaleForAsian);
-		}
-		else
-		{		
-			for (x=0 ; x<con.linewidth ; x++) {
-				if ( ( text[x] & 0xff ) == ' ' ) {
-					continue;
-				}
 
-				if ( ( (text[x]>>8)&7 ) != currentColor ) {
-					currentColor = (text[x]>>8)&7;
-					re.SetColor( g_color_table[currentColor] );
-				}
-				SCR_DrawSmallChar(  (int) (con.xadjust + (x+1)*SMALLCHAR_WIDTH), y, text[x] & 0xff );
+			if ( ( (text[x]>>8)&7 ) != currentColor ) {
+				currentColor = (text[x]>>8)&7;
+				re.SetColor( g_color_table[currentColor] );
 			}
+			SCR_DrawSmallChar(  (int) (con.xadjust + (x+1)*SMALLCHAR_WIDTH), y, text[x] & 0xff );
 		}
 	}
 

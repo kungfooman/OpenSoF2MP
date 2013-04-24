@@ -7,10 +7,10 @@
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#define PRODUCT_NAME			"openjk"
+#define PRODUCT_NAME			"sof2mp"
 
-#define CLIENT_WINDOW_TITLE "OpenJK (MP)"
-#define CLIENT_CONSOLE_TITLE "OpenJK Console (MP)"
+#define CLIENT_WINDOW_TITLE "SoF2 MP"
+#define CLIENT_CONSOLE_TITLE "Soldier of Fortune 2 Console"
 
 //NOTENOTE: Only change this to re-point ICARUS to a new script directory
 #define Q3_SCRIPT_DIR	"scripts"
@@ -625,47 +625,6 @@ typedef enum {
 	ERR_NEED_CD					// pop up the need-cd dialog
 } errorParm_t;
 
-
-// font rendering values used by ui and cgame
-
-/*#define PROP_GAP_WIDTH			3
-#define PROP_SPACE_WIDTH		8
-#define PROP_HEIGHT				27
-#define PROP_SMALL_SIZE_SCALE	0.75*/
-
-#define PROP_GAP_WIDTH			2
-//#define PROP_GAP_WIDTH			3
-#define PROP_SPACE_WIDTH		4
-#define PROP_HEIGHT				16
-
-#define PROP_TINY_SIZE_SCALE	1
-#define PROP_SMALL_SIZE_SCALE	1
-#define PROP_BIG_SIZE_SCALE		1
-#define PROP_GIANT_SIZE_SCALE	2
-
-#define PROP_TINY_HEIGHT		10
-#define PROP_GAP_TINY_WIDTH		1
-#define PROP_SPACE_TINY_WIDTH	3
-
-#define PROP_BIG_HEIGHT			24
-#define PROP_GAP_BIG_WIDTH		3
-#define PROP_SPACE_BIG_WIDTH	6
-
-#define BLINK_DIVISOR			200
-#define PULSE_DIVISOR			75
-
-#define UI_LEFT			0x00000000	// default
-#define UI_CENTER		0x00000001
-#define UI_RIGHT		0x00000002
-#define UI_FORMATMASK	0x00000007
-#define UI_SMALLFONT	0x00000010
-#define UI_BIGFONT		0x00000020	// default
-//#define UI_GIANTFONT	0x00000040
-#define UI_DROPSHADOW	0x00000800
-#define UI_BLINK		0x00001000
-#define UI_INVERSE		0x00002000
-#define UI_PULSE		0x00004000
-
 #if defined(_DEBUG) && !defined(BSPC)
 	#define HUNK_DEBUG
 #endif
@@ -716,307 +675,6 @@ typedef	int	fixed16_t;
 #ifndef M_PI
 #define M_PI		3.14159265358979323846f	// matches value in gcc v2 math.h
 #endif
-
-
-typedef enum {
-	BLK_NO,
-	BLK_TIGHT,		// Block only attacks and shots around the saber itself, a bbox of around 12x12x12
-	BLK_WIDE		// Block all attacks in an area around the player in a rough arc of 180 degrees
-} saberBlockType_t;
-
-typedef enum {
-	BLOCKED_NONE,
-	BLOCKED_BOUNCE_MOVE,
-	BLOCKED_PARRY_BROKEN,
-	BLOCKED_ATK_BOUNCE,
-	BLOCKED_UPPER_RIGHT,
-	BLOCKED_UPPER_LEFT,
-	BLOCKED_LOWER_RIGHT,
-	BLOCKED_LOWER_LEFT,
-	BLOCKED_TOP,
-	BLOCKED_UPPER_RIGHT_PROJ,
-	BLOCKED_UPPER_LEFT_PROJ,
-	BLOCKED_LOWER_RIGHT_PROJ,
-	BLOCKED_LOWER_LEFT_PROJ,
-	BLOCKED_TOP_PROJ
-} saberBlockedType_t;
-
-
-
-typedef enum
-{
-	SABER_RED,
-	SABER_ORANGE,
-	SABER_YELLOW,
-	SABER_GREEN,
-	SABER_BLUE,
-	SABER_PURPLE,
-	NUM_SABER_COLORS
-} saber_colors_t;
-
-typedef enum
-{
-	FP_FIRST = 0,//marker
-	FP_HEAL = 0,//instant
-	FP_LEVITATION,//hold/duration
-	FP_SPEED,//duration
-	FP_PUSH,//hold/duration
-	FP_PULL,//hold/duration
-	FP_TELEPATHY,//instant
-	FP_GRIP,//hold/duration
-	FP_LIGHTNING,//hold/duration
-	FP_RAGE,//duration
-	FP_PROTECT,
-	FP_ABSORB,
-	FP_TEAM_HEAL,
-	FP_TEAM_FORCE,
-	FP_DRAIN,
-	FP_SEE,
-	FP_SABER_OFFENSE,
-	FP_SABER_DEFENSE,
-	FP_SABERTHROW,
-	NUM_FORCE_POWERS
-} forcePowers_t;
-
-typedef enum
-{
-	SABER_NONE = 0,
-	SABER_SINGLE,
-	SABER_STAFF,
-	SABER_DAGGER,
-	SABER_BROAD,
-	SABER_PRONG,
-	SABER_ARC,
-	SABER_SAI,
-	SABER_CLAW,
-	SABER_LANCE,
-	SABER_STAR,
-	SABER_TRIDENT,
-	SABER_SITH_SWORD,
-	NUM_SABERS
-} saberType_t;
-
-typedef struct 
-{
-	// Actual trail stuff
-	int		inAction;	// controls whether should we even consider starting one
-	int		duration;	// how long each trail seg stays in existence
-	int		lastTime;	// time a saber segement was last stored
-	vec3_t	base;
-	vec3_t	tip;
-
-	vec3_t	dualbase;
-	vec3_t	dualtip;
-
-	// Marks stuff
-	qboolean	haveOldPos[2];
-	vec3_t		oldPos[2];		
-	vec3_t		oldNormal[2];	// store this in case we don't have a connect-the-dots situation
-							//	..then we'll need the normal to project a mark blob onto the impact point
-} saberTrail_t;
-
-typedef struct
-{
-	qboolean	active;
-	saber_colors_t	color;
-	float		radius;
-	float		length;
-	float		lengthMax;
-	float		lengthOld;
-	float		desiredLength;
-	vec3_t		muzzlePoint;
-	vec3_t		muzzlePointOld;
-	vec3_t		muzzleDir;
-	vec3_t		muzzleDirOld;
-	saberTrail_t	trail;
-	int			hitWallDebounceTime;
-	int			storageTime;
-	int			extendDebounce;
-} bladeInfo_t;
-#define MAX_BLADES 8
-
-typedef enum
-{
-	SS_NONE = 0,
-	SS_FAST,
-	SS_MEDIUM,
-	SS_STRONG,
-	SS_DESANN,
-	SS_TAVION,
-	SS_DUAL,
-	SS_STAFF,
-	SS_NUM_SABER_STYLES
-} saber_styles_t;
-
-//SABER FLAGS
-//Old bools converted to a flag now
-#define SFL_NOT_LOCKABLE			(1<<0)//can't get into a saberlock
-#define SFL_NOT_THROWABLE			(1<<1)//can't be thrown - FIXME: maybe make this a max level of force saber throw that can be used with this saber?
-#define SFL_NOT_DISARMABLE			(1<<2)//can't be dropped
-#define SFL_NOT_ACTIVE_BLOCKING		(1<<3)//don't to try to block incoming shots with this saber
-#define SFL_TWO_HANDED				(1<<4)//uses both hands
-#define SFL_SINGLE_BLADE_THROWABLE	(1<<5)//can throw this saber if only the first blade is on
-#define SFL_RETURN_DAMAGE			(1<<6)//when returning from a saber throw, it keeps spinning and doing damage
-//NEW FLAGS
-#define SFL_ON_IN_WATER				(1<<7)//if set, weapon stays active even in water
-#define SFL_BOUNCE_ON_WALLS			(1<<8)//if set, the saber will bounce back when it hits solid architecture (good for real-sword type mods)
-#define SFL_BOLT_TO_WRIST			(1<<9)//if set, saber model is bolted to wrist, not in hand... useful for things like claws & shields, etc.
-//#define SFL_STICK_ON_IMPACT		(1<<?)//if set, the saber will stick in the wall when thrown and hits solid architecture (good for sabers that are meant to be thrown).
-//#define SFL_NO_ATTACK				(1<<?)//if set, you cannot attack with the saber (for sabers/weapons that are meant to be thrown only, not used as melee weapons).
-//Move Restrictions
-#define SFL_NO_PULL_ATTACK			(1<<10)//if set, cannot do pull+attack move (move not available in MP anyway)
-#define SFL_NO_BACK_ATTACK			(1<<11)//if set, cannot do back-stab moves
-#define SFL_NO_STABDOWN				(1<<12)//if set, cannot do stabdown move (when enemy is on ground)
-#define SFL_NO_WALL_RUNS			(1<<13)//if set, cannot side-run or forward-run on walls
-#define SFL_NO_WALL_FLIPS			(1<<14)//if set, cannot do backflip off wall or side-flips off walls
-#define SFL_NO_WALL_GRAB			(1<<15)//if set, cannot grab wall & jump off
-#define SFL_NO_ROLLS				(1<<16)//if set, cannot roll
-#define SFL_NO_FLIPS				(1<<17)//if set, cannot do flips
-#define SFL_NO_CARTWHEELS			(1<<18)//if set, cannot do cartwheels
-#define SFL_NO_KICKS				(1<<19)//if set, cannot do kicks (can't do kicks anyway if using a throwable saber/sword)
-#define SFL_NO_MIRROR_ATTACKS		(1<<20)//if set, cannot do the simultaneous attack left/right moves (only available in Dual Lightsaber Combat Style)
-#define SFL_NO_ROLL_STAB			(1<<21)//if set, cannot do roll-stab move at end of roll
-//SABER FLAGS2
-//Primary Blade Style
-#define SFL2_NO_WALL_MARKS			(1<<0)//if set, stops the saber from drawing marks on the world (good for real-sword type mods)
-#define SFL2_NO_DLIGHT				(1<<1)//if set, stops the saber from drawing a dynamic light (good for real-sword type mods)
-#define SFL2_NO_BLADE				(1<<2)//if set, stops the saber from drawing a blade (good for real-sword type mods)
-#define SFL2_NO_CLASH_FLARE			(1<<3)//if set, the saber will not do the big, white clash flare with other sabers
-#define SFL2_NO_DISMEMBERMENT		(1<<4)//if set, the saber never does dismemberment (good for pointed/blunt melee weapons)
-#define SFL2_NO_IDLE_EFFECT			(1<<5)//if set, the saber will not do damage or any effects when it is idle (not in an attack anim).  (good for real-sword type mods)
-#define SFL2_ALWAYS_BLOCK			(1<<6)//if set, the blades will always be blocking (good for things like shields that should always block)
-#define SFL2_NO_MANUAL_DEACTIVATE	(1<<7)//if set, the blades cannot manually be toggled on and off
-#define SFL2_TRANSITION_DAMAGE		(1<<8)//if set, the blade does damage in start, transition and return anims (like strong style does)
-//Secondary Blade Style
-#define SFL2_NO_WALL_MARKS2			(1<<9)//if set, stops the saber from drawing marks on the world (good for real-sword type mods)
-#define SFL2_NO_DLIGHT2				(1<<10)//if set, stops the saber from drawing a dynamic light (good for real-sword type mods)
-#define SFL2_NO_BLADE2				(1<<11)//if set, stops the saber from drawing a blade (good for real-sword type mods)
-#define SFL2_NO_CLASH_FLARE2		(1<<12)//if set, the saber will not do the big, white clash flare with other sabers
-#define SFL2_NO_DISMEMBERMENT2		(1<<13)//if set, the saber never does dismemberment (good for pointed/blunt melee weapons)
-#define SFL2_NO_IDLE_EFFECT2		(1<<14)//if set, the saber will not do damage or any effects when it is idle (not in an attack anim).  (good for real-sword type mods)
-#define SFL2_ALWAYS_BLOCK2			(1<<15)//if set, the blades will always be blocking (good for things like shields that should always block)
-#define SFL2_NO_MANUAL_DEACTIVATE2	(1<<16)//if set, the blades cannot manually be toggled on and off
-#define SFL2_TRANSITION_DAMAGE2		(1<<17)//if set, the blade does damage in start, transition and return anims (like strong style does)
-
-typedef struct
-{
-	char		name[64];						//entry in sabers.cfg, if any
-	char		fullName[64];				//the "Proper Name" of the saber, shown in UI
-	saberType_t	type;						//none, single or staff
-	char		model[MAX_QPATH];						//hilt model
-	qhandle_t	skin;						//registered skin id
-	int			soundOn;					//game soundindex for turning on sound
-	int			soundLoop;					//game soundindex for hum/loop sound
-	int			soundOff;					//game soundindex for turning off sound
-	int			numBlades;
-	bladeInfo_t	blade[MAX_BLADES];			//blade info - like length, trail, origin, dir, etc.
-	int			stylesLearned;				//styles you get when you get this saber, if any
-	int			stylesForbidden;			//styles you cannot use with this saber, if any
-	int			maxChain;					//how many moves can be chained in a row with this weapon (-1 is infinite, 0 is use default behavior)
-	int			forceRestrictions;			//force powers that cannot be used while this saber is on (bitfield) - FIXME: maybe make this a limit on the max level, per force power, that can be used with this type?
-	int			lockBonus;					//in saberlocks, this type of saber pushes harder or weaker
-	int			parryBonus;					//added to strength of parry with this saber
-	int			breakParryBonus;			//added to strength when hit a parry
-	int			breakParryBonus2;			//for bladeStyle2 (see bladeStyle2Start below)
-	int			disarmBonus;				//added to disarm chance when win saberlock or have a good parry (knockaway)
-	int			disarmBonus2;				//for bladeStyle2 (see bladeStyle2Start below)
-	saber_styles_t	singleBladeStyle;		//makes it so that you use a different style if you only have the first blade active
-//	char		*brokenSaber1;				//if saber is actually hit by another saber, it can be cut in half/broken and will be replaced with this saber in your right hand
-//	char		*brokenSaber2;				//if saber is actually hit by another saber, it can be cut in half/broken and will be replaced with this saber in your left hand
-//===NEW========================================================================================
-	//these values are global to the saber, like all of the ones above
-	int			saberFlags;					//from SFL_ list above
-	int			saberFlags2;				//from SFL2_ list above
-
-	//done in cgame (client-side code)
-	qhandle_t	spinSound;					//none - if set, plays this sound as it spins when thrown
-	qhandle_t	swingSound[3];				//none - if set, plays one of these 3 sounds when swung during an attack - NOTE: must provide all 3!!!
-
-	//done in game (server-side code)
-	float		moveSpeedScale;				//1.0 - you move faster/slower when using this saber
-	float		animSpeedScale;				//1.0 - plays normal attack animations faster/slower
-
-	//done in both cgame and game (BG code)
-	int	kataMove;				//LS_INVALID - if set, player will execute this move when they press both attack buttons at the same time 
-	int	lungeAtkMove;			//LS_INVALID - if set, player will execute this move when they crouch+fwd+attack 
-	int	jumpAtkUpMove;			//LS_INVALID - if set, player will execute this move when they jump+attack 
-	int	jumpAtkFwdMove;			//LS_INVALID - if set, player will execute this move when they jump+fwd+attack 
-	int	jumpAtkBackMove;		//LS_INVALID - if set, player will execute this move when they jump+back+attack
-	int	jumpAtkRightMove;		//LS_INVALID - if set, player will execute this move when they jump+rightattack
-	int	jumpAtkLeftMove;		//LS_INVALID - if set, player will execute this move when they jump+left+attack
-	int	readyAnim;				//-1 - anim to use when standing idle
-	int	drawAnim;				//-1 - anim to use when drawing weapon
-	int	putawayAnim;			//-1 - anim to use when putting weapon away
-	int	tauntAnim;				//-1 - anim to use when hit "taunt"
-	int	bowAnim;				//-1 - anim to use when hit "bow"
-	int	meditateAnim;			//-1 - anim to use when hit "meditate"
-	int	flourishAnim;			//-1 - anim to use when hit "flourish"
-	int	gloatAnim;				//-1 - anim to use when hit "gloat"
-
-	//***NOTE: you can only have a maximum of 2 "styles" of blades, so this next value, "bladeStyle2Start" is the number of the first blade to use these value on... all blades before this use the normal values above, all blades at and after this number use the secondary values below***
-	int			bladeStyle2Start;			//0 - if set, blades from this number and higher use the following values (otherwise, they use the normal values already set)
-
-	//***The following can be different for the extra blades - not setting them individually defaults them to the value for the whole saber (and first blade)***
-	
-	//===PRIMARY BLADES=====================
-	//done in cgame (client-side code)
-	int			trailStyle;					//0 - default (0) is normal, 1 is a motion blur and 2 is no trail at all (good for real-sword type mods)
-	int			g2MarksShader;				//none - if set, the game will use this shader for marks on enemies instead of the default "gfx/damage/saberglowmark"
-	int			g2WeaponMarkShader;			//none - if set, the game will ry to project this shader onto the weapon when it damages a person (good for a blood splatter on the weapon)
-	//int		bladeShader;				//none - if set, overrides the shader used for the saber blade?
-	//int		trailShader;				//none - if set, overrides the shader used for the saber trail?
-	qhandle_t	hitSound[3];				//none - if set, plays one of these 3 sounds when saber hits a person - NOTE: must provide all 3!!!
-	qhandle_t	blockSound[3];				//none - if set, plays one of these 3 sounds when saber/sword hits another saber/sword - NOTE: must provide all 3!!!
-	qhandle_t	bounceSound[3];				//none - if set, plays one of these 3 sounds when saber/sword hits a wall and bounces off (must set bounceOnWall to 1 to use these sounds) - NOTE: must provide all 3!!!
-	int			blockEffect;				//none - if set, plays this effect when the saber/sword hits another saber/sword (instead of "saber/saber_block.efx")
-	int			hitPersonEffect;			//none - if set, plays this effect when the saber/sword hits a person (instead of "saber/blood_sparks_mp.efx")
-	int			hitOtherEffect;				//none - if set, plays this effect when the saber/sword hits something else damagable (instead of "saber/saber_cut.efx")
-	int			bladeEffect;				//none - if set, plays this effect at the blade tag
-
-	//done in game (server-side code)
-	float		knockbackScale;				//0 - if non-zero, uses damage done to calculate an appropriate amount of knockback
-	float		damageScale;				//1 - scale up or down the damage done by the saber
-	float		splashRadius;				//0 - radius of splashDamage
-	int			splashDamage;				//0 - amount of splashDamage, 100% at a distance of 0, 0% at a distance = splashRadius
-	float		splashKnockback;			//0 - amount of splashKnockback, 100% at a distance of 0, 0% at a distance = splashRadius
-	
-	//===SECONDARY BLADES===================
-	//done in cgame (client-side code)
-	int			trailStyle2;				//0 - default (0) is normal, 1 is a motion blur and 2 is no trail at all (good for real-sword type mods)
-	int			g2MarksShader2;				//none - if set, the game will use this shader for marks on enemies instead of the default "gfx/damage/saberglowmark"
-	int			g2WeaponMarkShader2;		//none - if set, the game will ry to project this shader onto the weapon when it damages a person (good for a blood splatter on the weapon)
-	//int		bladeShader2;				//none - if set, overrides the shader used for the saber blade?
-	//int		trailShader2;				//none - if set, overrides the shader used for the saber trail?
-	qhandle_t	hit2Sound[3];				//none - if set, plays one of these 3 sounds when saber hits a person - NOTE: must provide all 3!!!
-	qhandle_t	block2Sound[3];				//none - if set, plays one of these 3 sounds when saber/sword hits another saber/sword - NOTE: must provide all 3!!!
-	qhandle_t	bounce2Sound[3];			//none - if set, plays one of these 3 sounds when saber/sword hits a wall and bounces off (must set bounceOnWall to 1 to use these sounds) - NOTE: must provide all 3!!!
-	int			blockEffect2;				//none - if set, plays this effect when the saber/sword hits another saber/sword (instead of "saber/saber_block.efx")
-	int			hitPersonEffect2;			//none - if set, plays this effect when the saber/sword hits a person (instead of "saber/blood_sparks_mp.efx")
-	int			hitOtherEffect2;			//none - if set, plays this effect when the saber/sword hits something else damagable (instead of "saber/saber_cut.efx")
-	int			bladeEffect2;				//none - if set, plays this effect at the blade tag
-
-	//done in game (server-side code)
-	float		knockbackScale2;			//0 - if non-zero, uses damage done to calculate an appropriate amount of knockback
-	float		damageScale2;				//1 - scale up or down the damage done by the saber
-	float		splashRadius2;				//0 - radius of splashDamage
-	int			splashDamage2;				//0 - amount of splashDamage, 100% at a distance of 0, 0% at a distance = splashRadius
-	float		splashKnockback2;			//0 - amount of splashKnockback, 100% at a distance of 0, 0% at a distance = splashRadius
-//=========================================================================================================================================
-
-} saberInfo_t;
-#define MAX_SABERS 2
-
-typedef enum forcePowerLevels_e
-{
-	FORCE_LEVEL_0,
-	FORCE_LEVEL_1,
-	FORCE_LEVEL_2,
-	FORCE_LEVEL_3,
-	NUM_FORCE_POWER_LEVELS
-} forcePowerLevels_t;
-
-#define	FORCE_LEVEL_4 (FORCE_LEVEL_3+1)
-#define	FORCE_LEVEL_5 (FORCE_LEVEL_4+1)
 
 //rww - a C-ified structure version of the class which fires off callbacks and gives arguments to update ragdoll status.
 enum sharedERagPhase
@@ -1129,30 +787,6 @@ enum sharedEIKMoveState
 	IKS_DYNAMIC
 };
 
-//material stuff needs to be shared
-typedef enum //# material_e
-{
-	MAT_METAL = 0,	// scorched blue-grey metal
-	MAT_GLASS,		// not a real chunk type, just plays an effect with glass sprites
-	MAT_ELECTRICAL,	// sparks only
-	MAT_ELEC_METAL,	// sparks/electrical type metal
-	MAT_DRK_STONE,	// brown
-	MAT_LT_STONE,	// tan
-	MAT_GLASS_METAL,// glass sprites and METAl chunk
-	MAT_METAL2,		// electrical metal type
-	MAT_NONE,		// no chunks
-	MAT_GREY_STONE,	// grey
-	MAT_METAL3,		// METAL and METAL2 chunks
-	MAT_CRATE1,		// yellow multi-colored crate chunks
-	MAT_GRATE1,		// grate chunks
-	MAT_ROPE,		// for yavin trial...no chunks, just wispy bits
-	MAT_CRATE2,		// read multi-colored crate chunks
-	MAT_WHITE_METAL,// white angular chunks
-	MAT_SNOWY_ROCK,	// gray & brown chunks
-
-	NUM_MATERIALS
-} material_t;
-
 //rww - bot stuff that needs to be shared
 #define MAX_WPARRAY_SIZE 4096
 #define MAX_NEIGHBOR_SIZE 32
@@ -1181,6 +815,7 @@ typedef struct wpobject_s
 	int forceJumpTo;
 
 	int neighbornum;
+	//int neighbors[MAX_NEIGHBOR_SIZE];
 	wpneighbor_t neighbors[MAX_NEIGHBOR_SIZE];
 } wpobject_t;
 
@@ -1199,8 +834,8 @@ extern	vec3_t	bytedirs[NUMVERTEXNORMALS];
 #define SMALLCHAR_WIDTH		8
 #define SMALLCHAR_HEIGHT	16
 
-#define BIGCHAR_WIDTH		16
-#define BIGCHAR_HEIGHT		16
+#define BIGCHAR_WIDTH		12	// 16
+#define BIGCHAR_HEIGHT		13	// 16
 
 #define	GIANTCHAR_WIDTH		32
 #define	GIANTCHAR_HEIGHT	48
@@ -1281,12 +916,6 @@ CT_LTBLUE3,
 CT_BLUE3,
 CT_DKBLUE3,
 
-CT_HUD_GREEN,
-CT_HUD_RED,
-CT_ICON_BLUE,
-CT_NO_AMMO_RED,
-CT_HUD_ORANGE,
-
 CT_MAX
 } ct_table_t;
 
@@ -1307,8 +936,7 @@ extern	vec4_t		colorLtBlue;
 extern	vec4_t		colorDkBlue;
 
 #define Q_COLOR_ESCAPE	'^'
-// you MUST have the last bit on here about colour strings being less than 7 or taiwanese strings register as colour!!!!
-#define Q_IsColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) != Q_COLOR_ESCAPE && *((p)+1) <= '7' && *((p)+1) >= '0' )
+#define Q_IsColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) != Q_COLOR_ESCAPE )
 
 
 #define COLOR_BLACK		'0'
@@ -1616,7 +1244,11 @@ typedef enum {
 	FS_READ,
 	FS_WRITE,
 	FS_APPEND,
-	FS_APPEND_SYNC
+	FS_APPEND_SYNC,
+	FS_READ_TEXT,
+	FS_WRITE_TEXT,
+	FS_APPEND_TEXT,
+	FS_APPEND_SYNC_TEXT
 } fsMode_t;
 
 typedef enum {
@@ -1740,6 +1372,7 @@ default values.
 // These flags are only returned by the Cvar_Flags() function
 #define CVAR_MODIFIED		0x40000000		// Cvar was modified
 #define CVAR_NONEXISTENT	0x80000000		// Cvar doesn't exist.
+#define CVAR_LOCK_RANGE		0x00002000		// enforces the mins / maxs
 
 // nothing outside the Cvar_*() functions should modify these fields!
 typedef struct cvar_s {
@@ -1747,16 +1380,14 @@ typedef struct cvar_s {
 	char		*string;
 	char		*resetString;		// cvar_restart will reset to this value
 	char		*latchedString;		// for CVAR_LATCH vars
+	float		mMinValue, mMaxValue;
 	int			flags;
 	qboolean	modified;			// set each time the cvar is changed
 	int			modificationCount;	// incremented each time the cvar is changed
 	float		value;				// atof( string )
 	int			integer;			// atoi( string )
 	struct cvar_s *next;
-	struct cvar_s *prev;
 	struct cvar_s *hashNext;
-	struct cvar_s *hashPrev;
-	int			hashIndex;
 } cvar_t;
 
 #define	MAX_CVAR_VALUE_STRING	256
@@ -1836,15 +1467,15 @@ Ghoul2 Insert End
 */
 // a trace is returned when a box is swept through the world
 typedef struct {
-	byte		allsolid;	// if true, plane is not valid
-	byte		startsolid;	// if true, the initial point was in a solid area
-	short		entityNum;	// entity the contacted sirface is a part of
+	qboolean	allsolid;	// if true, plane is not valid
+	qboolean	startsolid;	// if true, the initial point was in a solid area
 
 	float		fraction;	// time completed, 1.0 = didn't hit anything
 	vec3_t		endpos;		// final position
 	cplane_t	plane;		// surface normal at impact, transformed to world space
 	int			surfaceFlags;	// surface hit
 	int			contents;	// contents on other side of surface hit
+	int			entityNum;	// entity the contacted sirface is a part of
 /*
 Ghoul2 Insert Start
 */
@@ -1881,6 +1512,7 @@ typedef struct {
 #define	KEYCATCH_UI					0x0002
 #define	KEYCATCH_MESSAGE		0x0004
 #define	KEYCATCH_CGAME			0x0008
+#define KEYCATCH_NUMBERSONLY	0x0010
 
 
 // sound channels
@@ -1891,16 +1523,16 @@ typedef enum {
 	CHAN_LOCAL,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" # menu sounds, etc
 	CHAN_WEAPON,//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" 
 	CHAN_VOICE, //## %s !!"W:\game\base\!!sound\voice\*.wav;*.mp3" # Voice sounds cause mouth animation
-	CHAN_VOICE_ATTEN, //## %s !!"W:\game\base\!!sound\voice\*.wav;*.mp3" # Causes mouth animation but still use normal sound falloff 
+	//CHAN_VOICE_ATTEN, //## %s !!"W:\game\base\!!sound\voice\*.wav;*.mp3" # Causes mouth animation but still use normal sound falloff 
 	CHAN_ITEM,  //## %s !!"W:\game\base\!!sound\*.wav;*.mp3"
 	CHAN_BODY,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3"
-	CHAN_AMBIENT,//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" # added for ambient sounds
 	CHAN_LOCAL_SOUND,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #chat messages, etc
 	CHAN_ANNOUNCER,		//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #announcer voices, etc
-	CHAN_LESS_ATTEN,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #attenuates similar to chan_voice, but uses empty channel auto-pick behaviour
-	CHAN_MENU1,		//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #menu stuff, etc
-	CHAN_VOICE_GLOBAL,  //## %s !!"W:\game\base\!!sound\voice\*.wav;*.mp3" # Causes mouth animation and is broadcast, like announcer
-	CHAN_MUSIC,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #music played as a looping sound - added by BTO (VV)
+	CHAN_AMBIENT,//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" # added for ambient sounds
+	//CHAN_LESS_ATTEN,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #attenuates similar to chan_voice, but uses empty channel auto-pick behaviour
+	//CHAN_MENU1,		//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #menu stuff, etc
+	//CHAN_VOICE_GLOBAL,  //## %s !!"W:\game\base\!!sound\voice\*.wav;*.mp3" # Causes mouth animation and is broadcast, like announcer
+	//CHAN_MUSIC,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #music played as a looping sound - added by BTO (VV)
 } soundChannel_t;
 
 
@@ -1922,26 +1554,16 @@ typedef enum {
 //
 // per-level limits
 //
-#define	MAX_CLIENTS			32		// absolute limit
-#define MAX_RADAR_ENTITIES	MAX_GENTITIES
-#define MAX_TERRAINS		1//32 //rwwRMG: inserted
+#define	MAX_CLIENTS			64		// absolute limit
+//#define MAX_RADAR_ENTITIES	MAX_GENTITIES
+#define MAX_TERRAINS		32 //rwwRMG: inserted
 #define MAX_LOCATIONS		64
+#define MAX_LADDERS			64
+
+#define MAX_INSTANCE_TYPES		16
 
 #define	GENTITYNUM_BITS	10		// don't need to send any more
 #define	MAX_GENTITIES	(1<<GENTITYNUM_BITS)
-
-//I am reverting. I guess. For now.
-/*
-#define	GENTITYNUM_BITS		11
-							//rww - I am raising this 1 bit. SP actually has room for 1024 ents - none - world - 1 client.
-							//Which means 1021 useable entities. However we have 32 clients.. so if we keep our limit
-							//at 1024 we are not going to be able to load any SP levels at the edge of the ent limit.
-#define		MAX_GENTITIES	(1024+(MAX_CLIENTS-1))
-							//rww - we do have enough room to send over 2048 ents now. However, I cannot live with the guilt of
-							//actually increasing the entity limit to 2048 (as it would slow down countless things, and
-							//there are tons of ent list traversals all over the place). So I am merely going to give enough
-							//to compensate for our larger maxclients.
-*/
 
 // entitynums are communicated with GENTITY_BITS, so any reserved
 // values thatare going to be communcated over the net need to
@@ -1952,29 +1574,23 @@ typedef enum {
 
 
 // these are also in be_aas_def.h - argh (rjr)
-#define	MAX_MODELS			512		// these are sent over the net as -12 bits
-#define	MAX_SOUNDS			256		// so they cannot be blindly increased
-#define MAX_ICONS			64		// max registered icons you can have per map 
-#define MAX_FX				64		// max effects strings, I'm hoping that 64 will be plenty
+#define	MAX_MODELS				256		// these are sent over the net as 8 bits
+#define	MAX_SOUNDS				256		// so they cannot be blindly increased
+#define MAX_AMBIENT_SOUNDSETS	64
+#define MAX_FX					64		// max effects strings, I'm hoping that 64 will be plenty
+#define MAX_SUB_BSP				32
+#define MAX_ICONS				32
+#define	MAX_CHARSKINS			64		// character skins
+#define	MAX_HUDICONS			16		// icons on hud
 
-#define MAX_SUB_BSP			32 //rwwRMG - added
-
-/*
-Ghoul2 Insert Start
-*/
-#define	MAX_G2BONES		64		//rww - changed from MAX_CHARSKINS to MAX_G2BONES. value still equal.
-/*
-Ghoul2 Insert End
-*/
-
-#define MAX_AMBIENT_SETS		256 //rww - ambient soundsets must be sent over in config strings.
-
-#define	MAX_CONFIGSTRINGS	1700 //this is getting pretty high. Try not to raise it anymore than it already is.
+#define	MAX_CONFIGSTRINGS	1400 //this is getting pretty high. Try not to raise it anymore than it already is.
 
 // these are the only configstrings that the system reserves, all the
 // other ones are strictly for servergame to clientgame communication
 #define	CS_SERVERINFO		0		// an info string with all the serverinfo cvars
 #define	CS_SYSTEMINFO		1		// an info string for server system to client system configuration (timescale, etc)
+#define CS_PLAYERS			2		// info string for player user info
+#define CS_CUSTOM			(CS_PLAYERS + MAX_CLIENTS )
 
 #define	RESERVED_CONFIGSTRINGS	2	// game can't modify below this, only the system can
 
@@ -1987,109 +1603,24 @@ typedef struct {
 
 //=========================================================
 
-// all the different tracking "channels"
-typedef enum {
-	TRACK_CHANNEL_NONE = 50,
-	TRACK_CHANNEL_1,
-	TRACK_CHANNEL_2, // force speed
-	TRACK_CHANNEL_3, // force rage
-	TRACK_CHANNEL_4,
-	TRACK_CHANNEL_5, // force sight
-	NUM_TRACK_CHANNELS
-} trackchan_t;
-
-#define TRACK_CHANNEL_MAX (NUM_TRACK_CHANNELS-50)
-
-typedef struct forcedata_s {
-	int			forcePowerDebounce[NUM_FORCE_POWERS];	//for effects that must have an interval
-	int			forcePowersKnown;
-	int			forcePowersActive;
-	int			forcePowerSelected;
-	int			forceButtonNeedRelease;
-	int			forcePowerDuration[NUM_FORCE_POWERS];
-	int			forcePower;
-	int			forcePowerMax;
-	int			forcePowerRegenDebounceTime;
-	int			forcePowerLevel[NUM_FORCE_POWERS];		//so we know the max forceJump power you have
-	int			forcePowerBaseLevel[NUM_FORCE_POWERS];
-	int			forceUsingAdded;
-	float		forceJumpZStart;					//So when you land, you don't get hurt as much
-	float		forceJumpCharge;					//you're current forceJump charge-up level, increases the longer you hold the force jump button down
-	int			forceJumpSound;
-	int			forceJumpAddTime;
-	int			forceGripEntityNum;					//what entity I'm gripping
-	int			forceGripDamageDebounceTime;		//debounce for grip damage
-	float		forceGripBeingGripped;				//if > level.time then client is in someone's grip
-	int			forceGripCripple;					//if != 0 then make it so this client can't move quickly (he's being gripped)
-	int			forceGripUseTime;					//can't use if > level.time
-	float		forceGripSoundTime;
-	float		forceGripStarted;					//level.time when the grip was activated
-	int			forceHealTime;
-	int			forceHealAmount;
-
-	//This hurts me somewhat to do, but there's no other real way to allow completely "dynamic" mindtricking.
-	int			forceMindtrickTargetIndex; //0-15
-	int			forceMindtrickTargetIndex2; //16-32
-	int			forceMindtrickTargetIndex3; //33-48
-	int			forceMindtrickTargetIndex4; //49-64
-
-	int			forceRageRecoveryTime;
-	int			forceDrainEntNum;
-	float		forceDrainTime;
-
-	int			forceDoInit;
-
-	int			forceSide;
-	int			forceRank;
-
-	int			forceDeactivateAll;
-
-	int			killSoundEntIndex[TRACK_CHANNEL_MAX]; //this goes here so it doesn't get wiped over respawn
-
-	qboolean	sentryDeployed;
-
-	int			saberAnimLevelBase;//sigh...
-	int			saberAnimLevel;
-	int			saberDrawAnimLevel;
-
-	int			suicides;
-
-	int			privateDuelTime;
-} forcedata_t;
-
-
-typedef enum {
-	SENTRY_NOROOM = 1,
-	SENTRY_ALREADYPLACED,
-	SHIELD_NOROOM,
-	SEEKER_ALREADYDEPLOYED
-} itemUseFail_t;
-
 // bit field limits
 #define	MAX_STATS				16
 #define	MAX_PERSISTANT			16
-#define	MAX_POWERUPS			16
-#define	MAX_WEAPONS				19		
+#define	MAX_AMMO				16
+#define	MAX_WEAPONS				32		
+#define MAX_GAMETYPE_ITEMS		5
 
-#define	MAX_PS_EVENTS			2
+#define	MAX_PS_EVENTS			4
 
 #define PS_PMOVEFRAMECOUNTBITS	6
 
-#define FORCE_LIGHTSIDE			1
-#define FORCE_DARKSIDE			2
+typedef enum
+{
+	ATTACK_NORMAL,
+	ATTACK_ALTERNATE,
+	ATTACK_MAX
 
-#define MAX_FORCE_RANK			7
-
-#define FALL_FADE_TIME			3000
-
-//#define _ONEBIT_COMBO
-//Crazy optimization attempt to take all those 1 bit values and shove them into a single
-//send. May help us not have to send so many 1/0 bits to acknowledge modified values. -rww
-
-#define _OPTIMIZED_VEHICLE_NETWORKING
-//Instead of sending 2 full playerStates for the pilot and the vehicle, send a smaller,
-//specialized pilot playerState and vehicle playerState.  Also removes some vehicle
-//fields from the normal playerState -mcg
+} attackType_t;
 
 // playerState_t is the information needed by both the client and server
 // to predict player motion and actions
@@ -2101,278 +1632,115 @@ typedef enum {
 // playerState_t is a full superset of entityState_t as it is used by players,
 // so if a playerState_t is transmitted, the entityState_t can be fully derived
 // from it.
+
 typedef struct playerState_s {
 	int			commandTime;	// cmd->serverTime of last executed command
 	int			pm_type;
 	int			bobCycle;		// for view bobbing and footstep generation
-	int			pm_flags;		// ducked, jump_held, etc
+	int			pm_flags;		// ducked, etc
+	int			pm_debounce;	// debounce buttons
 	int			pm_time;
 
 	vec3_t		origin;
 	vec3_t		velocity;
 
-	vec3_t		moveDir; //NOT sent over the net - nor should it be.
-
 	int			weaponTime;
-	int			weaponChargeTime;
-	int			weaponChargeSubtractTime;
+	int			weaponFireBurstCount;
+	int			weaponAnimId;
+	int			weaponAnimIdChoice;
+	int			weaponAnimTime;
+	int			weaponCallbackTime;
+	int			weaponCallbackStep;
+
 	int			gravity;
-	float		speed;
-	int			basespeed; //used in prediction to know base server g_speed value when modifying speed between updates
-	int			delta_angles[3];	// add to command angles to get view direction
-									// changed by spawns, rotating objects, and teleporters
-
-	int			slopeRecalcTime; //this is NOT sent across the net and is maintained seperately on game and cgame in pmove code.
-
-	int			useTime;
-
-	int			groundEntityNum;// ENTITYNUM_NONE = in air
-
-	int			legsTimer;		// don't change low priority animations until this runs out
-	int			legsAnim;
-
-	int			torsoTimer;		// don't change low priority animations until this runs out
-	int			torsoAnim;
-
-	qboolean	legsFlip; //set to opposite when the same anim needs restarting, sent over in only 1 bit. Cleaner and makes porting easier than having that god forsaken ANIM_TOGGLEBIT.
-	qboolean	torsoFlip;
-
-	int			movementDir;	// a number 0 to 7 that represents the reletive angle
-								// of movement to the view angle (axial and diagonals)
-								// when at rest, the value will remain unchanged
-								// used to twist the legs during strafing
-
-	int			eFlags;			// copied to entityState_t->eFlags
-	int			eFlags2;		// copied to entityState_t->eFlags2, EF2_??? used much less frequently
-
-	int			eventSequence;	// pmove generated events
-	int			events[MAX_PS_EVENTS];
-	int			eventParms[MAX_PS_EVENTS];
-
-	int			externalEvent;	// events set on player from another source
-	int			externalEventParm;
-	int			externalEventTime;
-
-	int			clientNum;		// ranges from 0 to MAX_CLIENTS-1
-	int			weapon;			// copied to entityState_t->weapon
-	int			weaponstate;
-
-	vec3_t		viewangles;		// for fixed views
-	int			viewheight;
-
-	// damage feedback
-	int			damageEvent;	// when it changes, latch the other parms
-	int			damageYaw;
-	int			damagePitch;
-	int			damageCount;
-	int			damageType;
-
-	int			painTime;		// used for both game and client side to process the pain twitch - NOT sent across the network
-	int			painDirection;	// NOT sent across the network
-	float		yawAngle;		// NOT sent across the network
-	qboolean	yawing;			// NOT sent across the network
-	float		pitchAngle;		// NOT sent across the network
-	qboolean	pitching;		// NOT sent across the network
-
-	int			stats[MAX_STATS];
-	int			persistant[MAX_PERSISTANT];	// stats that aren't cleared on death
-	int			powerups[MAX_POWERUPS];	// level.time that the powerup runs out
-	int			ammo[MAX_WEAPONS];
+	int			speed;
+	int			delta_angles[3];				// add to command angles to get view direction
+												// changed by spawns, rotating objects, and teleporters
+	int			groundEntityNum;				// ENTITYNUM_NONE = in air
+												
+	int			legsAnim;						// mask off ANIM_TOGGLEBIT
+												
+	int			torsoTimer;						// don't change low priority animations until this runs out
+	int			torsoAnim;						// mask off ANIM_TOGGLEBIT
+												
+	int			movementDir;					// a number 0 to 7 that represents the reletive angle
+												// of movement to the view angle (axial and diagonals)
+												// when at rest, the value will remain unchanged
+												// used to twist the legs during strafing
+												
+	int			eFlags;							// copied to entityState_t->eFlags
+												
+	int			eventSequence;					// pmove generated events
+	int			events[MAX_PS_EVENTS];			
+	int			eventParms[MAX_PS_EVENTS];		
+												
+	int			externalEvent;					// events set on player from another source
+	int			externalEventParm;				
+	int			externalEventTime;				
+												
+	int			clientNum;						// ranges from 0 to MAX_CLIENTS-1
+	int			weapon;							// copied to entityState_t->weapon
+	int			weaponstate;					
+												
+	vec3_t		viewangles;						// for fixed views
+	int			viewheight;						
+												
+	// damage feedback							
+	int			damageEvent;					// when it changes, latch the other parms
+	int			damageYaw;						
+	int			damagePitch;					
+	int			damageCount;					
+												
+	int			painTime;						// used for both game and client side to process the pain twitch - NOT sent across the network
+	int			painDirection;					// NOT sent across the network
+										
+	int			stats[MAX_STATS];				
+	int			persistant[MAX_PERSISTANT];		// stats that aren't cleared on death
+	int			ammo[MAX_AMMO];
+	int			clip[ATTACK_MAX][MAX_WEAPONS];
+	int			firemode[MAX_WEAPONS];
 
 	int			generic1;
 	int			loopSound;
-	int			jumppad_ent;	// jumppad entity hit this frame
+
+	// Incaccuracy values for firing
+	int			inaccuracy;
+	int			inaccuracyTime;
+	int			kickPitch;
 
 	// not communicated over the net at all
-	int			ping;			// server to game info for scoreboard
-	int			pmove_framecount;	// FIXME: don't transmit over the network
+	int			ping;							// server to game info for scoreboard
+	int			pmove_framecount;				// FIXME: don't transmit over the network
 	int			jumppad_frame;
 	int			entityEventSequence;
+	vec3_t		pvsOrigin;						// view origin used to calculate PVS (also the lean origin)
+												// THIS VARIABLE MUST AT LEAST BE THE PLAYERS ORIGIN ALL OF THE 
+												// TIME OR THE PVS CALCULATIONS WILL NOT WORK.
 
-	int			lastOnGround;	//last time you were on the ground
-
-	qboolean	saberInFlight;
-
-	int			saberMove;
-	int			saberBlocking;
-	int			saberBlocked;
-
-	int			saberLockTime;
-	int			saberLockEnemy;
-	int			saberLockFrame; //since we don't actually have the ability to get the current anim frame
-	int			saberLockHits; //every x number of buttons hits, allow one push forward in a saber lock (server only)
-	int			saberLockHitCheckTime; //so we don't allow more than 1 push per server frame
-	int			saberLockHitIncrementTime; //so we don't add a hit per attack button press more than once per server frame
-	qboolean	saberLockAdvance; //do an advance (sent across net as 1 bit)
-
-	int			saberEntityNum;
-	float		saberEntityDist;
-	int			saberEntityState;
-	int			saberThrowDelay;
-	qboolean	saberCanThrow;
-	int			saberDidThrowTime;
-	int			saberDamageDebounceTime;
-	int			saberHitWallSoundDebounceTime;
-	int			saberEventFlags;
-
-	int			rocketLockIndex;
-	float		rocketLastValidTime;
-	float		rocketLockTime;
-	float		rocketTargetTime;
-
-	int			emplacedIndex;
-	float		emplacedTime;
-
-	qboolean	isJediMaster;
-	qboolean	forceRestricted;
-	qboolean	trueJedi;
-	qboolean	trueNonJedi;
-	int			saberIndex;
-
-	int			genericEnemyIndex;
-	float		droneFireTime;
-	float		droneExistTime;
-
-	int			activeForcePass;
-
-	qboolean	hasDetPackPlanted; //better than taking up an eFlag isn't it?
-
-	float		holocronsCarried[NUM_FORCE_POWERS];
-	int			holocronCantTouch;
-	float		holocronCantTouchTime; //for keeping track of the last holocron that just popped out of me (if any)
-	int			holocronBits;
-
-	int			electrifyTime;
-
-	int			saberAttackSequence;
-	int			saberIdleWound;
-	int			saberAttackWound;
-	int			saberBlockTime;
-
-	int			otherKiller;
-	int			otherKillerTime;
-	int			otherKillerDebounceTime;
-
-	forcedata_t	fd;
-	qboolean	forceJumpFlip;
-	int			forceHandExtend;
-	int			forceHandExtendTime;
-
-	int			forceRageDrainTime;
-
-	int			forceDodgeAnim;
-	qboolean	quickerGetup;
-
-	int			groundTime;		// time when first left ground
-
-	int			footstepTime;
-
-	int			otherSoundTime;
-	float		otherSoundLen;
-
-	int			forceGripMoveInterval;
-	int			forceGripChangeMovetype;
-
-	int			forceKickFlip;
-
-	int			duelIndex;
-	int			duelTime;
-	qboolean	duelInProgress;
-
-	int			saberAttackChainCount;
-
-	int			saberHolstered;
-
-	int			forceAllowDeactivateTime;
-
-	// zoom key
-	int			zoomMode;		// 0 - not zoomed, 1 - disruptor weapon
+	// Zooming
 	int			zoomTime;
-	qboolean	zoomLocked;
-	float		zoomFov;
-	int			zoomLockTime;
+	int			zoomFov;
 
-	int			fallingToDeath;
+	// LAdders
+	int			ladder;
+	int			leanTime;
 
-	int			useDelay;
-
-	qboolean	inAirAnim;
-
-	vec3_t		lastHitLoc;
-
-	int			heldByClient; //can only be a client index - this client should be holding onto my arm using IK stuff.
-
-	int			ragAttach; //attach to ent while ragging
-
-	int			iModelScale;
-
-	int			brokenLimbs;
-
-	//for looking at an entity's origin (NPCs and players)
-	qboolean	hasLookTarget;
-	int			lookTarget;
-
-	int			customRGBA[4];
-
-	int			standheight;
-	int			crouchheight;
-
-	//If non-0, this is the index of the vehicle a player/NPC is riding.
-	int			m_iVehicleNum;
-
-	//lovely hack for keeping vehicle orientation in sync with prediction
-	vec3_t		vehOrientation;
-	qboolean	vehBoarding;
-	int			vehSurfaces;
-
-	//vehicle turnaround stuff (need this in ps so it doesn't jerk too much in prediction)
-	int			vehTurnaroundIndex;
-	int			vehTurnaroundTime;
-
-	//vehicle has weapons linked
-	qboolean	vehWeaponsLinked;
-
-	//when hyperspacing, you just go forward really fast for HYPERSPACE_TIME
-	int			hyperSpaceTime;
-	vec3_t		hyperSpaceAngles;
-
-	//hacking when > time
-	int			hackingTime;
-	//actual hack amount - only for the proper percentage display when
-	//drawing progress bar (is there a less bandwidth-eating way to do
-	//this without a lot of hassle?)
-	int			hackingBaseTime;
-
-	//keeps track of jetpack fuel
-	int			jetpackFuel;
-
-	//keeps track of cloak fuel
-	int			cloakFuel;
-
-	//rww - spare values specifically for use by mod authors.
-	//See psf_overrides.txt if you want to increase the send
-	//amount of any of these above 1 bit.
-	int			userInt1;
-	int			userInt2;
-	int			userInt3;
-	float		userFloat1;
-	float		userFloat2;
-	float		userFloat3;
-	vec3_t		userVec1;
-	vec3_t		userVec2;
-
-#ifdef _ONEBIT_COMBO
-	int			deltaOneBits;
-	int			deltaNumBits;
-#endif
+	// Timers 
+	int			grenadeTimer;
+	int			respawnTimer;
 } playerState_t;
 
-typedef struct siegePers_s
+
+typedef enum 
 {
-	qboolean	beatingTime;
-	int			lastTeam;
-	int			lastTime;
-} siegePers_t;
+	TEAM_FREE,
+	TEAM_RED,
+	TEAM_BLUE,
+	TEAM_SPECTATOR,
+
+	TEAM_NUM_TEAMS
+
+} team_t;
 
 //====================================================================
 
@@ -2381,88 +1749,35 @@ typedef struct siegePers_s
 // usercmd_t->button bits, many of which are generated by the client system,
 // so they aren't game/cgame only definitions
 //
-#define	BUTTON_ATTACK			1
-#define	BUTTON_TALK				2			// displays talk balloon and disables actions
-#define	BUTTON_USE_HOLDABLE		4
-#define	BUTTON_GESTURE			8
-#define	BUTTON_WALKING			16			// walking can't just be infered from MOVE_RUN
-										// because a key pressed late in the frame will
-										// only generate a small move value for that frame
-										// walking will use different animations and
-										// won't generate footsteps
-#define	BUTTON_USE				32			// the ol' use key returns!
-#define BUTTON_FORCEGRIP		64			// 
-#define BUTTON_ALT_ATTACK		128
+#define	BUTTON_ATTACK		(1<<0)
+#define	BUTTON_TALK			(1<<1)			// displays talk balloon and disables actions	
+#define BUTTON_GOGGLES		(1<<2)			// turns nv or therm goggles on/off
+#define BUTTON_LEAN			(1<<3)			// lean modifier, when held strafe left and right will lean
+#define	BUTTON_WALKING		(1<<4)			// walking can't just be infered from MOVE_RUN
+											// because a key pressed late in the frame will
+											// only generate a small move value for that frame
+											// walking will use different animations and
+											// won't generate footsteps
+#define	BUTTON_USE			(1<<5)			// the ol' use key returns!
+#define	BUTTON_RELOAD		(1<<6)			// reloads current weapon
+#define BUTTON_ALT_ATTACK	(1<<7)
+#define	BUTTON_ANY			(1<<8)			// any key whatsoever
+#define BUTTON_ZOOMIN		(1<<9)
+#define BUTTON_ZOOMOUT		(1<<10)
+#define BUTTON_FIREMODE		(1<<11)
 
-#define	BUTTON_ANY				256			// any key whatsoever
-
-#define BUTTON_FORCEPOWER		512			// use the "active" force power
-
-#define BUTTON_FORCE_LIGHTNING	1024
-
-#define BUTTON_FORCE_DRAIN		2048
-
-// Here's an interesting bit.  The bots in TA used buttons to do additional gestures.
-// I ripped them out because I didn't want too many buttons given the fact that I was already adding some for JK2.
-// We can always add some back in if we want though.
-/*
-#define BUTTON_AFFIRMATIVE	32
-#define	BUTTON_NEGATIVE		64
-
-#define BUTTON_GETFLAG		128
-#define BUTTON_GUARDBASE	256
-#define BUTTON_PATROL		512
-#define BUTTON_FOLLOWME		1024
-*/
-
-#define	MOVE_RUN			120			// if forwardmove or rightmove are >= MOVE_RUN,
-										// then BUTTON_WALKING should be set
-
-typedef enum
-{
-	GENCMD_SABERSWITCH = 1,
-	GENCMD_ENGAGE_DUEL,
-	GENCMD_FORCE_HEAL,
-	GENCMD_FORCE_SPEED,
-	GENCMD_FORCE_THROW,
-	GENCMD_FORCE_PULL,
-	GENCMD_FORCE_DISTRACT,
-	GENCMD_FORCE_RAGE,
-	GENCMD_FORCE_PROTECT,
-	GENCMD_FORCE_ABSORB,
-	GENCMD_FORCE_HEALOTHER,
-	GENCMD_FORCE_FORCEPOWEROTHER,
-	GENCMD_FORCE_SEEING,
-	GENCMD_USE_SEEKER,
-	GENCMD_USE_FIELD,
-	GENCMD_USE_BACTA,
-	GENCMD_USE_ELECTROBINOCULARS,
-	GENCMD_ZOOM,
-	GENCMD_USE_SENTRY,
-	GENCMD_USE_JETPACK,
-	GENCMD_USE_BACTABIG,
-	GENCMD_USE_HEALTHDISP,
-	GENCMD_USE_AMMODISP,
-	GENCMD_USE_EWEB,
-	GENCMD_USE_CLOAK,
-	GENCMD_SABERATTACKCYCLE,
-	GENCMD_TAUNT,
-	GENCMD_BOW,
-	GENCMD_MEDITATE,
-	GENCMD_FLOURISH,
-	GENCMD_GLOAT
-} genCmds_t;
+#define BUTTON_LEAN_RIGHT	(1<<12)
+#define BUTTON_LEAN_LEFT	(1<<13)
 
 // usercmd_t is sent to the server each client frame
 typedef struct usercmd_s {
 	int				serverTime;
 	int				angles[3];
 	int 			buttons;
-	byte			weapon;           // weapon 
-	byte			forcesel;
-	byte			invensel;
-	byte			generic_cmd;
-	signed char	forwardmove, rightmove, upmove;
+	byte			weapon;
+	signed char		forwardmove;
+	signed char		rightmove;
+	signed char		upmove;
 } usercmd_t;
 
 //===================================================================
@@ -2579,9 +1894,10 @@ typedef enum {
 	TR_INTERPOLATE,				// non-parametric, but interpolate between snapshots
 	TR_LINEAR,
 	TR_LINEAR_STOP,
-	TR_NONLINEAR_STOP,
 	TR_SINE,					// value = base + sin( time / duration ) * delta
-	TR_GRAVITY
+	TR_GRAVITY,
+	TR_HEAVYGRAVITY,
+	TR_LIGHTGRAVITY
 } trType_t;
 
 typedef struct {
@@ -2598,168 +1914,53 @@ typedef struct {
 // Different eTypes may use the information in different ways
 // The messages are delta compressed, so it doesn't really matter if
 // the structure size is fairly large
-typedef struct entityState_s {
-	int		number;			// entity index
-	int		eType;			// entityType_t
-	int		eFlags;
-	int		eFlags2;		// EF2_??? used much less frequently
 
-	trajectory_t	pos;	// for calculating position
-	trajectory_t	apos;	// for calculating angles
+typedef struct entityState_s 
+{
+	int				number;			// entity index
+	int				eType;			// entityType_t
+	int				eFlags;
 
-	int		time;
-	int		time2;
+	trajectory_t	pos;			// for calculating position
+	trajectory_t	apos;			// for calculating angles
 
-	vec3_t	origin;
-	vec3_t	origin2;
+	int				time;
+	int				time2;
+					
+	vec3_t			origin;
+	vec3_t			origin2;
+					
+	vec3_t			angles;
+	vec3_t			angles2;
+					
+	int				otherEntityNum;	// shotgun sources, etc
+	int				otherEntityNum2;
+					
+	int				groundEntityNum;	// -1 = in air
+					
+	int				loopSound;		// constantly loop this sound
+	int				mSoundSet;
+										
+	int				modelindex;
+	int				modelindex2;
+	int				clientNum;		// 0 to (MAX_CLIENTS - 1), for players and corpses
+	int				frame;
+					
+	int				solid;			// for client side prediction, trap_linkentity sets this properly
+					
+	int				event;			// impulse events -- muzzle flashes, footsteps, etc
+	int				eventParm;
 
-	vec3_t	angles;
-	vec3_t	angles2;
-
-	//rww - these were originally because we shared g2 info client and server side. Now they
-	//just get used as generic values everywhere.
-	int		bolt1;
-	int		bolt2;
-
-	//rww - this is necessary for determining player visibility during a jedi mindtrick
-	int		trickedentindex; //0-15
-	int		trickedentindex2; //16-32
-	int		trickedentindex3; //33-48
-	int		trickedentindex4; //49-64
-
-	float	speed;
-
-	int		fireflag;
-
-	int		genericenemyindex;
-
-	int		activeForcePass;
-
-	int		emplacedOwner;
-
-	int		otherEntityNum;	// shotgun sources, etc
-	int		otherEntityNum2;
-
-	int		groundEntityNum;	// -1 = in air
-
-	int		constantLight;	// r + (g<<8) + (b<<16) + (intensity<<24)
-	int		loopSound;		// constantly loop this sound
-	qboolean	loopIsSoundset; //qtrue if the loopSound index is actually a soundset index
-
-	int		soundSetIndex;
-
-	int		modelGhoul2;
-	int		g2radius;
-	int		modelindex;
-	int		modelindex2;
-	int		clientNum;		// 0 to (MAX_CLIENTS - 1), for players and corpses
-	int		frame;
-
-	qboolean	saberInFlight;
-	int			saberEntityNum;
-	int			saberMove;
-	int			forcePowersActive;
-	int			saberHolstered;//sent in only only 2 bits - should be 0, 1 or 2
-
-	qboolean	isJediMaster;
-
-	qboolean	isPortalEnt; //this needs to be seperate for all entities I guess, which is why I couldn't reuse another value.
-
-	int		solid;			// for client side prediction, trap_linkentity sets this properly
-
-	int		event;			// impulse events -- muzzle flashes, footsteps, etc
-	int		eventParm;
-
-	// so crosshair knows what it's looking at
-	int			owner;
-	int			teamowner;
-	qboolean	shouldtarget;
+	int				generic1;
 
 	// for players
-	int		powerups;		// bit flags
-	int		weapon;			// determines weapon and flash model, etc
-	int		legsAnim;
-	int		torsoAnim;
-
-	qboolean	legsFlip; //set to opposite when the same anim needs restarting, sent over in only 1 bit. Cleaner and makes porting easier than having that god forsaken ANIM_TOGGLEBIT.
-	qboolean	torsoFlip;
-
-	int		forceFrame;		//if non-zero, force the anim frame
-
-	int		generic1;
-
-	int		heldByClient; //can only be a client index - this client should be holding onto my arm using IK stuff.
-
-	int		ragAttach; //attach to ent while ragging
-
-	int		iModelScale; //rww - transfer a percentage of the normal scale in a single int instead of 3 x-y-z scale values
-
-	int		brokenLimbs;
-
-	int		boltToPlayer; //set to index of a real client+1 to bolt the ent to that client. Must be a real client, NOT an NPC.
-
-	//for looking at an entity's origin (NPCs and players)
-	qboolean	hasLookTarget;
-	int			lookTarget;
-
-	int			customRGBA[4];
-
-	//I didn't want to do this, but I.. have no choice. However, we aren't setting this for all ents or anything,
-	//only ones we want health knowledge about on cgame (like siege objective breakables) -rww
-	int			health;
-	int			maxhealth; //so I know how to draw the stupid health bar
-
-	//NPC-SPECIFIC FIELDS
-	//------------------------------------------------------------
-	int		npcSaber1;
-	int		npcSaber2;
-
-	//index values for each type of sound, gets the folder the sounds
-	//are in. I wish there were a better way to do this,
-	int		csSounds_Std;
-	int		csSounds_Combat;
-	int		csSounds_Extra;
-	int		csSounds_Jedi;
-
-	int		surfacesOn; //a bitflag of corresponding surfaces from a lookup table. These surfaces will be forced on.
-	int		surfacesOff; //same as above, but forced off instead.
-
-	//Allow up to 4 PCJ lookup values to be stored here.
-	//The resolve to configstrings which contain the name of the
-	//desired bone.
-	int		boneIndex1;
-	int		boneIndex2;
-	int		boneIndex3;
-	int		boneIndex4;
-
-	//packed with x, y, z orientations for bone angles
-	int		boneOrient;
-
-	//I.. feel bad for doing this, but NPCs really just need to
-	//be able to control this sort of thing from the server sometimes.
-	//At least it's at the end so this stuff is never going to get sent
-	//over for anything that isn't an NPC.
-	vec3_t	boneAngles1; //angles of boneIndex1
-	vec3_t	boneAngles2; //angles of boneIndex2
-	vec3_t	boneAngles3; //angles of boneIndex3
-	vec3_t	boneAngles4; //angles of boneIndex4
-
-	int		NPC_class; //we need to see what it is on the client for a few effects.
-
-	//If non-0, this is the index of the vehicle a player/NPC is riding.
-	int		m_iVehicleNum;
-
-	//rww - spare values specifically for use by mod authors.
-	//See netf_overrides.txt if you want to increase the send
-	//amount of any of these above 1 bit.
-	int			userInt1;
-	int			userInt2;
-	int			userInt3;
-	float		userFloat1;
-	float		userFloat2;
-	float		userFloat3;
-	vec3_t		userVec1;
-	vec3_t		userVec2;
+	// these fields are only transmitted for client entities!!!!!
+	int				gametypeitems;	// bit flags indicating which items are carried
+	int				weapon;			// determines weapon and flash model, etc
+	int				legsAnim;		// mask off ANIM_TOGGLEBIT
+	int				torsoAnim;		// mask off ANIM_TOGGLEBIT
+	int				torsoTimer;		// time the animation will play for
+	int				leanOffset;		// Lean direction
 } entityState_t;
 
 typedef enum {
@@ -2800,7 +2001,6 @@ typedef struct qtime_s {
 #define AS_GLOBAL			1
 #define AS_FAVORITES		2
 
-#define AS_MPLAYER			3 // (Obsolete)
 
 // cinematic states
 typedef enum {
@@ -2812,15 +2012,6 @@ typedef enum {
 	FMV_LOOPED,
 	FMV_ID_WAIT
 } e_status;
-
-typedef enum _flag_status {
-	FLAG_ATBASE = 0,
-	FLAG_TAKEN,			// CTF
-	FLAG_TAKEN_RED,		// One Flag CTF
-	FLAG_TAKEN_BLUE,	// One Flag CTF
-	FLAG_DROPPED
-} flagStatus_t;
-
 
 #define	MAX_GLOBAL_SERVERS			2048
 #define	MAX_OTHER_SERVERS			128
@@ -2871,8 +2062,75 @@ typedef enum {
 } memtag;
 typedef char memtag_t;
 
+typedef struct 
+{
+	int		isValid;	
+	void	*ghoul2;
+	int		modelNum;
+	int		boltNum;
+	vec3_t	angles;
+	vec3_t	origin;
+	vec3_t	scale;
+	vec3_t	dir;
+	vec3_t	forward;
+
+} CFxBoltInterface;
+
 //rww - conveniently toggle "gore" code, for model decals and stuff.
 #define _G2_GORE
+
+// these are the actual shaders
+typedef enum {
+	PGORE_NONE,
+	PGORE_ARMOR,
+	PGORE_BULLETBIG,
+	PGORE_KNIFESLASH,
+	PGORE_PUNCTURE,
+	PGORE_SHOTGUN,
+	PGORE_SHOTGUNBIG,
+	PGORE_IMMOLATE,
+	PGORE_BURN,
+	PGORE_SPURT,
+	PGORE_SPLATTER,
+	PGORE_BLOODY_GLASS,
+	PGORE_BLOODY_GLASS_B,
+	PGORE_BLOODY_ICK,
+	PGORE_BLOODY_DROOP,
+	PGORE_BLOODY_MAUL,
+	PGORE_BLOODY_DROPS,
+	PGORE_BULLET_E,
+	PGORE_BULLET_F,
+	PGORE_BULLET_G,
+	PGORE_BULLET_H,
+	PGORE_BULLET_I,
+	PGORE_BULLET_J,
+	PGORE_BULLET_K,
+	PGORE_BLOODY_HAND,
+	PGORE_POWDER_BURN_DENSE,
+	PGORE_POWDER_BURN_CHUNKY,
+	PGORE_KNIFESLASH2,
+	PGORE_KNIFESLASH3,
+	PGORE_CHUNKY_SPLAT,
+	PGORE_BIG_SPLATTER,
+	PGORE_BLOODY_SPLOTCH,
+	PGORE_BLEEDER,
+	PGORE_PELLETS,
+	PGORE_KNIFE_SOAK,
+	PGORE_BLEEDER_DENSE,
+	PGORE_BLOODY_SPLOTCH2,
+	PGORE_BLOODY_DRIPS,
+	PGORE_DRIPPING_DOWN,
+	PGORE_GUTSHOT,
+	PGORE_SHRAPNEL,
+	PGORE_COUNT
+} goreEnum_t;
+
+struct goreEnumShader_t
+{
+	int				maxLODBias;   //if r_lodBias (and the other 3 convars) =x then shaders with this larger than x will not be used
+	goreEnum_t		shaderEnum;  // why is this even in here?
+	char			shaderName[MAX_QPATH];
+};
 
 typedef struct SSkinGoreData_s
 {
@@ -2901,11 +2159,9 @@ typedef struct SSkinGoreData_s
 	vec3_t			tint;					// unimplemented
 	float			impactStrength;			// unimplemented
 
-	int				shader; // shader handle 
+	goreEnum_t		shaderEnum; // enum that'll get switched over to the shader's actual handle 
 
 	int				myIndex; // used internally
-
-	qboolean		fadeRGB; //specify fade method to modify RGB (by default, the alpha is set instead)
 } SSkinGoreData;
 
 /*
@@ -2937,13 +2193,5 @@ typedef enum
 
 } ForceReload_e;
 
-
-enum {
-	FONT_NONE,
-	FONT_SMALL=1,
-	FONT_MEDIUM,
-	FONT_LARGE,
-	FONT_SMALL2
-};
 
 void NET_AddrToString( char *out, size_t size, void *addr );

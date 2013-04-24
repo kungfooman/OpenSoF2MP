@@ -645,9 +645,6 @@ qboolean G2_Set_Bone_Anim_Index(
 		{
 			return qtrue; // don't accept any calls on ragdoll bones
 		}
-
-		//mark it for needing a transform for the cached trace transform stuff
-		blist[index].flags |= BONE_NEED_TRANSFORM;
 	}
 
 	if (setFrame != -1)
@@ -1380,7 +1377,7 @@ static int G2_Set_Bone_Angles_Rag(
 				assert(!"Invalid RAG PCJ\n");
 			}
 		}
-		bone.ragStartTime=G2API_GetTime(0);
+		bone.ragStartTime=0;
 		bone.boneBlendStart = bone.ragStartTime;
 		bone.boneBlendTime = blendTime;
 		bone.radius=radius;
@@ -1643,7 +1640,7 @@ void G2_SetRagDoll(CGhoul2Info_v &ghoul2V,CRagDollParams *parms)
 	{
 		return;
 	}
-	int curTime=G2API_GetTime(0);
+	int curTime=0;
 	boneInfo_v &blist = ghoul2.mBlist;
 	int	index = G2_Find_Bone_Rag(&ghoul2, blist, "model_root");
 	switch (parms->RagPhase)
@@ -2133,7 +2130,7 @@ void G2_SetRagDollBullet(CGhoul2Info &ghoul2,const vec3_t rayStart,const vec3_t 
 	//				bone.lastAngles[2]+=flrand(-10.0f*lenr,10.0f*lenr);
 
 					// go dynamic
-					bone.firstCollisionTime=G2API_GetTime(0);
+					bone.firstCollisionTime=0;
 //					bone.firstCollisionTime=0;
 					bone.restTime=0;
 				}
@@ -2265,7 +2262,7 @@ static bool G2_RagDollSetup(CGhoul2Info &ghoul2,int frameNum,bool resetOrigin,co
 		if (bone.boneNumber>=0)
 		{
 			assert(bone.boneNumber<MAX_BONES_RAG);
-			if ((bone.flags & BONE_ANGLES_RAGDOLL) || (bone.flags & BONE_ANGLES_IK))
+			if (bone.flags & BONE_ANGLES_RAGDOLL)
 			{
 				//rww - this was (!anyRendered) before. Isn't that wrong? (if anyRendered, then wasRendered should be true)
 				bool wasRendered=
@@ -2415,7 +2412,7 @@ static void G2_RagDoll(CGhoul2Info_v &ghoul2V,int g2Index,CRagDollUpdateParams *
 #endif
 
 //	params->DebugLine(handPos,handPos2,false);
-	int frameNum=G2API_GetTime(0);
+	int frameNum=0;
 	CGhoul2Info &ghoul2=ghoul2V[g2Index];
 	assert(ghoul2.mFileName[0]);
 	boneInfo_v &blist = ghoul2.mBlist;
@@ -2692,7 +2689,7 @@ void Rag_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const v
 		callData->ignore = passEntityNum;
 		callData->mask = contentmask;
 
-		ri.VM_Call(cgame_vm, CG_RAG_CALLBACK, RAG_CALLBACK_TRACELINE);
+		//ri.VM_Call(cgame_vm, CG_RAG_CALLBACK, RAG_CALLBACK_TRACELINE);
 
 		*results = callData->tr;
 	}
@@ -2888,7 +2885,7 @@ static inline void G2_RagDebugBox(vec3_t mins, vec3_t maxs, int duration)
 	VectorCopy(mins, callData->mins);
 	VectorCopy(maxs, callData->maxs);
 
-	ri.VM_Call(cgame_vm, CG_RAG_CALLBACK, RAG_CALLBACK_DEBUGBOX);
+	//ri.VM_Call(cgame_vm, CG_RAG_CALLBACK, RAG_CALLBACK_DEBUGBOX);
 }
 
 static inline void G2_RagDebugLine(vec3_t start, vec3_t end, int time, int color, int radius)
@@ -2907,7 +2904,7 @@ static inline void G2_RagDebugLine(vec3_t start, vec3_t end, int time, int color
 	callData->color = color;
 	callData->radius = radius;
 
-	ri.VM_Call(cgame_vm, CG_RAG_CALLBACK, RAG_CALLBACK_DEBUGLINE);
+	//ri.VM_Call(cgame_vm, CG_RAG_CALLBACK, RAG_CALLBACK_DEBUGLINE);
 }
 #endif
 
@@ -3518,6 +3515,8 @@ static bool G2_RagDollSettlePositionNumeroTrois(CGhoul2Info_v &ghoul2V, const ve
 
 		if (bone.RagFlags & RAG_PCJ_PELVIS)
 		{
+//SOF2 TODO
+#define DEFAULT_MINS_2 -24
 			VectorSet(goalSpot, params->position[0], params->position[1], (params->position[2]+DEFAULT_MINS_2)+((bone.radius*entScale[2])+2));
 
 			VectorSubtract(goalSpot, e.currentOrigin, desiredPelvisOffset);
@@ -3943,7 +3942,7 @@ static inline void G2_BoneSnap(CGhoul2Info_v &ghoul2V, boneInfo_t &bone, CRagDol
 	callData->entNum = params->me;
 	strcpy(callData->boneName, G2_Get_Bone_Name(&ghoul2V[0], ghoul2V[0].mBlist, bone.boneNumber));
 
-	ri.VM_Call(cgame_vm, CG_RAG_CALLBACK, RAG_CALLBACK_BONESNAP);
+	//ri.VM_Call(cgame_vm, CG_RAG_CALLBACK, RAG_CALLBACK_BONESNAP);
 }
 
 static void G2_RagDollSolve(CGhoul2Info_v &ghoul2V,int g2Index,float decay,int frameNum,const vec3_t currentOrg,bool limitAngles,CRagDollUpdateParams *params)
@@ -4439,7 +4438,7 @@ static void G2_DoIK(CGhoul2Info_v &ghoul2V,int g2Index,CRagDollUpdateParams *par
 		return;
 	}
 
-	int frameNum=G2API_GetTime(0);
+	int frameNum=0;
 	CGhoul2Info &ghoul2=ghoul2V[g2Index];
 	assert(ghoul2.mFileName[0]);
 
@@ -4532,10 +4531,9 @@ static int G2_Set_Bone_Angles_IK(
 	if (index != -1)
 	{
 		boneInfo_t &bone=blist[index];
-		bone.flags |= BONE_ANGLES_IK;
 		bone.flags &= ~BONE_ANGLES_RAGDOLL;
 
-		bone.ragStartTime=G2API_GetTime(0);
+		bone.ragStartTime=0;
 		bone.radius=radius;
 		bone.weight=1.0f;
 
@@ -4664,7 +4662,6 @@ qboolean G2_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName
 				if (bone.boneNumber != -1)
 				{
 					bone.flags &= ~BONE_ANGLES_RAGDOLL;
-					bone.flags &= ~BONE_ANGLES_IK;
 					bone.RagFlags = 0;
 					bone.lastTimeUpdated = 0;
 				}
@@ -4718,7 +4715,6 @@ qboolean G2_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName
 		//G2_Remove_Bone_Index(blist, index);
 		//actually, I want to keep it on the rag list, and remove it as an IK bone instead.
 		bone.flags &= ~BONE_ANGLES_RAGDOLL;
-		bone.flags |= BONE_ANGLES_IK;
 		bone.RagFlags &= ~RAG_PCJ_IK_CONTROLLED;
 		return qtrue;
 	}

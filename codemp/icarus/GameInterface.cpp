@@ -11,14 +11,14 @@
 #include "interface.h"
 #include "GameInterface.h"
 #include "qcommon/RoffSystem.h"
-#include "Q3_Interface.h"
+//#include "Q3_Interface.h"
 
 ICARUS_Instance		*iICARUS;
 bufferlist_t		ICARUS_BufferList;
 entlist_t			ICARUS_EntList;
 
 extern unsigned Com_BlockChecksum (const void *buffer, int length);
-extern	void	Q3_DebugPrint( int level, const char *format, ... );
+//extern	void	Q3_DebugPrint( int level, const char *format, ... );
 
 int			ICARUS_entFilter = -1;
 
@@ -124,10 +124,10 @@ int ICARUS_RunScript( sharedEntity_t *ent, const char *name )
 	if S_FAILED(gSequencers[ent->s.number]->Run( buf, len ))
 		return false;
 
-	if ( ( ICARUS_entFilter == -1 ) || ( ICARUS_entFilter == ent->s.number ) )
+	/*if ( ( ICARUS_entFilter == -1 ) || ( ICARUS_entFilter == ent->s.number ) )
 	{
 		Q3_DebugPrint( WL_VERBOSE, "%d Script %s executed by %s %s\n", svs.time, (char *) name, ent->classname, ent->targetname );
-	}
+	}*/
 
 	return true;
 }
@@ -140,7 +140,7 @@ Allocates a new ICARUS instance
 =================
 */
 
-void ICARUS_Init( void )
+/*void ICARUS_Init( void )
 {
 	//Link all interface functions
 	Interface_Init( &interface_export );
@@ -153,7 +153,7 @@ void ICARUS_Init( void )
 		Com_Error( ERR_DROP, "Unable to initialize ICARUS instance\n" );
 		return;
 	}
-}
+}*/
 
 /*
 =================
@@ -397,7 +397,7 @@ bool ICARUS_RegisterScript( const char *name, qboolean bCalledDuringInterrogate 
 	return true;
 }
 
-void ICARUS_SoundPrecache(const char *filename)
+/*void ICARUS_SoundPrecache(const char *filename)
 {
 	T_G_ICARUS_SOUNDINDEX *sharedMem = (T_G_ICARUS_SOUNDINDEX *)sv.mSharedMemory;
 
@@ -413,7 +413,7 @@ int ICARUS_GetIDForString( const char *string )
 	strcpy(sharedMem->string, string);
 
 	return VM_Call(gvm, GAME_ICARUS_GETSETIDFORSTRING);
-}
+}*/
 
 /*
 -------------------------
@@ -426,7 +426,6 @@ ICARUS_InterrogateScript
 void ICARUS_InterrogateScript( const char *filename )
 {
 	CBlockStream	stream;
-	CBlockMember	*blockMember;
 	CBlock			block;
 
 	if (!Q_stricmp(filename,"NULL") || !Q_stricmp(filename,"default"))
@@ -465,9 +464,8 @@ void ICARUS_InterrogateScript( const char *filename )
 	if ( stream.Open( buf, len ) == qfalse )
 		return;
 
-	const char	*sVal1, *sVal2;
+	const char	*sVal1;
 	char		temp[1024];
-	int			setID;
 
 	//Now iterate through all blocks of the script, searching for keywords
 	while ( stream.BlockAvailable() )
@@ -516,13 +514,13 @@ void ICARUS_InterrogateScript( const char *filename )
 			
 			break;
 		
-		case ID_SOUND:
+		/*case ID_SOUND:
 			//We can't just call over to S_RegisterSound or whatever because this is on the server.
 			sVal1 = (const char *) block.GetMemberData( 1 );	//0 is channel, 1 is filename
 			ICARUS_SoundPrecache(sVal1);
-			break;
+			break;*/
 
-		case ID_SET:
+		/*case ID_SET:
 			blockMember = block.GetMember( 0 );
 
 			//NOTENOTE: This will not catch special case get() inlines! (There's not really a good way to do that)
@@ -572,7 +570,7 @@ void ICARUS_InterrogateScript( const char *filename )
 					break;
 				}
 			}
-			break;
+			break;*/
 
 		default:
 			break;

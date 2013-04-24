@@ -177,40 +177,12 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 #else
 		MSG_WriteDeltaPlayerstate( msg, &oldframe->ps, &frame->ps );
 #endif
-		if (frame->ps.m_iVehicleNum)
-		{ //then write the vehicle's playerstate too
-			if (!oldframe->ps.m_iVehicleNum)
-			{ //if last frame didn't have vehicle, then the old vps isn't gonna delta
-				//properly (because our vps on the client could be anything)
-#ifdef _ONEBIT_COMBO
-				MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, NULL, NULL, qtrue );
-#else
-				MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, qtrue );
-#endif
-			}
-			else
-			{
-#ifdef _ONEBIT_COMBO
-				MSG_WriteDeltaPlayerstate( msg, &oldframe->vps, &frame->vps, frame->pDeltaOneBitVeh, frame->pDeltaNumBitVeh, qtrue );
-#else
-				MSG_WriteDeltaPlayerstate( msg, &oldframe->vps, &frame->vps, qtrue );
-#endif
-			}
-		}
 	} else {
 #ifdef _ONEBIT_COMBO
 		MSG_WriteDeltaPlayerstate( msg, NULL, &frame->ps, NULL, NULL );
 #else
 		MSG_WriteDeltaPlayerstate( msg, NULL, &frame->ps );
 #endif
-		if (frame->ps.m_iVehicleNum)
-		{ //then write the vehicle's playerstate too
-#ifdef _ONEBIT_COMBO
-			MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, NULL, NULL, qtrue );
-#else
-			MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, qtrue );
-#endif
-		}
 	}
 
 	// delta encode the entities
@@ -390,12 +362,6 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 			continue;
 		}
 
-		if (ent->s.isPortalEnt)
-		{ //rww - portal entities are always sent as well
-			SV_AddEntToSnapshot( svEnt, ent, eNums );
-			continue;
-		}
-
 		if (com_RMG && com_RMG->integer)
 		{
 			VectorAdd(ent->r.absmax, ent->r.absmin, difference);
@@ -536,22 +502,6 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	frame->pDeltaOneBit = &ps->deltaOneBits;
 	frame->pDeltaNumBit = &ps->deltaNumBits;
 #endif
-
-	if (ps->m_iVehicleNum)
-	{ //get the vehicle's playerstate too then
-		sharedEntity_t *veh = SV_GentityNum(ps->m_iVehicleNum);
-
-		if (veh && veh->playerState)
-		{ //Now VMA it and we've got ourselves a playerState
-			playerState_t *vps = ((playerState_t *)VM_ArgPtr((int)veh->playerState));
-
-            frame->vps = *vps;
-#ifdef _ONEBIT_COMBO
-			frame->pDeltaOneBitVeh = &vps->deltaOneBits;
-			frame->pDeltaNumBitVeh = &vps->deltaNumBits;
-#endif
-		}
-	}
 
 	int							clientNum;
 	// never send client's own entity, because it can
@@ -708,46 +658,6 @@ extern cvar_t	*fs_gamedirvar;
 void SV_SendClientSnapshot( client_t *client ) {
 	byte		msg_buf[MAX_MSGLEN];
 	msg_t		msg;
-
-	if (!client->sentGamedir)
-	{ //rww - if this is the case then make sure there is an svc_setgame sent before this snap
-		int i = 0;
-
-		MSG_Init (&msg, msg_buf, sizeof(msg_buf));
-
-		//have to include this for each message.
-		MSG_WriteLong( &msg, client->lastClientCommand );
-
-		MSG_WriteByte (&msg, svc_setgame);
-
-		while (fs_gamedirvar->string[i])
-		{
-			MSG_WriteByte(&msg, fs_gamedirvar->string[i]);
-			i++;
-		}
-		MSG_WriteByte(&msg, 0);
-
-		// MW - my attempt to fix illegible server message errors caused by 
-		// packet fragmentation of initial snapshot.
-		//rww - reusing this code here
-		while(client->state&&client->netchan.unsentFragments)
-		{
-			// send additional message fragments if the last message
-			// was too large to send at once
-			Com_Printf ("[ISM]SV_SendClientGameState() [1] for %s, writing out old fragments\n", client->name);
-			SV_Netchan_TransmitNextFragment(&client->netchan);
-		}
-
-		// record information about the message
-		client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageSize = msg.cursize;
-		client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageSent = svs.time;
-		client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageAcked = -1;
-
-		// send the datagram
-		SV_Netchan_Transmit( client, &msg );	//msg->cursize, msg->data );
-
-		client->sentGamedir = qtrue;
-	}
 
 	// build the snapshot
 	SV_BuildClientSnapshot( client );

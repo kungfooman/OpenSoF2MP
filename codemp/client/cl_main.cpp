@@ -4,7 +4,6 @@
 // cl_main.c  -- client main loop
 
 #include "client.h"
-#include "qcommon/stringed_ingame.h"
 #include <limits.h>
 #include "snd_local.h"
 
@@ -55,7 +54,6 @@ cvar_t	*cl_sensitivity;
 cvar_t	*cl_mouseAccel;
 cvar_t	*cl_showMouseRate;
 
-cvar_t	*m_pitchVeh;
 cvar_t	*m_pitch;
 cvar_t	*m_yaw;
 cvar_t	*m_forward;
@@ -73,8 +71,6 @@ cvar_t	*cl_inGameVideo;
 
 cvar_t	*cl_serverStatusResendTime;
 cvar_t	*cl_framerate;
-
-cvar_t	*cl_autolodscale;
 
 vec3_t cl_windVec;
 
@@ -506,7 +502,7 @@ void CL_PlayDemo_f( void ) {
 	char		*arg;
 
 	if (Cmd_Argc() != 2) {
-		Com_Printf ("playdemo <demoname>\n");
+		Com_Printf ("demo <demoname>\n");
 		return;
 	}
 
@@ -533,7 +529,7 @@ void CL_PlayDemo_f( void ) {
 	if (!clc.demofile) {
 		if (!Q_stricmp(arg, "(null)"))
 		{
-			Com_Error( ERR_DROP, SE_GetString("CON_TEXT_NO_DEMO_SELECTED") );
+			Com_Error( ERR_DROP, "Server was killed" );
 		}
 		else
 		{
@@ -1098,7 +1094,6 @@ we also have to reload the UI and CGame because the renderer
 doesn't know what graphics to reload
 =================
 */
-extern bool g_nOverrideChecked;
 void CL_Vid_Restart_f( void ) {
 	// Settings may have changed so stop recording now
 	if( CL_VideoRecording( ) ) {
@@ -1107,11 +1102,6 @@ void CL_Vid_Restart_f( void ) {
 
 	if(clc.demorecording)
 		CL_StopRecord_f();
-
-	//rww - sort of nasty, but when a user selects a mod
-	//from the menu all it does is a vid_restart, so we
-	//have to check for new net overrides for the mod then.
-	g_nOverrideChecked = false;
 
 	// don't let them loop during the restart
 	S_StopAllSounds();
@@ -1561,12 +1551,10 @@ void CL_InitServerInfo( serverInfo_t *server, serverAddress_t *address ) {
 	server->minPing = 0;
 	server->netType = 0;
 	server->needPassword = qfalse;
-	server->trueJedi = 0;
-	server->weaponDisable = 0;
-	server->forceDisable = 0;
 	server->ping = -1;
 	server->game[0] = '\0';
-	server->gameType = 0;
+	server->gameType[0] = '\0';
+	server->allowAnonymous = 0;
 	//server->pure = qfalse;
 }
 
@@ -1590,10 +1578,6 @@ void CL_ServersResponsePacket( netadr_t from, msg_t *msg ) {
 		// state to detect lack of servers or lack of response
 		cls.numglobalservers = 0;
 		cls.numGlobalServerAddresses = 0;
-	}
-
-	if (cls.nummplayerservers == -1) {
-		cls.nummplayerservers = 0;
 	}
 
 	// parse through server response string
@@ -1646,17 +1630,12 @@ void CL_ServersResponsePacket( netadr_t from, msg_t *msg ) {
 		}
 	}
 
-	if (cls.masterNum == 0) {
-		count = cls.numglobalservers;
-		max = MAX_GLOBAL_SERVERS;
-	} else {
-		count = cls.nummplayerservers;
-		max = MAX_OTHER_SERVERS;
-	}
+	count = cls.numglobalservers;
+	max = MAX_GLOBAL_SERVERS;
 
 	for (i = 0; i < numservers && count < max; i++) {
 		// build net address
-		serverInfo_t *server = (cls.masterNum == 0) ? &cls.globalServers[count] : &cls.mplayerServers[count];
+		serverInfo_t *server = &cls.globalServers[count];
 
 		CL_InitServerInfo( server, &addresses[i] );
 		// advance to next slot
@@ -1680,89 +1659,11 @@ void CL_ServersResponsePacket( netadr_t from, msg_t *msg ) {
 		}
 	}
 
-	if (cls.masterNum == 0) {
-		cls.numglobalservers = count;
-		total = count + cls.numGlobalServerAddresses;
-	} else {
-		cls.nummplayerservers = count;
-		total = count;
-	}
+	cls.numglobalservers = count;
+	total = count + cls.numGlobalServerAddresses;
 
 	Com_Printf("%d servers parsed (total %d)\n", numservers, total);
 }
-
-#ifndef MAX_STRINGED_SV_STRING
-#define MAX_STRINGED_SV_STRING 1024
-#endif
-static void CL_CheckSVStringEdRef(char *buf, const char *str)
-{ //I don't really like doing this. But it utilizes the system that was already in place.
-	int i = 0;
-	int b = 0;
-	int strLen = 0;
-	qboolean gotStrip = qfalse;
-
-	if (!str || !str[0])
-	{
-		if (str)
-		{
-			strcpy(buf, str);
-		}
-		return;
-	}
-
-	strcpy(buf, str);
-
-	strLen = strlen(str);
-
-	if (strLen >= MAX_STRINGED_SV_STRING)
-	{
-		return;
-	}
-
-	while (i < strLen && str[i])
-	{
-		gotStrip = qfalse;
-
-		if (str[i] == '@' && (i+1) < strLen)
-		{
-			if (str[i+1] == '@' && (i+2) < strLen)
-			{
-				if (str[i+2] == '@' && (i+3) < strLen)
-				{ //@@@ should mean to insert a stringed reference here, so insert it into buf at the current place
-					char stripRef[MAX_STRINGED_SV_STRING];
-					int r = 0;
-
-					while (i < strLen && str[i] == '@')
-					{
-						i++;
-					}
-
-					while (i < strLen && str[i] && str[i] != ' ' && str[i] != ':' && str[i] != '.' && str[i] != '\n')
-					{
-						stripRef[r] = str[i];
-						r++;
-						i++;
-					}
-					stripRef[r] = 0;
-
-					buf[b] = 0;
-					Q_strcat(buf, MAX_STRINGED_SV_STRING, SE_GetString(va("MP_SVGAME_%s", stripRef)));
-					b = strlen(buf);
-				}
-			}
-		}
-
-		if (!gotStrip)
-		{
-			buf[b] = str[i];
-			b++;
-		}
-		i++;
-	}
-
-	buf[b] = 0;
-}
-
 
 /*
 =================
@@ -1885,12 +1786,9 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 		// NOTE: we may have to add exceptions for auth and update servers
 		if (NET_CompareAdr(from, clc.serverAddress) || NET_CompareAdr(from, rcon_address))
 		{
-			char sTemp[MAX_STRINGED_SV_STRING];
-
 			s = MSG_ReadString( msg );
-			CL_CheckSVStringEdRef(sTemp, s);
-			Q_strncpyz( clc.serverMessage, sTemp, sizeof( clc.serverMessage ) );
-			Com_Printf( "%s", sTemp );
+			Q_strncpyz( clc.serverMessage, s, sizeof( clc.serverMessage ) );
+			Com_Printf( "%s", s );
 		}
 		return;
 	}
@@ -1980,9 +1878,7 @@ void CL_CheckTimeout( void ) {
 		&& cls.state >= CA_CONNECTED && cls.state != CA_CINEMATIC
 	    && cls.realtime - clc.lastPacketTime > cl_timeout->value*1000) {
 		if (++cl.timeoutcount > 5) {	// timeoutcount saves debugger
-			const char *psTimedOut = SE_GetString("MP_SVGAME_SERVER_CONNECTION_TIMED_OUT");
-			Com_Printf ("\n%s\n",psTimedOut);
-			Com_Error(ERR_DROP, psTimedOut);
+			Com_Error(ERR_DROP, "Server connection timed out.");
 			//CL_Disconnect( qtrue );
 			return;
 		}
@@ -2041,15 +1937,11 @@ CL_Frame
 */
 static unsigned int frameCount;
 static float avgFrametime=0.0;
-extern void SE_CheckForLanguageUpdates(void);
 void CL_Frame ( int msec ) {
 
 	if ( !com_cl_running->integer ) {
 		return;
 	}
-
-	SE_CheckForLanguageUpdates();	// will take zero time to execute unless language changes, then will reload strings.
-									//	of course this still doesn't work for menus...
 
 	if ( cls.state == CA_DISCONNECTED && !( cls.keyCatchers & KEYCATCH_UI )
 		&& !com_sv_running->integer ) {
@@ -2193,10 +2085,10 @@ void CL_InitRenderer( void ) {
 	re.BeginRegistration( &cls.glconfig );
 
 	// load character sets
-	cls.charSetShader = re.RegisterShaderNoMip("gfx/2d/charsgrid_med");
+	cls.charSetShader = re.RegisterShaderNoMip("gfx/2d/bigchars");
 
 	cls.whiteShader = re.RegisterShader( "white" );
-	cls.consoleShader = re.RegisterShader( "console" );
+	cls.consoleShader = re.RegisterShader( "gfx/menus/console/console_mp" );
 	g_console_field_width = cls.glconfig.vidWidth / SMALLCHAR_WIDTH - 2;
 	kg.g_consoleField.widthInChars = g_console_field_width;
 }
@@ -2335,7 +2227,6 @@ void CL_InitRef( void ) {
 	ri.Cvar_VariableValue = Cvar_VariableValue;
 	ri.Cvar_VariableIntegerValue = Cvar_VariableIntegerValue;
 	ri.Sys_LowPhysicalMemory = Sys_LowPhysicalMemory;
-	ri.SE_GetString = SE_GetString;
 	ri.FS_FreeFile = FS_FreeFile;
 	ri.FS_FreeFileList = FS_FreeFileList;
 	ri.FS_Read = FS_Read;
@@ -2444,10 +2335,6 @@ void CL_SetModel_f( void ) {
 	}
 }
 
-void CL_SetForcePowers_f( void ) {
-	return;
-}
-
 /*
 ===============
 CL_Video_f
@@ -2524,7 +2411,7 @@ CL_Init
 ====================
 */
 void CL_Init( void ) {
-//	Com_Printf( "----- Client Initialization -----\n" );
+	Com_Printf( "----- Client Initialization -----\n" );
 
 	Con_Init ();	
 
@@ -2576,8 +2463,6 @@ void CL_Init( void ) {
 	cl_allowDownload = Cvar_Get ("cl_allowDownload", "0", CVAR_ARCHIVE);
 	cl_allowAltEnter = Cvar_Get ("cl_allowAltEnter", "0", CVAR_ARCHIVE);
 
-	cl_autolodscale = Cvar_Get( "cl_autolodscale", "1", CVAR_ARCHIVE );
-
 	cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", 0);
 #ifdef MACOS_X
         // In game video is REALLY slow in Mac OS X right now due to driver slowness
@@ -2592,7 +2477,6 @@ void CL_Init( void ) {
 	// if the cgame hasn't been started
 	Cvar_Get ("cg_autoswitch", "1", CVAR_ARCHIVE);
 
-	m_pitchVeh = Cvar_Get ("m_pitchVeh", "0.022", CVAR_ARCHIVE);
 	m_pitch = Cvar_Get ("m_pitch", "0.022", CVAR_ARCHIVE);
 	m_yaw = Cvar_Get ("m_yaw", "0.022", CVAR_ARCHIVE);
 	m_forward = Cvar_Get ("m_forward", "0.25", CVAR_ARCHIVE);
@@ -2613,26 +2497,9 @@ void CL_Init( void ) {
 	Cvar_Get ("name", "Padawan", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("rate", "25000", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("snaps", "40", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("model", "kyle/default", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("forcepowers", "7-1-032330000000001333", CVAR_USERINFO | CVAR_ARCHIVE );
-//	Cvar_Get ("g_redTeam", "Empire", CVAR_SERVERINFO | CVAR_ARCHIVE);
-//	Cvar_Get ("g_blueTeam", "Rebellion", CVAR_SERVERINFO | CVAR_ARCHIVE);
-	Cvar_Get ("color1",  "4", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("color2", "4", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("handicap", "100", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("teamtask", "0", CVAR_USERINFO );
-	Cvar_Get ("sex", "male", CVAR_USERINFO | CVAR_ARCHIVE );
+	Cvar_Get ("identity", "snowsoldier1", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("password", "", CVAR_USERINFO);
 	Cvar_Get ("cg_predictItems", "1", CVAR_USERINFO | CVAR_ARCHIVE );
-
-	//default sabers
-	Cvar_Get ("saber1",  "single_1", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("saber2",  "none", CVAR_USERINFO | CVAR_ARCHIVE );
-
-	//skin color
-	Cvar_Get ("char_color_red",  "255", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("char_color_green",  "255", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("char_color_blue",  "255", CVAR_USERINFO | CVAR_ARCHIVE );
 
 	// cgame might not be initialized before menu is used
 	Cvar_Get ("cg_viewsize", "100", CVAR_ARCHIVE );
@@ -2661,7 +2528,6 @@ void CL_Init( void ) {
 	Cmd_AddCommand ("fs_openedList", CL_OpenedPK3List_f );
 	Cmd_AddCommand ("fs_referencedList", CL_ReferencedPK3List_f );
 	Cmd_AddCommand ("model", CL_SetModel_f );
-	Cmd_AddCommand ("forcepowers", CL_SetForcePowers_f );
 	Cmd_AddCommand ("video", CL_Video_f );
 	Cmd_AddCommand ("stopvideo", CL_StopVideo_f );
 
@@ -2675,7 +2541,7 @@ void CL_Init( void ) {
 
 	G2VertSpaceClient = new CMiniHeap(G2_VERT_SPACE_CLIENT_SIZE * 1024);
 
-//	Com_Printf( "----- Client Initialization Complete -----\n" );
+	Com_Printf( "----- Client Initialization Complete -----\n" );
 }
 
 
@@ -2728,7 +2594,6 @@ void CL_Shutdown( void ) {
 	Cmd_RemoveCommand ("serverstatus");
 	Cmd_RemoveCommand ("showip");
 	Cmd_RemoveCommand ("model");
-	Cmd_RemoveCommand ("forcepowers");
 	Cmd_RemoveCommand ("video");
 	Cmd_RemoveCommand ("stopvideo");
 
@@ -2750,19 +2615,17 @@ static void CL_SetServerInfo(serverInfo_t *server, const char *info, int ping) {
 			Q_strncpyz(server->mapName, Info_ValueForKey(info, "mapname"), MAX_NAME_LENGTH);
 			server->maxClients = atoi(Info_ValueForKey(info, "sv_maxclients"));
 			Q_strncpyz(server->game,Info_ValueForKey(info, "game"), MAX_NAME_LENGTH);
-			server->gameType = atoi(Info_ValueForKey(info, "gametype"));
+			Q_strncpyz(server->gameType,Info_ValueForKey(info, "gametype"), MAX_NAME_LENGTH);
 			server->netType = atoi(Info_ValueForKey(info, "nettype"));
 			server->minPing = atoi(Info_ValueForKey(info, "minping"));
 			server->maxPing = atoi(Info_ValueForKey(info, "maxping"));
-//			server->allowAnonymous = atoi(Info_ValueForKey(info, "sv_allowAnonymous"));
+			server->allowAnonymous = atoi(Info_ValueForKey(info, "sv_allowAnonymous"));
 			server->needPassword = (qboolean)atoi(Info_ValueForKey(info, "needpass" ));
-			server->trueJedi = atoi(Info_ValueForKey(info, "truejedi" ));
-			server->weaponDisable = atoi(Info_ValueForKey(info, "wdisable" ));
-			server->forceDisable = atoi(Info_ValueForKey(info, "fdisable" ));
 //			server->pure = (qboolean)atoi(Info_ValueForKey(info, "pure" ));
 		}
 		server->ping = ping;
 	}
+
 }
 
 static void CL_SetServerInfoByAddress(netadr_t from, const char *info, int ping) {
@@ -2771,12 +2634,6 @@ static void CL_SetServerInfoByAddress(netadr_t from, const char *info, int ping)
 	for (i = 0; i < MAX_OTHER_SERVERS; i++) {
 		if (NET_CompareAdr(from, cls.localServers[i].adr)) {
 			CL_SetServerInfo(&cls.localServers[i], info, ping);
-		}
-	}
-
-	for (i = 0; i < MAX_OTHER_SERVERS; i++) {
-		if (NET_CompareAdr(from, cls.mplayerServers[i].adr)) {
-			CL_SetServerInfo(&cls.mplayerServers[i], info, ping);
 		}
 	}
 
@@ -2888,13 +2745,10 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	cls.localServers[i].minPing = 0;
 	cls.localServers[i].netType = from.type;
 	cls.localServers[i].needPassword = qfalse;
-	cls.localServers[i].trueJedi = 0;
-	cls.localServers[i].weaponDisable = 0;
-	cls.localServers[i].forceDisable = 0;
 	cls.localServers[i].ping = -1;
 	cls.localServers[i].game[0] = '\0';
-	cls.localServers[i].gameType = 0;
-//	cls.localServers[i].allowAnonymous = 0;
+	cls.localServers[i].gameType[0] = '\0';
+	cls.localServers[i].allowAnonymous = 0;
 //	cls.localServers[i].pure = qfalse;
 
 	Q_strncpyz( info, MSG_ReadString( msg ), MAX_INFO_STRING );
@@ -3423,10 +3277,6 @@ qboolean CL_UpdateVisiblePings_f(int source) {
 			case AS_LOCAL :
 				server = &cls.localServers[0];
 				max = cls.numlocalservers;
-			break;
-			case AS_MPLAYER :
-				server = &cls.mplayerServers[0];
-				max = cls.nummplayerservers;
 			break;
 			case AS_GLOBAL :
 				server = &cls.globalServers[0];

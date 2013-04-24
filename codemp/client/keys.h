@@ -29,21 +29,18 @@ typedef struct keyGlobals_s
 	qboolean	key_overstrikeMode;
 	int			keyDownCount;
 
-	qkey_t		keys[MAX_KEYS];
+	qkey_t		keys[K_LAST_KEY];
 } keyGlobals_t;
 
 
 typedef struct 
 {
-	word	upper;
-	word	lower;
 	char	*name;
 	int		keynum;
-	bool	menukey;
 } keyname_t;
 
 extern keyGlobals_t	kg;
-extern keyname_t	keynames[MAX_KEYS];
+extern keyname_t	keynames[K_LAST_KEY];
 
 
 void Field_Clear( field_t *edit );

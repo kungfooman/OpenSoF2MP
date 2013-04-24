@@ -29,7 +29,7 @@ typedef struct {
 	void				(*BeginRegistration)					( glconfig_t *config );
 	qhandle_t			(*RegisterModel)						( const char *name );
 	qhandle_t			(*RegisterServerModel)					( const char *name );
-	qhandle_t			(*RegisterSkin)							( const char *name );
+	qhandle_t			(*RegisterSkin)							( const char *name, int numPairs, char *skinPairs );
 	qhandle_t			(*RegisterServerSkin)					( const char *name );
 	qhandle_t			(*RegisterShader)						( const char *name );
 	qhandle_t			(*RegisterShaderNoMip)					( const char *name );
@@ -86,11 +86,8 @@ typedef struct {
 
 	qhandle_t			(*RegisterFont)							( const char *fontName );
 	int					(*Font_StrLenPixels)					( const char *text, const int iFontIndex, const float scale );
-	int					(*Font_StrLenChars)						( const char *text );
 	int					(*Font_HeightPixels)					( const int iFontIndex, const float scale );
-	void				(*Font_DrawString)						( int ox, int oy, const char *text, const float *rgba, const int setIndex, int iCharLimit, const float scale );
-	qboolean			(*Language_IsAsian)						( void );
-	qboolean			(*Language_UsesSpaces)					( void );
+	void				(*Font_DrawString)						( int x, int y, qhandle_t font, float scale, vec4_t color, const char* text, int limit, int flags, int cursorPos, char cursor );
 	unsigned int		(*AnyLanguage_ReadCharFromString)		( const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation/* = NULL*/ );
 
 	void				(*RemapShader)							( const char *oldShader, const char *newShader, const char *offsetTime );
@@ -144,7 +141,7 @@ typedef struct {
 	void				(*G2API_CollisionDetect)				( CollisionRecord_t *collRecMap, CGhoul2Info_v &ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, CMiniHeap *G2VertSpace, int traceFlags, int useLod, float fRadius );
 	void				(*G2API_CollisionDetectCache)			( CollisionRecord_t *collRecMap, CGhoul2Info_v &ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, CMiniHeap *G2VertSpace, int traceFlags, int useLod, float fRadius );
 	int					(*G2API_CopyGhoul2Instance)				( CGhoul2Info_v &g2From, CGhoul2Info_v &g2To, int modelIndex );
-	void				(*G2API_CopySpecificG2Model)			( CGhoul2Info_v &ghoul2From, int modelFrom, CGhoul2Info_v &ghoul2To, int modelTo );
+	int					(*G2API_CopySpecificG2Model)			( CGhoul2Info_v &ghoul2From, int modelFrom, CGhoul2Info_v &ghoul2To, int modelTo );
 	qboolean			(*G2API_DetachG2Model)					( CGhoul2Info *ghlInfo );
 	qboolean			(*G2API_DoesBoneExist)					( CGhoul2Info *ghlInfo, const char *boneName );
 	void				(*G2API_DuplicateGhoul2Instance)		( CGhoul2Info_v &g2From, CGhoul2Info_v **g2To );
@@ -163,7 +160,6 @@ typedef struct {
 	char *				(*G2API_GetSurfaceName)					( CGhoul2Info *ghlInfo, int surfNumber );
 	int					(*G2API_GetSurfaceOnOff)				( CGhoul2Info *ghlInfo, const char *surfaceName );
 	int					(*G2API_GetSurfaceRenderStatus)			( CGhoul2Info *ghlInfo, const char *surfaceName );
-	int					(*G2API_GetTime)						( int argTime );
 	int					(*G2API_Ghoul2Size)						( CGhoul2Info_v &ghoul2 );
 	void				(*G2API_GiveMeVectorFromMatrix)			( mdxaBone_t *boltMatrix, Eorientations flags, vec3_t vec );
 	qboolean			(*G2API_HasGhoul2ModelOnIndex)			( CGhoul2Info_v **ghlRemove, const int modelIndex );
@@ -201,24 +197,24 @@ typedef struct {
 	void				(*G2API_SetGhoul2ModelIndexes)			( CGhoul2Info_v &ghoul2, qhandle_t *modelList, qhandle_t *skinList );
 	qboolean			(*G2API_SetGhoul2ModelFlags)			( CGhoul2Info *ghlInfo, const int flags );
 	qboolean			(*G2API_SetLodBias)						( CGhoul2Info *ghlInfo, int lodBias );
-	qboolean			(*G2API_SetNewOrigin)					( CGhoul2Info_v &ghoul2, const int boltIndex );
+	qboolean			(*G2API_SetNewOrigin)					( CGhoul2Info_v &ghoul2, const int modelIndex, const int boltIndex );
 	void				(*G2API_SetRagDoll)						( CGhoul2Info_v &ghoul2, CRagDollParams *parms );
 	qboolean			(*G2API_SetRootSurface)					( CGhoul2Info_v &ghoul2, const int modelIndex, const char *surfaceName );
 	qboolean			(*G2API_SetShader)						( CGhoul2Info *ghlInfo, qhandle_t customShader );
 	qboolean			(*G2API_SetSkin)						( CGhoul2Info *ghlInfo, qhandle_t customSkin, qhandle_t renderSkin );
-	qboolean			(*G2API_SetSurfaceOnOff)				( CGhoul2Info_v &ghoul2, const char *surfaceName, const int flags );
-	void				(*G2API_SetTime)						( int currentTime, int clock );
+	qboolean			(*G2API_SetSurfaceOnOff)				( CGhoul2Info_v &ghoul2, const int modelIndex, const char *surfaceName, const int flags );
 	qboolean			(*G2API_SkinlessModel)					( CGhoul2Info *g2 );
 	qboolean			(*G2API_StopBoneAngles)					( CGhoul2Info *ghlInfo, const char *boneName );
 	qboolean			(*G2API_StopBoneAnglesIndex)			( CGhoul2Info *ghlInfo, const int index );
 	qboolean			(*G2API_StopBoneAnim)					( CGhoul2Info *ghlInfo, const char *boneName );
 	qboolean			(*G2API_StopBoneAnimIndex)				( CGhoul2Info *ghlInfo, const int index );
+	int					(*G2API_GetBoltIndex)					( CGhoul2Info *ghlInfo, const int modelIndex);
 
 	#ifdef _G2_GORE
 	int					(*G2API_GetNumGoreMarks)				( CGhoul2Info *g2 );
 	void				(*G2API_AddSkinGore)					( CGhoul2Info_v &ghoul2, SSkinGoreData &gore );
 	void				(*G2API_ClearSkinGore)					( CGhoul2Info_v &ghoul2 );
-	#endif // _SOF2
+	#endif // _G2_GORE
 
 	// RMG / Terrain stuff
 	void				(*LoadDataImage)						( const char *name, byte **pic, int *width, int *height );
@@ -264,14 +260,13 @@ typedef struct {
 	float			(*Cvar_VariableValue)				( const char *var_name );
 	int				(*Cvar_VariableIntegerValue)		( const char *var_name );
 	qboolean		(*Sys_LowPhysicalMemory)			( void );
-	const char *	(*SE_GetString)						( const char * psPackageAndStringReference );
 	void			(*FS_FreeFile)						( void *buffer );
 	void			(*FS_FreeFileList)					( char **fileList );
 	int				(*FS_Read)							( void *buffer, int len, fileHandle_t f );
 	int				(*FS_ReadFile)						( const char *qpath, void **buffer );
 	void			(*FS_FCloseFile)					( fileHandle_t f );
 	int				(*FS_FOpenFileRead)					( const char *qpath, fileHandle_t *file, qboolean uniqueFILE );
-	fileHandle_t	(*FS_FOpenFileWrite)				( const char *qpath );
+	fileHandle_t	(*FS_FOpenFileWrite)				( const char *qpath, const bool astext );
 	int				(*FS_FOpenFileByMode)				( const char *qpath, fileHandle_t *f, fsMode_t mode );
 	qboolean		(*FS_FileExists)					( const char *file );
 	int				(*FS_FileIsInPAK)					( const char *filename, int *pChecksum );

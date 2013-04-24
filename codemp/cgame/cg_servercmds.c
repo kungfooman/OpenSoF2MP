@@ -1354,16 +1354,16 @@ static void CG_ServerCommand( void ) {
 	{
 		//if (!( trap_Key_GetCatcher() & KEYCATCH_UI ))
 		//Well, I want it to come up even if the briefing display is up.
-		{
+		/*{
 			trap_OpenUIMenu(UIMENU_CLASSSEL); //UIMENU_CLASSSEL
-		}
+		}*/
 		return;
 	}
 
 	if ( !strcmp( cmd, "spc" ) )
 	{
 		trap_Cvar_Set("ui_myteam", "3");
-		trap_OpenUIMenu(UIMENU_PLAYERCONFIG); //UIMENU_CLASSSEL
+		//trap_OpenUIMenu(UIMENU_PLAYERCONFIG); //UIMENU_CLASSSEL
 		return;
 	}
 
@@ -1389,10 +1389,10 @@ static void CG_ServerCommand( void ) {
 
 		trap_Cvar_Set("ui_myteam", va("%i", setTeam));
 
-		if (!( trap_Key_GetCatcher() & KEYCATCH_UI ) && doMenu)
+		/*if (!( trap_Key_GetCatcher() & KEYCATCH_UI ) && doMenu)
 		{
 			trap_OpenUIMenu(UIMENU_PLAYERCONFIG);
-		}
+		}*/
 
 		return;
 	}

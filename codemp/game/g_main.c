@@ -81,9 +81,9 @@ This must be the very first function compiled into the .q3vm file
 		return ConsoleCommand();
 	case BOTAI_START_FRAME:
 		return BotAIStartFrame( arg0 );
-	case GAME_ROFF_NOTETRACK_CALLBACK:
+	/*case GAME_ROFF_NOTETRACK_CALLBACK:
 		G_ROFF_NotetrackCallback( &g_entities[arg0], (const char *)arg1 );
-		return 0;
+		return 0;*/
 	case GAME_SPAWN_RMG_ENTITY:
 		if (G_ParseSpawnVars(qfalse))
 		{
@@ -92,7 +92,7 @@ This must be the very first function compiled into the .q3vm file
 		return 0;
 
 	//rww - begin icarus callbacks
-	case GAME_ICARUS_PLAYSOUND:
+	/*case GAME_ICARUS_PLAYSOUND:
 		{
 			T_G_ICARUS_PLAYSOUND *sharedMem = (T_G_ICARUS_PLAYSOUND *)gSharedBuffer;
 			return Q3_PlaySound(sharedMem->taskID, sharedMem->entID, sharedMem->name, sharedMem->channel);
@@ -204,9 +204,9 @@ This must be the very first function compiled into the .q3vm file
 			T_G_ICARUS_GETSETIDFORSTRING *sharedMem = (T_G_ICARUS_GETSETIDFORSTRING *)gSharedBuffer;
 			return GetIDForString(setTable, sharedMem->string);
 		}
-	//rww - end icarus callbacks
+	//rww - end icarus callbacks*/
 
-	case GAME_NAV_CLEARPATHTOPOINT:
+	/*case GAME_NAV_CLEARPATHTOPOINT:
 		return NAV_ClearPathToPoint(&g_entities[arg0], (float *)arg1, (float *)arg2, (float *)arg3, arg4, arg5);
 	case GAME_NAV_CLEARLOS:
 		return NPC_ClearLOS2(&g_entities[arg0], (const float *)arg1);
@@ -226,7 +226,7 @@ This must be the very first function compiled into the .q3vm file
 		CP_FindCombatPointWaypoints();
 		return 0;
 	case GAME_GETITEMINDEXBYTAG:
-		return BG_GetItemIndexByTag(arg0, arg1);
+		return BG_GetItemIndexByTag(arg0, arg1);*/
 	}
 
 	return -1;

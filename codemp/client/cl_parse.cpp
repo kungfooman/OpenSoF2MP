@@ -4,7 +4,6 @@
 // cl_parse.c  -- parse a message received from the server
 
 #include "client.h"
-#include "qcommon/stringed_ingame.h"
 //#include "ghoul2/G2_local.h"
 #ifdef _DONETPROFILE_
 #include "qcommon/INetProfile.h"
@@ -23,7 +22,6 @@ char *svc_strings[256] = {
 	"svc_serverCommand",
 	"svc_download",
 	"svc_snapshot",
-	"svc_setgame",
 	"svc_mapchange",
 };
 
@@ -261,16 +259,8 @@ void CL_ParseSnapshot( msg_t *msg ) {
 	SHOWNET( msg, "playerstate" );
 	if ( old ) {
 		MSG_ReadDeltaPlayerstate( msg, &old->ps, &newSnap.ps );
-		if (newSnap.ps.m_iVehicleNum)
-		{ //this means we must have written our vehicle's ps too
-			MSG_ReadDeltaPlayerstate( msg, &old->vps, &newSnap.vps, qtrue );
-		}
 	} else {
 		MSG_ReadDeltaPlayerstate( msg, NULL, &newSnap.ps );
-		if (newSnap.ps.m_iVehicleNum)
-		{ //this means we must have written our vehicle's ps too
-			MSG_ReadDeltaPlayerstate( msg, NULL, &newSnap.vps, qtrue );			
-		}
 	}
 
 	// read packet entities
@@ -317,50 +307,6 @@ void CL_ParseSnapshot( msg_t *msg ) {
 
 	cl.newSnapshots = qtrue;
 }
-
-
-/*
-================
-CL_ParseSetGame
-
-rww - Update fs_game, this message is so we can use the ext_data
-*_overrides.txt files for mods.
-================
-*/
-void MSG_CheckNETFPSFOverrides(qboolean psfOverrides);
-void FS_UpdateGamedir(void);
-void CL_ParseSetGame( msg_t *msg )
-{
-	char newGameDir[MAX_QPATH];
-	int i = 0;
-	char next;
-
-	while (i < MAX_QPATH)
-	{
-		next = MSG_ReadByte( msg );
-
-		if (next)
-		{ //if next is 0 then we have finished reading to the end of the message
-			newGameDir[i] = next;
-		}
-		else
-		{
-			break;
-		}
-		i++;
-	}
-	newGameDir[i] = 0;
-
-	Cvar_Set("fs_game", newGameDir);
-
-	//Update the search path for the mod dir
-	FS_UpdateGamedir();
-
-	//Now update the overrides manually
-	MSG_CheckNETFPSFOverrides(qfalse);
-	MSG_CheckNETFPSFOverrides(qtrue);
-}
-
 
 //=====================================================================
 
@@ -478,10 +424,14 @@ void CL_ParseAutomapSymbols ( msg_t* msg )
 void CL_ParseRMG ( msg_t* msg )
 {
 	clc.rmgHeightMapSize = (unsigned short)MSG_ReadShort ( msg );
+	//SOF2 TODO
+	MSG_ReadLong ( msg );
 	if ( !clc.rmgHeightMapSize )
 	{
 		return;
 	}
+	//SOF2 TODO
+	Com_Error (ERR_DROP,"RMG maps are currently not supported\n");
 
 	z_stream zdata;
 	int		 size;
@@ -558,11 +508,6 @@ void CL_ParseGamestate( msg_t *msg ) {
 	// wipe local client state
 	CL_ClearState();
 
-#ifdef _DONETPROFILE_
-	int startBytes,endBytes;
-	startBytes=msg->readcount;
-#endif
-
 	// a gamestate always marks a server command sequence
 	clc.serverCommandSequence = MSG_ReadLong( msg );
 
@@ -576,51 +521,13 @@ void CL_ParseGamestate( msg_t *msg ) {
 		}
 		
 		if ( cmd == svc_configstring ) {
-			int		len, start;
-
-			start = msg->readcount;
+			int		len;
 
 			i = MSG_ReadShort( msg );
 			if ( i < 0 || i >= MAX_CONFIGSTRINGS ) {
 				Com_Error( ERR_DROP, "configstring > MAX_CONFIGSTRINGS" );
 			}
 			s = MSG_ReadBigString( msg );
-
-			if (cl_shownet->integer >= 2)
-			{
-				Com_Printf("%3i: %d: %s\n", start, i, s);
-			}
-
-			/*
-			if (i == CS_SERVERINFO)
-			{ //get the special value here
-				char *f = strstr(s, "g_debugMelee");
-				if (f)
-				{
-					while (*f && *f != '\\')
-					{ //find the \ after it
-						f++;
-					}
-					if (*f == '\\')
-					{ //got it
-						int i = 0;
-
-						f++;
-						while (*f && *f != '\\' && i < 128)
-						{
-							hiddenCvarVal[i] = *f;
-							i++;
-							f++;
-						}
-						hiddenCvarVal[i] = 0;
-
-						//resume here
-						s = f;
-					}
-				}
-			}
-			*/
-
 			len = strlen( s );
 
 			if ( len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS ) {
@@ -649,11 +556,6 @@ void CL_ParseGamestate( msg_t *msg ) {
 	clc.checksumFeed = MSG_ReadLong( msg );
 
 	CL_ParseRMG ( msg ); //rwwRMG - get info for it from the server
-
-#ifdef _DONETPROFILE_
-	endBytes=msg->readcount;
-//	ClReadProf().AddField("svc_gamestate",endBytes-startBytes);
-#endif
 
 	// parse serverId and other cvars
 	CL_SystemInfoChanged();
@@ -787,16 +689,8 @@ void CL_ParseCommandString( msg_t *msg ) {
 	int		seq;
 	int		index;
 
-#ifdef _DONETPROFILE_
-	int startBytes,endBytes;
-	startBytes=msg->readcount;
-#endif
 	seq = MSG_ReadLong( msg );
 	s = MSG_ReadString( msg );
-#ifdef _DONETPROFILE_
-	endBytes=msg->readcount;
-	ClReadProf().AddField("svc_serverCommand",endBytes-startBytes);
-#endif
 	// see if we have already executed stored it off
 	if ( clc.serverCommandSequence >= seq ) {
 		return;
@@ -917,9 +811,6 @@ void CL_ParseServerMessage( msg_t *msg ) {
 			break;
 		case svc_snapshot:
 			CL_ParseSnapshot( msg );
-			break;
-		case svc_setgame:
-			CL_ParseSetGame( msg );
 			break;
 		case svc_download:
 			CL_ParseDownload( msg );

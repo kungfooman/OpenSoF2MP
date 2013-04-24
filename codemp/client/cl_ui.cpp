@@ -4,7 +4,6 @@
 #include "client.h"
 
 #include "botlib/botlib.h"
-#include "qcommon/stringed_ingame.h"
 
 /*
 Ghoul2 Insert Start
@@ -22,10 +21,15 @@ Ghoul2 Insert End
 #include "renderer/tr_lightmanager.h"
 #endif
 
+#if !defined(GENERICPARSER2_H_INC)
+#include "qcommon/GenericParser2.h"
+#endif
+
 extern	botlib_export_t	*botlib_export;
 void SP_Register(const char *Package);
 
 vm_t *uivm;
+
 
 /*
 ====================
@@ -49,19 +53,17 @@ LAN_LoadCachedServers
 void LAN_LoadCachedServers( ) {
 	int size;
 	fileHandle_t fileIn;
-	cls.numglobalservers = cls.nummplayerservers = cls.numfavoriteservers = 0;
+	cls.numglobalservers = cls.numfavoriteservers = 0;
 	cls.numGlobalServerAddresses = 0;
 	if (FS_SV_FOpenFileRead("servercache.dat", &fileIn)) {
 		FS_Read(&cls.numglobalservers, sizeof(int), fileIn);
-		FS_Read(&cls.nummplayerservers, sizeof(int), fileIn);
 		FS_Read(&cls.numfavoriteservers, sizeof(int), fileIn);
 		FS_Read(&size, sizeof(int), fileIn);
-		if (size == sizeof(cls.globalServers) + sizeof(cls.favoriteServers) + sizeof(cls.mplayerServers)) {
+		if (size == sizeof(cls.globalServers) + sizeof(cls.favoriteServers)) {
 			FS_Read(&cls.globalServers, sizeof(cls.globalServers), fileIn);
-			FS_Read(&cls.mplayerServers, sizeof(cls.mplayerServers), fileIn);
 			FS_Read(&cls.favoriteServers, sizeof(cls.favoriteServers), fileIn);
 		} else {
-			cls.numglobalservers = cls.nummplayerservers = cls.numfavoriteservers = 0;
+			cls.numglobalservers = cls.numfavoriteservers = 0;
 			cls.numGlobalServerAddresses = 0;
 		}
 		FS_FCloseFile(fileIn);
@@ -77,12 +79,10 @@ void LAN_SaveServersToCache( ) {
 	int size;
 	fileHandle_t fileOut = FS_SV_FOpenFileWrite("servercache.dat");
 	FS_Write(&cls.numglobalservers, sizeof(int), fileOut);
-	FS_Write(&cls.nummplayerservers, sizeof(int), fileOut);
 	FS_Write(&cls.numfavoriteservers, sizeof(int), fileOut);
-	size = sizeof(cls.globalServers) + sizeof(cls.favoriteServers) + sizeof(cls.mplayerServers);
+	size = sizeof(cls.globalServers) + sizeof(cls.favoriteServers);
 	FS_Write(&size, sizeof(int), fileOut);
 	FS_Write(&cls.globalServers, sizeof(cls.globalServers), fileOut);
-	FS_Write(&cls.mplayerServers, sizeof(cls.mplayerServers), fileOut);
 	FS_Write(&cls.favoriteServers, sizeof(cls.favoriteServers), fileOut);
 	FS_FCloseFile(fileOut);
 }
@@ -101,10 +101,6 @@ static void LAN_ResetPings(int source) {
 	switch (source) {
 		case AS_LOCAL :
 			servers = &cls.localServers[0];
-			count = MAX_OTHER_SERVERS;
-			break;
-		case AS_MPLAYER :
-			servers = &cls.mplayerServers[0];
 			count = MAX_OTHER_SERVERS;
 			break;
 		case AS_GLOBAL :
@@ -139,10 +135,6 @@ static int LAN_AddServer(int source, const char *name, const char *address) {
 		case AS_LOCAL :
 			count = &cls.numlocalservers;
 			servers = &cls.localServers[0];
-			break;
-		case AS_MPLAYER :
-			count = &cls.nummplayerservers;
-			servers = &cls.mplayerServers[0];
 			break;
 		case AS_GLOBAL :
 			max = MAX_GLOBAL_SERVERS;
@@ -196,10 +188,6 @@ static void LAN_RemoveServer(int source, const char *addr) {
 			count = &cls.numlocalservers;
 			servers = &cls.localServers[0];
 			break;
-		case AS_MPLAYER :
-			count = &cls.nummplayerservers;
-			servers = &cls.mplayerServers[0];
-			break;
 		case AS_GLOBAL :
 			count = &cls.numglobalservers;
 			servers = &cls.globalServers[0];
@@ -237,9 +225,6 @@ static int LAN_GetServerCount( int source ) {
 		case AS_LOCAL :
 			return cls.numlocalservers;
 			break;
-		case AS_MPLAYER :
-			return cls.nummplayerservers;
-			break;
 		case AS_GLOBAL :
 			return cls.numglobalservers;
 			break;
@@ -260,12 +245,6 @@ static void LAN_GetServerAddressString( int source, int n, char *buf, int buflen
 		case AS_LOCAL :
 			if (n >= 0 && n < MAX_OTHER_SERVERS) {
 				Q_strncpyz(buf, NET_AdrToString( cls.localServers[n].adr) , buflen );
-				return;
-			}
-			break;
-		case AS_MPLAYER :
-			if (n >= 0 && n < MAX_OTHER_SERVERS) {
-				Q_strncpyz(buf, NET_AdrToString( cls.mplayerServers[n].adr) , buflen );
 				return;
 			}
 			break;
@@ -300,11 +279,6 @@ static void LAN_GetServerInfo( int source, int n, char *buf, int buflen ) {
 				server = &cls.localServers[n];
 			}
 			break;
-		case AS_MPLAYER :
-			if (n >= 0 && n < MAX_OTHER_SERVERS) {
-				server = &cls.mplayerServers[n];
-			}
-			break;
 		case AS_GLOBAL :
 			if (n >= 0 && n < MAX_GLOBAL_SERVERS) {
 				server = &cls.globalServers[n];
@@ -327,13 +301,10 @@ static void LAN_GetServerInfo( int source, int n, char *buf, int buflen ) {
 		Info_SetValueForKey( info, "maxping", va("%i",server->maxPing));
 		Info_SetValueForKey( info, "nettype", va("%i",server->netType));
 		Info_SetValueForKey( info, "needpass", va("%i", server->needPassword ) );
-		Info_SetValueForKey( info, "truejedi", va("%i", server->trueJedi ) );
-		Info_SetValueForKey( info, "wdisable", va("%i", server->weaponDisable ) );
-		Info_SetValueForKey( info, "fdisable", va("%i", server->forceDisable ) );
 		Info_SetValueForKey( info, "game", server->game);
-		Info_SetValueForKey( info, "gametype", va("%i",server->gameType));
+		Info_SetValueForKey( info, "gametype", server->gameType);
 		Info_SetValueForKey( info, "addr", NET_AdrToString(server->adr));
-//		Info_SetValueForKey( info, "sv_allowAnonymous", va("%i", server->allowAnonymous));
+		Info_SetValueForKey( info, "sv_allowAnonymous", va("%i", server->allowAnonymous));
 //		Info_SetValueForKey( info, "pure", va("%i", server->pure ) );
 		Q_strncpyz(buf, info, buflen);
 	} else {
@@ -354,11 +325,6 @@ static int LAN_GetServerPing( int source, int n ) {
 		case AS_LOCAL :
 			if (n >= 0 && n < MAX_OTHER_SERVERS) {
 				server = &cls.localServers[n];
-			}
-			break;
-		case AS_MPLAYER :
-			if (n >= 0 && n < MAX_OTHER_SERVERS) {
-				server = &cls.mplayerServers[n];
 			}
 			break;
 		case AS_GLOBAL :
@@ -388,11 +354,6 @@ static serverInfo_t *LAN_GetServerPtr( int source, int n ) {
 		case AS_LOCAL :
 			if (n >= 0 && n < MAX_OTHER_SERVERS) {
 				return &cls.localServers[n];
-			}
-			break;
-		case AS_MPLAYER :
-			if (n >= 0 && n < MAX_OTHER_SERVERS) {
-				return &cls.mplayerServers[n];
 			}
 			break;
 		case AS_GLOBAL :
@@ -527,9 +488,6 @@ static void LAN_MarkServerVisible(int source, int n, qboolean visible ) {
 			case AS_LOCAL :
 				server = &cls.localServers[0];
 				break;
-			case AS_MPLAYER :
-				server = &cls.mplayerServers[0];
-				break;
 			case AS_GLOBAL :
 				server = &cls.globalServers[0];
 				count = MAX_GLOBAL_SERVERS;
@@ -549,11 +507,6 @@ static void LAN_MarkServerVisible(int source, int n, qboolean visible ) {
 			case AS_LOCAL :
 				if (n >= 0 && n < MAX_OTHER_SERVERS) {
 					cls.localServers[n].visible = visible;
-				}
-				break;
-			case AS_MPLAYER :
-				if (n >= 0 && n < MAX_OTHER_SERVERS) {
-					cls.mplayerServers[n].visible = visible;
 				}
 				break;
 			case AS_GLOBAL :
@@ -581,11 +534,6 @@ static int LAN_ServerIsVisible(int source, int n ) {
 		case AS_LOCAL :
 			if (n >= 0 && n < MAX_OTHER_SERVERS) {
 				return cls.localServers[n].visible;
-			}
-			break;
-		case AS_MPLAYER :
-			if (n >= 0 && n < MAX_OTHER_SERVERS) {
-				return cls.mplayerServers[n].visible;
 			}
 			break;
 		case AS_GLOBAL :
@@ -660,12 +608,7 @@ Key_KeynumToStringBuf
 void Key_KeynumToStringBuf( int keynum, char *buf, int buflen ) 
 {
 	const char *psKeyName = Key_KeynumToString( keynum/*, qtrue */);
-
-	// see if there's a more friendly (or localised) name...
-	//
-	const char *psKeyNameFriendly = SE_GetString( va("KEYNAMES_KEYNAME_%s",psKeyName) );
-
-	Q_strncpyz( buf, (psKeyNameFriendly && psKeyNameFriendly[0]) ? psKeyNameFriendly : psKeyName, buflen );
+	Q_strncpyz( buf, psKeyName, buflen );
 }
 
 
@@ -754,6 +697,7 @@ CL_UISystemCalls
 The ui module is making a system call
 ====================
 */
+void VM_Shift2(void ** mem);
 int CL_UISystemCalls( int *args ) {
 	switch( args[0] ) {
 	//rww - alright, DO NOT EVER add a GAME/CGAME/UI generic call without adding a trap to match, and
@@ -877,25 +821,11 @@ int CL_UISystemCalls( int *args ) {
 		return re.RegisterModel( (const char *)VMA(1) );
 
 	case UI_R_REGISTERSKIN:
-		return re.RegisterSkin( (const char *)VMA(1) );
+		//SOF2 TODO
+		return re.RegisterSkin( (const char *)VMA(1), 0, NULL );
 
 	case UI_R_REGISTERSHADERNOMIP:
 		return re.RegisterShaderNoMip( (const char *)VMA(1) );
-
-	case UI_R_SHADERNAMEFROMINDEX:
-		{
-			char *gameMem = (char *)VMA(1);
-			const char *retMem = re.ShaderNameFromIndex(args[2]);
-			if (retMem)
-			{
-				strcpy(gameMem, retMem);
-			}
-			else
-			{
-				gameMem[0] = 0;
-			}
-		}
-		return 0;
 
 	case UI_R_CLEARSCENE:
 		re.ClearScene();
@@ -906,6 +836,7 @@ int CL_UISystemCalls( int *args ) {
 		return 0;
 
 	case UI_R_ADDPOLYTOSCENE:
+		//SOF2 TODO
 		re.AddPolyToScene( args[1], args[2], (const polyVert_t *)VMA(3), 1 );
 		return 0;
 
@@ -926,15 +857,26 @@ int CL_UISystemCalls( int *args ) {
 		return 0;
 
 	case UI_R_DRAWSTRETCHPIC:
-		re.DrawStretchPic( VMF(1), VMF(2), VMF(3), VMF(4), VMF(5), VMF(6), VMF(7), VMF(8), args[9] );
+		re.DrawStretchPic( VMF(1), VMF(2), VMF(3), VMF(4), VMF(5), VMF(6), VMF(7), VMF(8), args[10] );
 		return 0;
 
-  case UI_R_MODELBOUNDS:
+	case UI_R_MODELBOUNDS:
 		re.ModelBounds( args[1], (float *)VMA(2), (float *)VMA(3) );
 		return 0;
 
 	case UI_UPDATESCREEN:
-		SCR_UpdateScreen();
+		if ( args[1] )
+		{
+			// draw loading screen
+			VM_Call( uivm, UI_REFRESH, cls.realtime );
+			VM_Call( uivm, UI_DRAW_LOADING_SCREEN );
+			re.BeginFrame( STEREO_CENTER );
+			re.EndFrame( NULL, NULL );
+		}
+		else
+		{
+			SCR_UpdateScreen();
+		}
 		return 0;
 
 	case UI_CM_LERPTAG:
@@ -995,6 +937,9 @@ int CL_UISystemCalls( int *args ) {
 
 	case UI_GETCONFIGSTRING:
 		return GetConfigString( args[1], (char *)VMA(2), args[3] );
+
+	case UI_NET_AVAILABLE:
+		return qtrue;
 
 	case UI_LAN_LOADCACHEDSERVERS:
 		LAN_LoadCachedServers();
@@ -1066,27 +1011,19 @@ int CL_UISystemCalls( int *args ) {
 	case UI_R_REGISTERFONT:
 		return re.RegisterFont( (const char *)VMA(1) );
 
-	case UI_R_FONT_STRLENPIXELS:
-		return re.Font_StrLenPixels( (const char *)VMA(1), args[2], VMF(3) );
+	case UI_R_GETTEXTWIDTH:
+		return re.Font_StrLenPixels((const char *)VMA(1), args[2], VMF(3));
 
-	case UI_R_FONT_STRLENCHARS:
-		return re.Font_StrLenChars( (const char *)VMA(1) );
-
-	case UI_R_FONT_STRHEIGHTPIXELS:
-		return re.Font_HeightPixels( args[1], VMF(2) );
-
-	case UI_R_FONT_DRAWSTRING:
-		re.Font_DrawString( args[1], args[2], (const char *)VMA(3), (const float *) VMA(4), args[5], args[6], VMF(7) );
+	case UI_R_GETTEXTHEIGHT:
+		return re.Font_HeightPixels(args[2], VMF(3));
+		
+	case UI_R_DRAWTEXTWITHCURSOR:
+		re.Font_DrawString(args[1], args[2], args[3], VMF(4), (vec_t *)VMA(5), (const char *)VMA(6), args[7], args[8], args[9], args[10]);
 		return 0;
 
-	case UI_LANGUAGE_ISASIAN:
-		return re.Language_IsAsian();
-
-	case UI_LANGUAGE_USESSPACES:
-		return re.Language_UsesSpaces();
-
-	case UI_ANYLANGUAGE_READCHARFROMSTRING:
-		return re.AnyLanguage_ReadCharFromString( (const char *)VMA(1), (int *) VMA(2), (qboolean *) VMA(3) );
+	case UI_R_DRAWTEXT:
+		re.Font_DrawString(args[1], args[2], args[3], VMF(4), (vec_t *)VMA(5), (const char *)VMA(6), args[7], args[8], 0, 0);
+		return 0;
 
 	case UI_PC_ADD_GLOBAL_DEFINE:
 		return botlib_export->PC_AddGlobalDefine( (char *)VMA(1) );
@@ -1136,29 +1073,6 @@ int CL_UISystemCalls( int *args ) {
 		re.RemapShader( (const char *)VMA(1), (const char *)VMA(2), (const char *)VMA(3) );
 		return 0;
 
-	case UI_SP_GETNUMLANGUAGES:
-		return SE_GetNumLanguages();
-
-	case UI_SP_GETLANGUAGENAME:
-		char *languageName,*holdName;
-
-		holdName = ((char *)VMA(2));
-		languageName = (char *) SE_GetLanguageName((const int)VMA(1));
-		Q_strncpyz( holdName, languageName,128 );
-		return 0;
-
-	case UI_SP_GETSTRINGTEXTSTRING:
-		const char* text;
-
-		assert(VMA(1));
-		assert(VMA(2));
-		text = SE_GetString((const char *) VMA(1));
-		Q_strncpyz( (char *) VMA(2), text, args[3] );
-		return qtrue;
-
-/*
-Ghoul2 Insert Start
-*/
 /*
 Ghoul2 Insert Start
 */
@@ -1181,7 +1095,7 @@ Ghoul2 Insert Start
 	case UI_G2_GETBOLT:
 		return re.G2API_GetBoltMatrix(*((CGhoul2Info_v *)args[1]), args[2], args[3], (mdxaBone_t *)VMA(4), (const float *)VMA(5),(const float *)VMA(6), args[7], (qhandle_t *)VMA(8), (float *)VMA(9));
 
-	case UI_G2_GETBOLT_NOREC:
+	/*case UI_G2_GETBOLT_NOREC:
 		re.G2API_BoltMatrixReconstruction( qfalse );//gG2_GBMNoReconstruct = qtrue;
 		return re.G2API_GetBoltMatrix(*((CGhoul2Info_v *)args[1]), args[2], args[3], (mdxaBone_t *)VMA(4), (const float *)VMA(5),(const float *)VMA(6), args[7], (qhandle_t *)VMA(8), (float *)VMA(9));
 
@@ -1189,7 +1103,7 @@ Ghoul2 Insert Start
 		//RAZFIXME: cgame reconstructs bolt matrix, why is this different?
 		re.G2API_BoltMatrixReconstruction( qfalse );//gG2_GBMNoReconstruct = qtrue;
 		re.G2API_BoltMatrixSPMethod( qtrue );//gG2_GBMUseSPMethod = qtrue;
-		return re.G2API_GetBoltMatrix(*((CGhoul2Info_v *)args[1]), args[2], args[3], (mdxaBone_t *)VMA(4), (const float *)VMA(5),(const float *)VMA(6), args[7], (qhandle_t *)VMA(8), (float *)VMA(9));
+		return re.G2API_GetBoltMatrix(*((CGhoul2Info_v *)args[1]), args[2], args[3], (mdxaBone_t *)VMA(4), (const float *)VMA(5),(const float *)VMA(6), args[7], (qhandle_t *)VMA(8), (float *)VMA(9));*/
 
 	case UI_G2_INITGHOUL2MODEL:
 #ifdef _FULL_G2_LEAK_CHECKING
@@ -1199,9 +1113,9 @@ Ghoul2 Insert Start
 									  (qhandle_t) args[5], args[6], args[7]);
 
 
-	case UI_G2_COLLISIONDETECT:
+	/*case UI_G2_COLLISIONDETECT:
 	case UI_G2_COLLISIONDETECTCACHE:
-		return 0; //not supported for ui
+		return 0; //not supported for ui*/
 
 	case UI_G2_ANGLEOVERRIDE:
 		return re.G2API_SetBoneAngles(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3), (float *)VMA(4), args[5],
@@ -1213,14 +1127,13 @@ Ghoul2 Insert Start
 		g_G2AllocServer = 0;
 #endif
 		re.G2API_CleanGhoul2Models((CGhoul2Info_v **)VMA(1));
-	//	re.G2API_CleanGhoul2Models((CGhoul2Info_v **)args[1]);
 		return 0;
 
 	case UI_G2_PLAYANIM:
 		return re.G2API_SetBoneAnim(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3), args[4], args[5],
 								args[6], VMF(7), args[8], VMF(9), args[10]);
 
-	case UI_G2_GETBONEANIM:
+	/*case UI_G2_GETBONEANIM:
 		{
 			CGhoul2Info_v &g2 = *((CGhoul2Info_v *)args[1]);
 			int modelIndex = args[10];
@@ -1238,21 +1151,11 @@ Ghoul2 Insert Start
 
 			return re.G2API_GetBoneAnim(&g2[modelIndex], (const char*)VMA(2), args[3], (float *)VMA(4), &iDontCare1,
 								&iDontCare2, &iDontCare3, &fDontCare1, (int *)VMA(5));
-		}
+		}*/
 
 	case UI_G2_GETGLANAME:
-		//	return (int)G2API_GetGLAName(*((CGhoul2Info_v *)VMA(1)), args[2]);
-		{
-			char *point = ((char *)VMA(3));
-			char *local;
-			local = re.G2API_GetGLAName(*((CGhoul2Info_v *)args[1]), args[2]);
-			if (local)
-			{
-				strcpy(point, local);
-			}
-		}
-		return 0;
-
+		return (int)re.G2API_GetGLAName(*((CGhoul2Info_v *)args[1]), args[2]);
+		
 	case UI_G2_COPYGHOUL2INSTANCE:
 		return (int)re.G2API_CopyGhoul2Instance(*((CGhoul2Info_v *)args[1]), *((CGhoul2Info_v *)args[2]), args[3]);
 
@@ -1267,76 +1170,38 @@ Ghoul2 Insert Start
 		re.G2API_DuplicateGhoul2Instance(*((CGhoul2Info_v *)args[1]), (CGhoul2Info_v **)VMA(2));
 		return 0;
 
-	case UI_G2_HASGHOUL2MODELONINDEX:
-		return (int)re.G2API_HasGhoul2ModelOnIndex((CGhoul2Info_v **)VMA(1), args[2]);
-		//return (int)G2API_HasGhoul2ModelOnIndex((CGhoul2Info_v **)args[1], args[2]);
-
 	case UI_G2_REMOVEGHOUL2MODEL:
 #ifdef _FULL_G2_LEAK_CHECKING
 		g_G2AllocServer = 0;
 #endif
 		return (int)re.G2API_RemoveGhoul2Model((CGhoul2Info_v **)VMA(1), args[2]);
-		//return (int)G2API_RemoveGhoul2Model((CGhoul2Info_v **)args[1], args[2]);
 
 	case UI_G2_ADDBOLT:
 		return re.G2API_AddBolt(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3));
 
-//	case UI_G2_REMOVEBOLT:
-//		return G2API_RemoveBolt(*((CGhoul2Info_v *)VMA(1)), args[2]);
+	case UI_G2_REMOVEBOLT:
+		{
+			CGhoul2Info_v &g2 = *((CGhoul2Info_v *)args[1]);
+			int modelIndex = args[2];
+			return re.G2API_RemoveBolt(&g2[modelIndex], args[3]);
+		}
 
-	case UI_G2_SETBOLTON:
+	/*case UI_G2_SETBOLTON:
 		re.G2API_SetBoltInfo(*((CGhoul2Info_v *)args[1]), args[2], args[3]);
-		return 0;
+		return 0;*/
 
 #ifdef _SOF2	
 	case UI_G2_ADDSKINGORE:
 		re.G2API_AddSkinGore(*((CGhoul2Info_v *)args[1]),*(SSkinGoreData *)VMA(2));
 		return 0;
 #endif // _SOF2
-/*
-Ghoul2 Insert End
-*/
-	case UI_G2_SETROOTSURFACE:
-		return re.G2API_SetRootSurface(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3));
+	/*case UI_G2_SETROOTSURFACE:
+		return re.G2API_SetRootSurface(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3));*/
 
 	case UI_G2_SETSURFACEONOFF:
-		return re.G2API_SetSurfaceOnOff(*((CGhoul2Info_v *)args[1]), (const char *)VMA(2), /*(const int)VMA(3)*/args[3]);
-
-	case UI_G2_SETNEWORIGIN:
-		return re.G2API_SetNewOrigin(*((CGhoul2Info_v *)args[1]), /*(const int)VMA(2)*/args[2]);
-
-	case UI_G2_GETTIME:
-		return re.G2API_GetTime(0);
-
-	case UI_G2_SETTIME:
-		re.G2API_SetTime(args[1], args[2]);
-		return 0;
-
-	case UI_G2_SETRAGDOLL:
-		return 0; //not supported for ui
-		break;
-	case UI_G2_ANIMATEG2MODELS:
-		return 0; //not supported for ui
-		break;
-
-	case UI_G2_SETBONEIKSTATE:
-		return re.G2API_SetBoneIKState(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3), args[4], (sharedSetBoneIKStateParams_t *)VMA(5));
-	case UI_G2_IKMOVE:
-		return re.G2API_IKMove(*((CGhoul2Info_v *)args[1]), args[2], (sharedIKMoveParams_t *)VMA(3));
-
-	case UI_G2_GETSURFACENAME:
-		{ //Since returning a pointer in such a way to a VM seems to cause MASSIVE FAILURE<tm>, we will shove data into the pointer the vm passes instead
-			char *point = ((char *)VMA(4));
-			char *local;
-			int modelindex = args[3];
-
+		{
 			CGhoul2Info_v &g2 = *((CGhoul2Info_v *)args[1]);
-
-			local = re.G2API_GetSurfaceName(&g2[modelindex], args[2]);
-			if (local)
-			{
-				strcpy(point, local);
-			}
+			return re.G2API_SetSurfaceOnOff(g2, args[2], (const char *)VMA(3), args[4]);
 		}
 
 		return 0;
@@ -1344,8 +1209,7 @@ Ghoul2 Insert End
 		{
 			CGhoul2Info_v &g2 = *((CGhoul2Info_v *)args[1]);
 			int modelIndex = args[2];
-			
-			return re.G2API_SetSkin(&g2[modelIndex], args[3], args[4]);
+			return re.G2API_SetSkin(&g2[modelIndex], args[3], 0);
 		}
 
 	case UI_G2_ATTACHG2MODEL:
@@ -1355,11 +1219,121 @@ Ghoul2 Insert End
 			
 			return re.G2API_AttachG2Model(*g2From, args[2], *g2To, args[4], args[5]);
 		}
+	case UI_G2_GETANIMFILENAMEINDEX:
+		{
+			CGhoul2Info_v &ghoul2 = *((CGhoul2Info_v *)args[1]);
+			qhandle_t modelIndex = (qhandle_t) args[2];
+			char * srcFilename;
+			qboolean retval = re.G2API_GetAnimFileName(&ghoul2[modelIndex], &srcFilename);
+			strncpy((char *) VMA(3), srcFilename, MAX_QPATH);
+			return (int) retval;
+		}
+
+	case UI_G2_REGISTERSKIN:
+		return re.RegisterSkin((const char *)VMA(1), args[2], (char *)VMA(3) );
 /*
 Ghoul2 Insert End
 */
+
+	case UI_GP_PARSE:
+		return (int)GP_Parse((char **) VMA(1), (bool) args[2], (bool) args[3]);
+	case UI_GP_PARSE_FILE:
+		{
+			char * data;
+			FS_ReadFile((char *) VMA(1), (void **) &data);
+			return (int)GP_Parse(&data, (bool) args[2], (bool) args[3]);
+		}
+	case UI_GP_CLEAN:
+		GP_Clean((TGenericParser2) args[1]);
+		return 0;
+	case UI_GP_DELETE:
+		GP_Delete((TGenericParser2 *) VMA(1));
+		return 0;
+	case UI_GP_GET_BASE_PARSE_GROUP:
+		return (int)GP_GetBaseParseGroup((TGenericParser2) args[1]);
+
+	case UI_VM_LOCALALLOC:
+		return (int)VM_Local_Alloc(args[1]);
+	case UI_VM_LOCALALLOCUNALIGNED:
+		return (int)VM_Local_AllocUnaligned(args[1]);
+	case UI_VM_LOCALTEMPALLOC:
+		return (int)VM_Local_TempAlloc(args[1]);
+	case UI_VM_LOCALTEMPFREE:
+		VM_Local_TempFree(args[1]);
+		return 0;
+	case UI_VM_LOCALSTRINGALLOC:
+		return (int)VM_Local_StringAlloc((char *) VMA(1));
+
+	case UI_GET_CDKEY:
+		return 0;
+	case UI_SET_CDKEY:
+		return 0;
+	case UI_VERIFY_CDKEY:
+		return 1;
+
+	case UI_GPG_GET_NAME:
+		return (int)GPG_GetName((TGPGroup) args[1], (char *) VMA(2));
+	case UI_GPG_GET_NEXT:
+		return (int)GPG_GetNext((TGPGroup) args[1]);
+	case UI_GPG_GET_INORDER_NEXT:
+		return (int)GPG_GetInOrderNext((TGPGroup) args[1]);
+	case UI_GPG_GET_INORDER_PREVIOUS:
+		return (int)GPG_GetInOrderPrevious((TGPGroup) args[1]);
+	case UI_GPG_GET_PAIRS:
+		return (int)GPG_GetPairs((TGPGroup) args[1]);
+	case UI_GPG_GET_INORDER_PAIRS:
+		return (int)GPG_GetInOrderPairs((TGPGroup) args[1]);
+	case UI_GPG_GET_SUBGROUPS:
+		return (int)GPG_GetSubGroups((TGPGroup) args[1]);
+	case UI_GPG_GET_INORDER_SUBGROUPS:
+		return (int)GPG_GetInOrderSubGroups((TGPGroup) args[1]);
+	case UI_GPG_FIND_SUBGROUP:
+		return (int)GPG_FindSubGroup((TGPGroup) args[1], (char *) VMA(2));
+	case UI_GPG_FIND_PAIR:
+		return (int)GPG_FindPair((TGPGroup) args[1], (const char *) VMA(2));
+	case UI_GPG_FIND_PAIRVALUE:
+		return (int)GPG_FindPairValue((TGPGroup) args[1], (const char *) VMA(2), (const char *) VMA(3), (char *) VMA(4));
+		
+	case UI_GPV_GET_NAME:
+		return (int)GPV_GetName((TGPValue) args[1], (char *) VMA(2));
+	case UI_GPV_GET_NEXT:
+		return (int)GPV_GetNext((TGPValue) args[1]);
+	case UI_GPV_GET_INORDER_NEXT:
+		return (int)GPV_GetInOrderNext((TGPValue) args[1]);
+	case UI_GPV_GET_INORDER_PREVIOUS:
+		return (int)GPV_GetInOrderPrevious((TGPValue) args[1]);
+
+	case UI_GPV_IS_LIST:
+		return (int)GPV_IsList((TGPValue) args[1]);
+	case UI_GPV_GET_TOP_VALUE:
+		{
+			const char * topValue = GPV_GetTopValue((TGPValue) args[1]);
+			if (topValue)
+			{
+				strcpy((char *) VMA(2), topValue);
+			}
+			return 0;
+		}
+	case UI_GPV_GET_LIST:
+		return (int)GPV_GetList((TGPValue) args[1]);
+
+	case UI_PB_ISENABLED:
+	case UI_PB_ENABLE:
+	case UI_PB_DISABLE:
+		return qfalse;
+
+	case UI_GET_TEAM_COUNT:
+		//arg1 = int team
+		//TODO SOF2
+		return 1;
+	case UI_GET_TEAM_SCORE:
+		//arg1 = int team
+		//TODO SOF2
+		return 1;
+
 	default:
-		Com_Error( ERR_DROP, "Bad UI system trap: %i", args[0] );
+		Com_Printf("Bad UI system trap: %i", args[0] );
+		//Com_Error( ERR_DROP, "Bad UI system trap: %i", args[0] );
 
 	}
 
@@ -1378,7 +1352,7 @@ void CL_ShutdownUI( void ) {
 		return;
 	}
 	VM_Call( uivm, UI_SHUTDOWN );
-	VM_Call( uivm, UI_MENU_RESET );
+	//VM_Call( uivm, UI_MENU_RESET );
 	VM_Free( uivm );
 	uivm = NULL;
 }
@@ -1405,7 +1379,7 @@ void CL_InitUI( void ) {
 	else {
 		interpret = (vmInterpret_t)(int)Cvar_VariableValue( "vm_ui" );
 	}
-	uivm = VM_Create( "ui", CL_UISystemCalls, interpret );
+	uivm = VM_Create( "sof2mp_ui", CL_UISystemCalls, interpret );
 	if ( !uivm ) {
 		Com_Error( ERR_FATAL, "VM_Create on UI failed" );
 	}

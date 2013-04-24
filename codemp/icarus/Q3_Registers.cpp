@@ -4,7 +4,7 @@
 #include "game/g_public.h"
 #include "Q3_Registers.h"
 
-extern	void	Q3_DebugPrint( int level, const char *format, ... );
+//extern	void	Q3_DebugPrint( int level, const char *format, ... );
 
 varString_m		varStrings;
 varFloat_m		varFloats;
@@ -55,7 +55,7 @@ void Q3_DeclareVariable( int type, const char *name )
 
 	if ( numVariables > MAX_VARIABLES )
 	{
-		Q3_DebugPrint( WL_ERROR, "too many variables already declared, maximum is %d\n", MAX_VARIABLES );
+		//Q3_DebugPrint( WL_ERROR, "too many variables already declared, maximum is %d\n", MAX_VARIABLES );
 		return;
 	}
 
@@ -74,7 +74,7 @@ void Q3_DeclareVariable( int type, const char *name )
 		break;
 
 	default:
-		Q3_DebugPrint( WL_ERROR, "unknown 'type' for declare() function!\n" );
+		//Q3_DebugPrint( WL_ERROR, "unknown 'type' for declare() function!\n" );
 		return;
 		break;
 	}
@@ -195,8 +195,8 @@ void Q3_InitVariables( void )
 	varFloats.clear();
 	varVectors.clear();
 
-	if ( numVariables > 0 )
-		Q3_DebugPrint( WL_WARNING, "%d residual variables found!\n", numVariables );
+	/*if ( numVariables > 0 )
+		Q3_DebugPrint( WL_WARNING, "%d residual variables found!\n", numVariables );*/
 
 	numVariables = 0;
 }

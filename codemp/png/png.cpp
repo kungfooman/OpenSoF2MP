@@ -594,7 +594,7 @@ bool PNG_Save(const char *name, byte *data, int width, int height, int bytedepth
 	png_error = PNG_ERROR_OK;
 
 	// Create the file
-	fp = ri.FS_FOpenFileWrite(name);
+	fp = ri.FS_FOpenFileWrite(name, false);
 	if(!fp)
 	{
 		png_error = PNG_ERROR_CREATE_FAIL;

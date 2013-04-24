@@ -5,7 +5,6 @@
 #include "server.h"
 
 #include "botlib/botlib.h"
-#include "qcommon/stringed_ingame.h"
 
 #if !defined(CROFFSYSTEM_H_INC)
 	#include "qcommon/RoffSystem.h"
@@ -437,8 +436,6 @@ sharedEntity_t *ConvertedEntity(sharedEntity_t *ent)
 	return &gLocalModifier;
 }
 
-siegePers_t sv_siegePersData = {qfalse, 0, 0};
-
 extern float g_svCullDist;
 int SV_GameSystemCalls( int *args ) {
 	switch( args[0] ) {
@@ -495,7 +492,7 @@ int SV_GameSystemCalls( int *args ) {
 		return Sys_Milliseconds();
 	//rww - precision timer funcs... -ALWAYS- call end after start with supplied ptr, or you'll get a nasty memory leak.
 	//not that you should be using these outside of debug anyway.. because you shouldn't be. So don't.
-	case CG_PRECISIONTIMER_START:
+	/*case CG_PRECISIONTIMER_START:
 		{
 			void **suppliedPtr =(void **)VMA(1); //we passed in a pointer to a point
 			timing_c *newTimer = new timing_c; //create the new timer
@@ -510,7 +507,7 @@ int SV_GameSystemCalls( int *args ) {
 			r = timer->End(); //get the result
 			delete timer; //delete the timer since we're done with it
 			return r; //return the result
-		}
+		}*/
 	case G_CVAR_REGISTER:
 		Cvar_Register( (vmCvar_t *)VMA(1), (const char *)VMA(2), (const char *)VMA(3), args[4] ); 
 		return 0;
@@ -572,17 +569,17 @@ int SV_GameSystemCalls( int *args ) {
 	case G_TRACE:
 		SV_Trace( (trace_t *)VMA(1), (const float *)VMA(2), (const float *)VMA(3), (const float *)VMA(4), (const float *)VMA(5), args[6], args[7], /*int capsule*/ qfalse, /*args[8]*/0, args[9] );
 		return 0;
-	case G_G2TRACE:
-		SV_Trace( (trace_t *)VMA(1), (const float *)VMA(2), (const float *)VMA(3), (const float *)VMA(4), (const float *)VMA(5), args[6], args[7], /*int capsule*/ qfalse, args[8], args[9] );
-		return 0;
+	/*case G_G2TRACE:
+		SV_Trace( (trace_t *)VMA(1), (const float *)VMA(2), (const float *)VMA(3), (const float *)VMA(4), (const float *)VMA(5), args[6], args[7], qfalse, args[8], args[9] );
+		return 0;*/
 	case G_TRACECAPSULE:
 		SV_Trace( (trace_t *)VMA(1), (const float *)VMA(2), (const float *)VMA(3), (const float *)VMA(4), (const float *)VMA(5), args[6], args[7], /*int capsule*/ qtrue, args[8], args[9]  );
 		return 0;
 	case G_POINT_CONTENTS:
 		return SV_PointContents( (const float *)VMA(1), args[2] );
-	case G_SET_SERVER_CULL:
+	/*case G_SET_SERVER_CULL:
 		g_svCullDist = VMF(1);
-		return 0;
+		return 0;*/
 	case G_SET_BRUSH_MODEL:
 		SV_SetBrushModel( (sharedEntity_t *)VMA(1), (const char *)VMA(2) );
 		return 0;
@@ -622,13 +619,13 @@ int SV_GameSystemCalls( int *args ) {
 		SV_GetUsercmd( args[1], (struct usercmd_s *)VMA(2) );
 		return 0;
 
-	case G_SIEGEPERSSET:
+	/*case G_SIEGEPERSSET:
 		sv_siegePersData = *((siegePers_t *)VMA(1));
 		return 0;
 
 	case G_SIEGEPERSGET:
 		*((siegePers_t *)VMA(1)) = sv_siegePersData;
-		return 0;
+		return 0;*/
 
 		//rwwRMG - see below
 		/*
@@ -668,7 +665,7 @@ int SV_GameSystemCalls( int *args ) {
 
 //	case SP_REGISTER_SERVER_CMD:
 //		return SP_RegisterServer( (const char *)VMA(1) );
-	case SP_GETSTRINGTEXTSTRING:
+	/*case SP_GETSTRINGTEXTSTRING:
 		//return (int)SP_GetStringTextString((char *)VMA(1));
 		const char* text;
 
@@ -718,10 +715,10 @@ int SV_GameSystemCalls( int *args ) {
 		return 0;
 	case G_TRUEFREE:
 		VM_Shifted_Free((void **)VMA(1));
-		return 0;
+		return 0;*/
 
 	//rww - icarus traps
-	case G_ICARUS_RUNSCRIPT:
+	/*case G_ICARUS_RUNSCRIPT:
 		return ICARUS_RunScript(ConvertedEntity((sharedEntity_t *)VMA(1)), (const char *)VMA(2));
 
 	case G_ICARUS_REGISTERSCRIPT:
@@ -815,11 +812,11 @@ int SV_GameSystemCalls( int *args ) {
 		}
 
 	case G_ICARUS_GETVECTORVARIABLE:
-		return Q3_GetVectorVariable((const char *)VMA(1), (float *)VMA(2));
+		return Q3_GetVectorVariable((const char *)VMA(1), (float *)VMA(2));*/
 
 
 	//rww - BEGIN NPC NAV TRAPS
-	case G_NAV_INIT:
+	/*case G_NAV_INIT:
 		navigator.Init();
 		return 0;
 	case G_NAV_FREE:
@@ -919,11 +916,11 @@ int SV_GameSystemCalls( int *args ) {
 	case G_NAV_SETPATHSCALCULATED:
 		navigator.pathsCalculated = (qboolean)args[1];
 		return 0;
-	//rww - END NPC NAV TRAPS
+	//rww - END NPC NAV TRAPS*/
 
-	case G_SET_SHARED_BUFFER:
+	/*case G_SET_SHARED_BUFFER:
 		sv.mSharedMemory = ((char *)VMA(1));
-		return 0;
+		return 0;*/
 		//====================================
 
 	case BOTLIB_SETUP:
@@ -1295,8 +1292,8 @@ int SV_GameSystemCalls( int *args ) {
 	case BOTLIB_AI_GENETIC_PARENTS_AND_CHILD_SELECTION:
 		return botlib_export->ai.GeneticParentsAndChildSelection(args[1], (float *)VMA(2), (int *)VMA(3), (int *)VMA(4), (int *)VMA(5));
 
-	case G_R_REGISTERSKIN:
-		return re.RegisterServerSkin((const char *)VMA(1));
+	/*case G_R_REGISTERSKIN:
+		return re.RegisterServerSkin((const char *)VMA(1));*/
 
 	case G_G2_LISTBONES:
 		re.G2API_ListBones( (CGhoul2Info *) VMA(1), args[2]);
@@ -1316,14 +1313,14 @@ int SV_GameSystemCalls( int *args ) {
 	case G_G2_GETBOLT:
 		return re.G2API_GetBoltMatrix(*((CGhoul2Info_v *)args[1]), args[2], args[3], (mdxaBone_t *)VMA(4), (const float *)VMA(5),(const float *)VMA(6), args[7], (qhandle_t *)VMA(8), (float *)VMA(9));
 
-	case G_G2_GETBOLT_NOREC:
+	/*case G_G2_GETBOLT_NOREC:
 		re.G2API_BoltMatrixReconstruction( qfalse );//gG2_GBMNoReconstruct = qtrue;
 		return re.G2API_GetBoltMatrix(*((CGhoul2Info_v *)args[1]), args[2], args[3], (mdxaBone_t *)VMA(4), (const float *)VMA(5),(const float *)VMA(6), args[7], (qhandle_t *)VMA(8), (float *)VMA(9));
 
 	case G_G2_GETBOLT_NOREC_NOROT:
 		re.G2API_BoltMatrixReconstruction( qfalse );//gG2_GBMNoReconstruct = qtrue;
 		re.G2API_BoltMatrixSPMethod( qtrue );//gG2_GBMUseSPMethod = qtrue;
-		return re.G2API_GetBoltMatrix(*((CGhoul2Info_v *)args[1]), args[2], args[3], (mdxaBone_t *)VMA(4), (const float *)VMA(5),(const float *)VMA(6), args[7], (qhandle_t *)VMA(8), (float *)VMA(9));
+		return re.G2API_GetBoltMatrix(*((CGhoul2Info_v *)args[1]), args[2], args[3], (mdxaBone_t *)VMA(4), (const float *)VMA(5),(const float *)VMA(6), args[7], (qhandle_t *)VMA(8), (float *)VMA(9));*/
 
 	case G_G2_INITGHOUL2MODEL:
 #ifdef _FULL_G2_LEAK_CHECKING
@@ -1340,9 +1337,9 @@ int SV_GameSystemCalls( int *args ) {
 			return re.G2API_SetSkin(&g2[modelIndex], args[3], args[4]);
 		}
 
-	case G_G2_SIZE:
+	/*case G_G2_SIZE:
 		return re.G2API_Ghoul2Size ( *((CGhoul2Info_v *)args[1]) );
-		break;
+		break;*/
 
 	case G_G2_ADDBOLT:
 		return	re.G2API_AddBolt(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3));
@@ -1360,14 +1357,14 @@ int SV_GameSystemCalls( int *args ) {
 		return re.G2API_SetBoneAnim(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3), args[4], args[5],
 								args[6], VMF(7), args[8], VMF(9), args[10]);
 
-	case G_G2_GETBONEANIM:
+	/*case G_G2_GETBONEANIM:
 		{
 			CGhoul2Info_v &g2 = *((CGhoul2Info_v *)args[1]);
 			int modelIndex = args[10];
 
 			return re.G2API_GetBoneAnim(&g2[modelIndex], (const char*)VMA(2), args[3], (float *)VMA(4), (int *)VMA(5),
 								(int *)VMA(6), (int *)VMA(7), (float *)VMA(8), (int *)VMA(9));
-		}
+		}*/
 
 	case G_G2_GETGLANAME:
 		//return (int)G2API_GetGLAName(*((CGhoul2Info_v *)args[1]), args[2]);
@@ -1397,9 +1394,9 @@ int SV_GameSystemCalls( int *args ) {
 		re.G2API_DuplicateGhoul2Instance(*((CGhoul2Info_v *)args[1]), (CGhoul2Info_v **)VMA(2));
 		return 0;
 
-	case G_G2_HASGHOUL2MODELONINDEX:
+	/*case G_G2_HASGHOUL2MODELONINDEX:
 		//return (int)G2API_HasGhoul2ModelOnIndex((CGhoul2Info_v **)args[1], args[2]);
-		return (int)re.G2API_HasGhoul2ModelOnIndex((CGhoul2Info_v **)VMA(1), args[2]);
+		return (int)re.G2API_HasGhoul2ModelOnIndex((CGhoul2Info_v **)VMA(1), args[2]);*/
 
 	case G_G2_REMOVEGHOUL2MODEL:
 #ifdef _FULL_G2_LEAK_CHECKING
@@ -1408,12 +1405,12 @@ int SV_GameSystemCalls( int *args ) {
 		//return (int)G2API_RemoveGhoul2Model((CGhoul2Info_v **)args[1], args[2]);
 		return (int)re.G2API_RemoveGhoul2Model((CGhoul2Info_v **)VMA(1), args[2]);
 
-	case G_G2_REMOVEGHOUL2MODELS:
+	/*case G_G2_REMOVEGHOUL2MODELS:
 #ifdef _FULL_G2_LEAK_CHECKING
 		g_G2AllocServer = 1;
 #endif
 		//return (int)G2API_RemoveGhoul2Models((CGhoul2Info_v **)args[1]);
-		return (int)re.G2API_RemoveGhoul2Models((CGhoul2Info_v **)VMA(1));
+		return (int)re.G2API_RemoveGhoul2Models((CGhoul2Info_v **)VMA(1));*/
 
 	case G_G2_CLEANMODELS:
 #ifdef _FULL_G2_LEAK_CHECKING
@@ -1438,7 +1435,7 @@ int SV_GameSystemCalls( int *args ) {
 								   VMF(12) );
 		return 0;
 
-	case G_G2_COLLISIONDETECTCACHE:
+	/*case G_G2_COLLISIONDETECTCACHE:
 		re.G2API_CollisionDetectCache ( (CollisionRecord_t*)VMA(1), *((CGhoul2Info_v *)args[2]), 
 								   (const float*)VMA(3),
 								   (const float*)VMA(4),
@@ -1457,10 +1454,10 @@ int SV_GameSystemCalls( int *args ) {
 		return re.G2API_SetRootSurface(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3));
 
 	case G_G2_SETSURFACEONOFF:
-		return re.G2API_SetSurfaceOnOff(*((CGhoul2Info_v *)args[1]), (const char *)VMA(2), /*(const int)VMA(3)*/args[3]);
+		return re.G2API_SetSurfaceOnOff(*((CGhoul2Info_v *)args[1]), (const char *)VMA(2), args[3]);
 
 	case G_G2_SETNEWORIGIN:
-		return re.G2API_SetNewOrigin(*((CGhoul2Info_v *)args[1]), /*(const int)VMA(2)*/args[2]);
+		return re.G2API_SetNewOrigin(*((CGhoul2Info_v *)args[1]), args[2]);
 
 	case G_G2_DOESBONEEXIST:
 		{
@@ -1600,7 +1597,7 @@ int SV_GameSystemCalls( int *args ) {
 		}
 
 
-		return 0;
+		return 0;*/
 
 	case G_SET_ACTIVE_SUBBSP:
 		SV_SetActiveSubBSP(args[1]);
@@ -1625,18 +1622,115 @@ int SV_GameSystemCalls( int *args ) {
 	case G_CM_REGISTER_TERRAIN:
 		return CM_RegisterTerrain((const char *)VMA(1), true)->GetTerrainId();
 
-	case G_BOT_UPDATEWAYPOINTS:
+	/*case G_BOT_UPDATEWAYPOINTS:
 		SV_BotWaypointReception(args[1], (wpobject_t **)VMA(2));
 		return 0;
 	case G_BOT_CALCULATEPATHS:
 		SV_BotCalculatePaths(args[1]);
-		return 0;
+		return 0;*/
 
 	case G_GET_ENTITY_TOKEN:
 		return SV_GetEntityToken((char *)VMA(1), args[2]);
 
+
+	case G_VM_LOCALALLOC:
+		return (int)VM_Local_Alloc(args[1]);
+	case G_VM_LOCALALLOCUNALIGNED:
+		return (int)VM_Local_AllocUnaligned(args[1]);
+	case G_VM_LOCALTEMPALLOC:
+		return (int)VM_Local_TempAlloc(args[1]);
+	case G_VM_LOCALTEMPFREE:
+		VM_Local_TempFree(args[1]);
+		return 0;
+	case G_VM_LOCALSTRINGALLOC:
+		return (int)VM_Local_StringAlloc((char *) VMA(1));
+
+	case G_GP_PARSE:
+		return (int)GP_Parse((char **) VMA(1), (bool) args[2], (bool) args[3]);
+	case G_GP_PARSE_FILE:
+		{
+			char * data;
+			FS_ReadFile((char *) VMA(1), (void **) &data);
+			return (int)GP_Parse(&data, (bool) args[2], (bool) args[3]);
+		}
+	case G_GP_CLEAN:
+		GP_Clean((TGenericParser2) args[1]);
+		return 0;
+	case G_GP_DELETE:
+		GP_Delete((TGenericParser2 *) VMA(1));
+		return 0;
+	case G_GP_GET_BASE_PARSE_GROUP:
+		return (int)GP_GetBaseParseGroup((TGenericParser2) args[1]);
+
+	case G_GPG_GET_NAME:
+		return (int)GPG_GetName((TGPGroup) args[1], (char *) VMA(2));
+	case G_GPG_GET_NEXT:
+		return (int)GPG_GetNext((TGPGroup) args[1]);
+	case G_GPG_GET_INORDER_NEXT:
+		return (int)GPG_GetInOrderNext((TGPGroup) args[1]);
+	case G_GPG_GET_INORDER_PREVIOUS:
+		return (int)GPG_GetInOrderPrevious((TGPGroup) args[1]);
+	case G_GPG_GET_PAIRS:
+		return (int)GPG_GetPairs((TGPGroup) args[1]);
+	case G_GPG_GET_INORDER_PAIRS:
+		return (int)GPG_GetInOrderPairs((TGPGroup) args[1]);
+	case G_GPG_GET_SUBGROUPS:
+		return (int)GPG_GetSubGroups((TGPGroup) args[1]);
+	case G_GPG_GET_INORDER_SUBGROUPS:
+		return (int)GPG_GetInOrderSubGroups((TGPGroup) args[1]);
+	case G_GPG_FIND_SUBGROUP:
+		return (int)GPG_FindSubGroup((TGPGroup) args[1], (char *) VMA(2));
+	case G_GPG_FIND_PAIR:
+		return (int)GPG_FindPair((TGPGroup) args[1], (const char *) VMA(2));
+	case G_GPG_FIND_PAIRVALUE:
+		return (int)GPG_FindPairValue((TGPGroup) args[1], (const char *) VMA(2), (const char *) VMA(3), (char *) VMA(4));
+
+	case G_GET_WORLD_BOUNDS:
+		CM_ModelBounds(0, (vec_t *)VMA(1), (vec_t *)VMA(2));
+		return 0;
+
+	case G_GPV_GET_NAME:
+		return (int)GPV_GetName((TGPValue) args[1], (char *) VMA(2));
+	case G_GPV_GET_NEXT:
+		return (int)GPV_GetNext((TGPValue) args[1]);
+	case G_GPV_GET_INORDER_NEXT:
+		return (int)GPV_GetInOrderNext((TGPValue) args[1]);
+	case G_GPV_GET_INORDER_PREVIOUS:
+		return (int)GPV_GetInOrderPrevious((TGPValue) args[1]);
+	case G_GPV_IS_LIST:
+		return (int)GPV_IsList((TGPValue) args[1]);
+	case G_GPV_GET_TOP_VALUE:
+		{
+			const char * topValue = GPV_GetTopValue((TGPValue) args[1]);
+			if (topValue)
+			{
+				strcpy((char *) VMA(2), topValue);
+			}
+			return 0;
+		}
+	case G_GPV_GET_LIST:
+		return (int)GPV_GetList((TGPValue) args[1]);
+
+	case G_GT_INIT:
+		//SOF2 TODO
+		//  const char* gametype, qboolean restart
+		return 0;
+	case G_GT_RUNFRAME:
+		//SOF2 TODO
+		// int time
+		return 0;
+	case G_GT_START:
+		//SOF2 TODO
+		// int time
+		return 0;
+	case G_GT_SENDEVENT:
+		//SOF2 TODO
+		// int event, int time, int arg0, int arg1, int arg2, int arg3, int arg4
+		return 0;
+
 	default:
-		Com_Error( ERR_DROP, "Bad game system trap: %i", args[0] );
+		Com_Printf("Bad game system trap: %i", args[0] );
+		//Com_Error( ERR_DROP, "Bad game system trap: %i", args[0] );
 	}
 	return -1;
 }
@@ -1730,7 +1824,7 @@ void SV_InitGameProgs( void ) {
 	}
 
 	// load the dll or bytecode
-	gvm = VM_Create( "jampgame", SV_GameSystemCalls, (vmInterpret_t)(int)Cvar_VariableValue( "vm_game" ) );
+	gvm = VM_Create( "sof2mp_game", SV_GameSystemCalls, (vmInterpret_t)(int)Cvar_VariableValue( "vm_game" ) );
 	if ( !gvm ) {
 		Com_Error( ERR_FATAL, "VM_Create on game failed" );
 	}

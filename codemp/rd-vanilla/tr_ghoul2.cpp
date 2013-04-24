@@ -1200,7 +1200,7 @@ void G2_TimingModel(boneInfo_t &bone,int currentTime,int numFramesInFile,int &cu
 			}
 			else
 			{
-				if (((bone.flags & (BONE_ANIM_OVERRIDE_FREEZE)) == (BONE_ANIM_OVERRIDE_FREEZE)))
+				if (bone.flags & BONE_ANIM_OVERRIDE_DEFAULT || ((bone.flags & (BONE_ANIM_OVERRIDE_FREEZE)) == (BONE_ANIM_OVERRIDE_FREEZE)))
 				{
 					// if we are supposed to reset the default anim, then do so
 					if (animSpeed > 0.0f)
@@ -1694,10 +1694,6 @@ void G2_TransformBone (int child,CBoneCache &BC)
 	if (angleOverride & BONE_ANGLES_REPLACE)
 	{
 		bool isRag=!!(angleOverride & BONE_ANGLES_RAGDOLL);
-		if (!isRag)
-		{ //do the same for ik.. I suppose.
-			isRag = !!(angleOverride & BONE_ANGLES_IK);
-		}
 
 		mdxaBone_t &bone = BC.mFinalBones[child].boneMatrix;
 		boneInfo_t &boneOverride = boneList[boneListIndex];
@@ -1866,7 +1862,7 @@ void G2_TransformBone (int child,CBoneCache &BC)
 	}
 	else if (angleOverride & BONE_ANGLES_PREMULT)
 	{
-		if ((angleOverride&BONE_ANGLES_RAGDOLL) || (angleOverride&BONE_ANGLES_IK))
+		if (angleOverride&BONE_ANGLES_RAGDOLL)
 		{
 			mdxaBone_t	tmp;
 			if (!child)
@@ -2433,7 +2429,7 @@ void RenderSurfaces(CRenderSurface &RS) //also ended up just ripping right from 
 			for ( j = 0 ; j < RS.skin->numSurfaces ; j++ )
 			{
 				// the names have both been lowercased
-				if ( !strcmp( RS.skin->surfaces[j]->name, surfInfo->name ) ) 
+				if ( !strcmp( RS.skin->surfaces[j]->name, surfInfo->shader ) ) 
 				{
 					shader = (shader_t*)RS.skin->surfaces[j]->shader;
 					break;
@@ -2495,7 +2491,7 @@ void RenderSurfaces(CRenderSurface &RS) //also ended up just ripping right from 
 #ifdef _G2_GORE
 			if (RS.gore_set && drawGore)
 			{
-				int curTime = G2API_GetTime(tr.refdef.time);
+				int curTime = tr.refdef.time;
 				pair<multimap<int,SGoreSurface>::iterator,multimap<int,SGoreSurface>::iterator> range=
 					RS.gore_set->mGoreRecords.equal_range(RS.surfaceNum);
 				multimap<int,SGoreSurface>::iterator k,kcur;
@@ -2556,15 +2552,6 @@ void RenderSurfaces(CRenderSurface &RS) //also ended up just ripping right from 
 							if ((*kcur).second.mDeleteTime - curTime < (*kcur).second.mFadeTime)
 							{
 								newSurf2->fade=(float)((*kcur).second.mDeleteTime - curTime)/(*kcur).second.mFadeTime;
-								if ((*kcur).second.mFadeRGB)
-								{ //RGB fades are scaled from 2.0f to 3.0f (simply to differentiate)
-									newSurf2->fade += 2.0f;
-
-									if (newSurf2->fade < 2.01f)
-									{
-										newSurf2->fade = 2.01f;
-									}
-								}
 							}
 						}
 
@@ -3235,8 +3222,7 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 		return;
 	}
 
-	int currentTime=G2API_GetTime(tr.refdef.time);
-
+	int currentTime=tr.refdef.time;
 
 	// cull the entire model if merged bounding box of both frames
 	// is outside the view frustum.
@@ -3287,7 +3273,7 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 	for (j=0; j<modelCount; j++)
 	{
 		i = modelList[j];
-		if (ghoul2[i].mValid&&!(ghoul2[i].mFlags & GHOUL2_NOMODEL)&&!(ghoul2[i].mFlags & GHOUL2_NORENDER))
+		if (ghoul2[i].mValid&&!(ghoul2[i].mFlags & GHOUL2_NOMODEL))
 		{
 			//
 			// figure out whether we should be using a custom shader for this model
@@ -3341,15 +3327,18 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 				}
 			}
 
-			CRenderSurface RS(ghoul2[i].mSurfaceRoot, ghoul2[i].mSlist, cust_shader, fogNum, personalModel, ghoul2[i].mBoneCache, ent->e.renderfx, skin, (model_t *)ghoul2[i].currentModel, whichLod, ghoul2[i].mBltlist, gore_shader, gore);
+			if (!(ghoul2[i].mFlags & GHOUL2_NORENDER)) {
+				CRenderSurface RS(ghoul2[i].mSurfaceRoot, ghoul2[i].mSlist, cust_shader, fogNum, personalModel, ghoul2[i].mBoneCache, ent->e.renderfx, skin, (model_t *)ghoul2[i].currentModel, whichLod, ghoul2[i].mBltlist, gore_shader, gore);
 #else
-			CRenderSurface RS(ghoul2[i].mSurfaceRoot, ghoul2[i].mSlist, cust_shader, fogNum, personalModel, ghoul2[i].mBoneCache, ent->e.renderfx, skin, (model_t *)ghoul2[i].currentModel, whichLod, ghoul2[i].mBltlist);
+			if (!(ghoul2[i].mFlags & GHOUL2_NORENDER)) {
+				CRenderSurface RS(ghoul2[i].mSurfaceRoot, ghoul2[i].mSlist, cust_shader, fogNum, personalModel, ghoul2[i].mBoneCache, ent->e.renderfx, skin, (model_t *)ghoul2[i].currentModel, whichLod, ghoul2[i].mBltlist);
 #endif
-			if (!personalModel && (RS.renderfx & RF_SHADOW_PLANE) && !bInShadowRange(ent->e.origin))
-			{
-				RS.renderfx |= RF_NOSHADOW;
+				if (!personalModel && (RS.renderfx & RF_SHADOW_PLANE) && !bInShadowRange(ent->e.origin))
+				{
+					RS.renderfx |= RF_NOSHADOW;
+				}
+				RenderSurfaces(RS);
 			}
-			RenderSurfaces(RS);
 		}
 	}
 	HackadelicOnClient=false;
@@ -4196,6 +4185,7 @@ qboolean R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, qboolean 
 	mdxmSurface_t		*surf;
 	int					version;
 	int					size;
+	shader_t			*sh;
 	mdxmSurfHierarchy_t	*surfInfo;
 
 #ifndef _M_IX86
@@ -4258,7 +4248,11 @@ qboolean R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, qboolean 
 	}
 		
 	// first up, go load in the animation file we need that has the skeletal animation info for this model
-	mdxm->animIndex = RE_RegisterModel(va ("%s.gla",mdxm->animName));
+	if (strstr(mdxm->animName, "/weapons/") != 0) {
+		mdxm->animIndex = RE_RegisterModel(va ("%s.gla",mdxm->animName));
+	} else {
+		mdxm->animIndex = RE_RegisterModel(va ("%s_mp.gla",mdxm->animName));
+	}
 
 	if (!mdxm->animIndex) 
 	{
@@ -4286,32 +4280,38 @@ qboolean R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, qboolean 
 		LL(surfInfo->parentIndex);
 
 		Q_strlwr(surfInfo->name);	//just in case
-		if ( !strcmp( &surfInfo->name[strlen(surfInfo->name)-4],"_off") )
+		if ( surfInfo->shader[0] == '[' )
 		{
-			surfInfo->name[strlen(surfInfo->name)-4]=0;	//remove "_off" from name
+			surfInfo->shader[0] = 0;	//kill the stupid [nomaterial] since carcass doesn't
 		}
-
+		
 		// do all the children indexs
 		for (j=0; j<surfInfo->numChildren; j++)
 		{
 			LL(surfInfo->childIndexes[j]);
 		}
 
-		shader_t	*sh;
-		// get the shader name
-		sh = R_FindShader( surfInfo->shader, lightmapsNone, stylesDefault, qtrue );
-		// insert it in the surface list
-		if ( sh->defaultShader ) 
+		// No need to search for the shader if it doesn't resemble a path
+		if (strstr(surfInfo->shader, "/"))
 		{
-			surfInfo->shaderIndex = 0;
-		}
-		else
-		{
-			surfInfo->shaderIndex = sh->index;
-		}
+			// get the shader name
+			sh = R_FindShader( surfInfo->shader, lightmapsNone, stylesDefault, qtrue );
 
-		RE_RegisterModels_StoreShaderRequest(mod_name, &surfInfo->shader[0], &surfInfo->shaderIndex);		
+			// insert it in the surface list
+			if ( !sh->defaultShader ) 
+			{
+				surfInfo->shaderIndex = sh->index;
+			}
 
+		
+			if (surfInfo->shaderIndex)
+
+			{
+				RE_RegisterModels_StoreShaderRequest(mod_name, &surfInfo->shader[0], &surfInfo->shaderIndex);		
+
+			}
+		}
+		
 		// find the next surface
 		surfInfo = (mdxmSurfHierarchy_t *)( (byte *)surfInfo + (int)( &((mdxmSurfHierarchy_t *)0)->childIndexes[ surfInfo->numChildren ] ));
   	}

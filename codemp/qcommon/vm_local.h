@@ -132,6 +132,9 @@ struct vm_s {
 
 	byte		*dataBase;
 	int			dataMask;
+	int			localPoolStart;
+	int			localPoolSize;
+	int			localPoolTail;
 
 	int			stackBottom;		// if programStack < stackBottom, error
 

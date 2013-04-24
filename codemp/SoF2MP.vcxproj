@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -11,17 +11,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>engine</ProjectName>
+    <ProjectName>SoF2MP</ProjectName>
     <ProjectGuid>{940CECBC-C6E6-DBE5-B493-0A64D54AFDF6}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -35,7 +38,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\build\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\build\$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.build\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\build\</OutDir>
@@ -145,6 +148,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="client\materials.h" />
     <ClInclude Include="game\anims.h" />
     <ClInclude Include="game\bg_weapons.h" />
     <ClInclude Include="game\botlib.h" />
@@ -185,8 +189,6 @@
     <ClInclude Include="qcommon\qcommon.h" />
     <ClInclude Include="qcommon\qfiles.h" />
     <ClInclude Include="qcommon\sstring.h" />
-    <ClInclude Include="qcommon\stringed_ingame.h" />
-    <ClInclude Include="qcommon\stringed_interface.h" />
     <ClInclude Include="game\surfaceflags.h" />
     <ClInclude Include="qcommon\tags.h" />
     <ClInclude Include="qcommon\timing.h" />
@@ -322,6 +324,7 @@
     <ClCompile Include="client\cl_parse.cpp" />
     <ClCompile Include="client\cl_scrn.cpp" />
     <ClCompile Include="client\cl_ui.cpp" />
+    <ClCompile Include="client\materials.cpp" />
     <ClCompile Include="qcommon\CNetProfile.cpp" />
     <ClCompile Include="qcommon\GenericParser2.cpp" />
     <ClCompile Include="qcommon\RoffSystem.cpp" />
@@ -350,8 +353,6 @@
     <ClCompile Include="qcommon\net_chan.cpp" />
     <ClCompile Include="qcommon\q_math.cpp" />
     <ClCompile Include="qcommon\q_shared.cpp" />
-    <ClCompile Include="qcommon\stringed_ingame.cpp" />
-    <ClCompile Include="qcommon\stringed_interface.cpp" />
     <ClCompile Include="qcommon\unzip.cpp" />
     <ClCompile Include="qcommon\vm.cpp" />
     <ClCompile Include="qcommon\vm_interpreted.cpp" />
@@ -374,7 +375,6 @@
     <ClCompile Include="server\sv_snapshot.cpp" />
     <ClCompile Include="server\sv_world.cpp" />
     <ClCompile Include="server\NPCNav\gameCallbacks.cpp" />
-    <ClCompile Include="server\NPCNav\navigator.cpp" />
     <ClCompile Include="client\snd_ambient.cpp" />
     <ClCompile Include="client\snd_dma.cpp" />
     <ClCompile Include="client\snd_mem.cpp" />
@@ -463,7 +463,6 @@
     <ClCompile Include="icarus\Instance.cpp" />
     <ClCompile Include="icarus\Interface.cpp" />
     <ClCompile Include="icarus\Memory.cpp" />
-    <ClCompile Include="icarus\Q3_Interface.cpp" />
     <ClCompile Include="icarus\Q3_Registers.cpp" />
     <ClCompile Include="icarus\Sequence.cpp" />
     <ClCompile Include="icarus\Sequencer.cpp" />

@@ -31,7 +31,6 @@ typedef struct {
 
 	int				cmdNum;			// the next cmdNum the server is expecting
 	playerState_t	ps;						// complete information about the current player at this time
-	playerState_t	vps; //vehicle I'm riding's playerstate (if applicable) -rww
 
 	int				numEntities;			// all of the entities that need to be presented
 	int				parseEntitiesNum;		// at the time of this snapshot
@@ -93,9 +92,6 @@ typedef struct {
 	vec3_t		cgameViewAngleForce;
 	int			cgameViewAngleForceTime;
 	float		cgameSensitivity;
-
-	int			cgameForceSelection;
-	int			cgameInvenSelection;
 
 	qboolean	gcmdSendValue;
 	qboolean	gcmdSentValue;
@@ -247,18 +243,15 @@ typedef struct {
 	char	  	mapName[MAX_NAME_LENGTH];
 	char	  	game[MAX_NAME_LENGTH];
 	int			netType;
-	int			gameType;
+	char		gameType[MAX_NAME_LENGTH];
 	int		  	clients;
 	int		  	maxClients;
 	int			minPing;
 	int			maxPing;
 	int			ping;
 	qboolean	visible;
-//	int			allowAnonymous;
+	int			allowAnonymous;
 	qboolean	needPassword;
-	int			trueJedi;
-	int			weaponDisable;
-	int			forceDisable;
 //	qboolean	pure;
 } serverInfo_t;
 
@@ -297,9 +290,6 @@ typedef struct {
 
 	int			numfavoriteservers;
 	serverInfo_t	favoriteServers[MAX_OTHER_SERVERS];
-
-	int			nummplayerservers;
-	serverInfo_t	mplayerServers[MAX_OTHER_SERVERS];
 
 	int pingUpdateSource;		// source currently pinging or updating
 
@@ -380,7 +370,6 @@ extern	cvar_t	*cl_freelook;
 extern	cvar_t	*cl_mouseAccel;
 extern	cvar_t	*cl_showMouseRate;
 
-extern	cvar_t	*m_pitchVeh;
 extern	cvar_t	*m_pitch;
 extern	cvar_t	*m_yaw;
 extern	cvar_t	*m_forward;
@@ -512,8 +501,6 @@ void	SCR_Init (void);
 void	SCR_UpdateScreen (void);
 
 void	SCR_DebugGraph (float value, int color);
-
-int		SCR_GetBigStringWidth( const char *str );	// returns in virtual 640x480 coordinates
 
 void	SCR_FillRect( float x, float y, float width, float height, 
 					 const float *color );

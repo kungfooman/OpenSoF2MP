@@ -91,7 +91,7 @@ static void SCR_DrawChar( int x, int y, float size, int ch ) {
 
 	frow = row*0.0625;
 	fcol = col*0.0625;
-	size = 0.03125;
+	size = 0.0625;
 	size2 = 0.0625;
 
 	re.DrawStretchPic( ax, ay, aw, ah,
@@ -127,11 +127,7 @@ void SCR_DrawSmallChar( int x, int y, int ch ) {
 	frow = row*0.0625;
 	fcol = col*0.0625;
 
-#ifdef _JK2
-	size = 0.03125;
-#else
 	size = 0.0625;
-#endif
 	size2 = 0.0625;
 
 	re.DrawStretchPic( x * con.xadjust, y * con.yadjust, 
@@ -168,7 +164,10 @@ void SCR_DrawStringExt( int x, int y, float size, const char *string, float *set
 			s += 2;
 			continue;
 		}
+		SCR_DrawChar( xx-2, y-2, size, *s );
+		SCR_DrawChar( xx-2, y+2, size, *s );
 		SCR_DrawChar( xx+2, y+2, size, *s );
+		SCR_DrawChar( xx+2, y-2, size, *s );
 		xx += size;
 		s++;
 	}
@@ -201,11 +200,11 @@ void SCR_DrawBigString( int x, int y, const char *s, float alpha ) {
 
 	color[0] = color[1] = color[2] = 1.0;
 	color[3] = alpha;
-	SCR_DrawStringExt( x, y, BIGCHAR_WIDTH, s, color, qfalse );
+	SCR_DrawStringExt( x, y, GIANTCHAR_HEIGHT/2, s, color, qfalse );
 }
 
 void SCR_DrawBigStringColor( int x, int y, const char *s, vec4_t color ) {
-	SCR_DrawStringExt( x, y, BIGCHAR_WIDTH, s, color, qtrue );
+	SCR_DrawStringExt( x, y, GIANTCHAR_HEIGHT/2, s, color, qtrue );
 }
 
 
@@ -244,35 +243,6 @@ void SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, 
 	}
 	re.SetColor( NULL );
 }
-
-
-
-/*
-** SCR_Strlen -- skips color escape codes
-*/
-static int SCR_Strlen( const char *str ) {
-	const char *s = str;
-	int count = 0;
-
-	while ( *s ) {
-		if ( Q_IsColorString( s ) ) {
-			s += 2;
-		} else {
-			count++;
-			s++;
-		}
-	}
-
-	return count;
-}
-
-/*
-** SCR_GetBigStringWidth
-*/ 
-int	SCR_GetBigStringWidth( const char *str ) {
-	return SCR_Strlen( str ) * 16;
-}
-
 
 //===============================================================================
 
@@ -415,7 +385,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	// don't need to render anything under it
 	//actually, yes you do, unless you want clients to cycle out their reliable
 	//commands from sitting in the menu. -rww
-	if ( (uivm && !uiFullscreen) || (!(cls.framecount&7) && cls.state == CA_ACTIVE) ) {
+	if ( !uiFullscreen || (!(cls.framecount&7) && cls.state == CA_ACTIVE) ) {
 	//if ( !VM_Call( uivm, UI_IS_FULLSCREEN ) || (!(cls.framecount&7) && cls.state == CA_ACTIVE)) {
 		switch( cls.state ) {
 		default:
@@ -456,7 +426,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	}
 
 	// the menu draws next
-	if ( cls.keyCatchers & KEYCATCH_UI && uivm ) {
+	if ( cls.keyCatchers & KEYCATCH_UI ) {
 		VM_Call( uivm, UI_REFRESH, cls.realtime );
 	}
 

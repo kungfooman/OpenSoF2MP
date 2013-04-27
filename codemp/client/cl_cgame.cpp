@@ -1755,7 +1755,7 @@ void CL_InitCGame( void ) {
 	else {
 		interpret = (vmInterpret_t)(int)Cvar_VariableValue( "vm_cgame" );
 	}
-	cgvm = VM_Create( "cgame", CL_CgameSystemCalls, interpret );
+	cgvm = VM_Create( "sof2mp_cgame", CL_CgameSystemCalls, interpret );
 	if ( !cgvm ) {
 		Com_Error( ERR_DROP, "VM_Create on cgame failed" );
 	}

@@ -1102,22 +1102,22 @@ static void SV_VerifyPaks_f( client_t *cl ) {
 		//dlls are valid too now -rww
 		if (Cvar_VariableValue( "vm_cgame" ))
 		{
-			bGood = (qboolean)(FS_FileIsInPAK("vm/cgame.qvm", &nChkSum1) == 1);
+			bGood = (qboolean)(FS_FileIsInPAK("vm/sof2mp_cgame.qvm", &nChkSum1) == 1);
 		}
 		else
 		{
-			bGood = (qboolean)(FS_FileIsInPAK("cgamex86.dll", &nChkSum1) == 1);
+			bGood = (qboolean)(FS_FileIsInPAK("sof2mp_cgamex86.dll", &nChkSum1) == 1);
 		}
 
 		if (bGood)
 		{
 			if (Cvar_VariableValue( "vm_ui" ))
 			{
-				bGood = (qboolean)(FS_FileIsInPAK("vm/ui.qvm", &nChkSum2) == 1);
+				bGood = (qboolean)(FS_FileIsInPAK("vm/sof2mp_ui.qvm", &nChkSum2) == 1);
 			}
 			else
 			{
-				bGood = (qboolean)(FS_FileIsInPAK("uix86.dll", &nChkSum2) == 1);
+				bGood = (qboolean)(FS_FileIsInPAK("sof2mp_uix86.dll", &nChkSum2) == 1);
 			}
 		}
 

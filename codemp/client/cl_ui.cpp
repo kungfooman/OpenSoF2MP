@@ -1019,7 +1019,6 @@ int CL_UISystemCalls( int *args ) {
 	case UI_R_DRAWSTRETCHPIC:
 		//re.SetColor( (const float *)VMA(9) );
 		re.DrawStretchPic( VMF(1), VMF(2), VMF(3), VMF(4), VMF(5), VMF(6), VMF(7), VMF(8), args[10] );
-		//re.DrawRotatePic( VMF(1), VMF(2), VMF(3), VMF(4), VMF(5), VMF(6), VMF(7), VMF(8), 0.0f, args[10] );
 		return 0;
 
   case UI_R_MODELBOUNDS:
@@ -1602,7 +1601,7 @@ void CL_InitUI( void ) {
 	else {
 		interpret = (vmInterpret_t)(int)Cvar_VariableValue( "vm_ui" );
 	}
-	uivm = VM_Create( "ui", CL_UISystemCalls, interpret );
+	uivm = VM_Create( "sof2mp_ui", CL_UISystemCalls, interpret );
 	if ( !uivm ) {
 		Com_Error( ERR_FATAL, "VM_Create on UI failed" );
 	}

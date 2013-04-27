@@ -3163,7 +3163,6 @@ what it is supposed to look like.
   OUTPUT:  Number of stages after the collapse (in the case of surfacesprites this isn't one).
 =================
 */
-//rww - no longer used, at least for now. destroys alpha shaders completely.
 #if 0
 static int VertexLightingCollapse( void ) {
 	int		stage, nextopenstage;
@@ -3201,7 +3200,7 @@ static int VertexLightingCollapse( void ) {
 			}
 
 			// SurfaceSprites are most certainly NOT desireable as the collapsed surface texture.
-			if ( pStage->ss && pstage->ss->surfaceSpriteType)
+			if ( pStage->ss && pStage->ss->surfaceSpriteType)
 			{
 				rank -= 1000;
 			}
@@ -3248,7 +3247,7 @@ static int VertexLightingCollapse( void ) {
 			break;
 		}
 
-		if ( pStage->ss && pstage->ss->surfaceSpriteType)
+		if ( pStage->ss && pStage->ss->surfaceSpriteType)
 		{
 			// Copy this stage to the next open stage list (that is, we don't want any inactive stages before this one)
 			if (nextopenstage != stage)
@@ -3559,7 +3558,6 @@ static shader_t *FinishShader( void ) {
 	//
 	if ( stage > 1 && (r_vertexLight->integer && !r_uiFullScreen->integer) ) {
 		//stage = VertexLightingCollapse();
-		//rww - since this does bad things, I am commenting it out for now. If you want to attempt a fix, feel free.
 		hasLightmapStage = qfalse;
 	}
 

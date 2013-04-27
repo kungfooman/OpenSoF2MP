@@ -710,6 +710,16 @@ static void ProjectDlightTexture2( void ) {
 			fogging = 0;
 		}
 
+		if (!needResetVerts)
+		{
+			needResetVerts=1;
+			if (qglUnlockArraysEXT) 
+			{
+				qglUnlockArraysEXT();
+				GLimp_LogComment( "glUnlockArraysEXT\n" );
+			}
+		}
+		qglVertexPointer (3, GL_FLOAT, 16, vertCoordsArray);	// padded for SIMD
 
 		dStage = NULL;
 		if (tess.shader && qglActiveTextureARB)
@@ -728,16 +738,7 @@ static void ProjectDlightTexture2( void ) {
 				i++;
 			}
 		}
-		if (!needResetVerts)
-		{
-			needResetVerts=1;
-			if (qglUnlockArraysEXT) 
-			{
-				qglUnlockArraysEXT();
-				GLimp_LogComment( "glUnlockArraysEXT\n" );
-			}
-		}
-		qglVertexPointer (3, GL_FLOAT, 16, vertCoordsArray);	// padded for SIMD
+
 
 		if (dStage)
 		{
@@ -781,12 +782,12 @@ static void ProjectDlightTexture2( void ) {
 			GL_Bind( tr.dlightImage );
 			// include GLS_DEPTHFUNC_EQUAL so alpha tested surfaces don't add light
 			// where they aren't rendered
-			if ( dl->additive ) {
-				GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
-			}
-			else {
+			//if ( dl->additive ) {
+			//	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
+			//}
+			//else {
 				GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
-			}
+			//}
 
 			R_DrawElements( numIndexes, hitIndexes );
 		}
@@ -1122,12 +1123,12 @@ static void ProjectDlightTexture( void ) {
 			GL_Bind( tr.dlightImage );
 			// include GLS_DEPTHFUNC_EQUAL so alpha tested surfaces don't add light
 			// where they aren't rendered
-			if ( dl->additive ) {
-				GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
-			}
-			else {
+			//if ( dl->additive ) {
+			//	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
+			//}
+			//else {
 				GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
-			}
+			//}
 
 			R_DrawElements( numIndexes, hitIndexes );
 		}
@@ -1818,8 +1819,8 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 				//tr.screenImage should have been set for this specific entity before we got in here.
 				GL_Bind( tr.screenImage );
 				GL_Cull(CT_TWO_SIDED);
-			}*/
-			else if ( pStage->bundle[0].vertexLightmap && ( r_vertexLight->integer && !r_uiFullScreen->integer ) && r_lightmap->integer )
+			}
+			else*/ if ( pStage->bundle[0].vertexLightmap && ( r_vertexLight->integer && !r_uiFullScreen->integer ) && r_lightmap->integer )
 			{
 				GL_Bind( tr.whiteImage );
 			}

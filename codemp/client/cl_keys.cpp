@@ -21,7 +21,7 @@ keyGlobals_t	kg;
 //
 keyname_t keynames[K_LAST_KEY] =							
 {			
-	{ 0x00, 0x00, NULL, A_NULL, false									}											
+	{ 0x00, 0x00, NULL, NULL, false										},									
 	{ 0x01, 0x01, "SHIFT", K_SHIFT, false 								},					       
 	{ 0x02, 0x02, "CTRL", K_CTRL, false   								},					       
 	{ 0x03, 0x03, "ALT", K_ALT, false									},					       

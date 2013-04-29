@@ -212,8 +212,7 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 #ifdef _DEBUG
 	if (ent->reType == RT_MODEL)
 	{
-		assert(ent->hModel || ent->ghoul2 || ent->customShader);
-		return;
+		assert(ent->hModel || ent->ghoul2 || ent->customShader || ent->renderfx);
 	}
 #endif
 

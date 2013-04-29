@@ -972,21 +972,6 @@ int CL_UISystemCalls( int *args ) {
 	case UI_R_REGISTERSHADERNOMIP:
 		return re.RegisterShaderNoMip( (const char *)VMA(1) );
 
-	/*case UI_R_SHADERNAMEFROMINDEX:
-		{
-			char *gameMem = (char *)VMA(1);
-			const char *retMem = re.ShaderNameFromIndex(args[2]);
-			if (retMem)
-			{
-				strcpy(gameMem, retMem);
-			}
-			else
-			{
-				gameMem[0] = 0;
-			}
-		}
-		return 0;*/
-
 	case UI_R_CLEARSCENE:
 		re.ClearScene();
 		return 0;
@@ -1017,7 +1002,6 @@ int CL_UISystemCalls( int *args ) {
 		return 0;
 
 	case UI_R_DRAWSTRETCHPIC:
-		//re.SetColor( (const float *)VMA(9) );
 		re.DrawStretchPic( VMF(1), VMF(2), VMF(3), VMF(4), VMF(5), VMF(6), VMF(7), VMF(8), args[10] );
 		return 0;
 
@@ -1220,29 +1204,6 @@ int CL_UISystemCalls( int *args ) {
 		re.RemapShader( (const char *)VMA(1), (const char *)VMA(2), (const char *)VMA(3) );
 		return 0;
 
-	/*case UI_SP_GETNUMLANGUAGES:
-		return SE_GetNumLanguages();
-
-	case UI_SP_GETLANGUAGENAME:
-		char *languageName,*holdName;
-
-		holdName = ((char *)VMA(2));
-		languageName = (char *) SE_GetLanguageName((const int)VMA(1));
-		Q_strncpyz( holdName, languageName,128 );
-		return 0;
-
-	case UI_SP_GETSTRINGTEXTSTRING:
-		const char* text;
-
-		assert(VMA(1));
-		assert(VMA(2));
-		text = SE_GetString((const char *) VMA(1));
-		Q_strncpyz( (char *) VMA(2), text, args[3] );
-		return qtrue;*/
-
-/*
-Ghoul2 Insert Start
-*/
 /*
 Ghoul2 Insert Start
 */
@@ -1297,7 +1258,6 @@ Ghoul2 Insert Start
 		g_G2AllocServer = 0;
 #endif
 		re.G2API_CleanGhoul2Models((CGhoul2Info_v **)VMA(1));
-	//	re.G2API_CleanGhoul2Models((CGhoul2Info_v **)args[1]);
 		return 0;
 
 	case UI_G2_PLAYANIM:
@@ -1360,7 +1320,6 @@ Ghoul2 Insert Start
 		g_G2AllocServer = 0;
 #endif
 		return (int)re.G2API_RemoveGhoul2Model((CGhoul2Info_v **)VMA(1), args[2]);
-		//return (int)G2API_RemoveGhoul2Model((CGhoul2Info_v **)args[1], args[2]);
 
 	case UI_G2_ADDBOLT:
 		return re.G2API_AddBolt(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3));
@@ -1377,9 +1336,6 @@ Ghoul2 Insert Start
 		re.G2API_AddSkinGore(*((CGhoul2Info_v *)args[1]),*(SSkinGoreData *)VMA(2));
 		return 0;
 #endif // _SOF2
-/*
-Ghoul2 Insert End
-*/
 	/*case UI_G2_SETROOTSURFACE:
 		return re.G2API_SetRootSurface(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3));*/
 

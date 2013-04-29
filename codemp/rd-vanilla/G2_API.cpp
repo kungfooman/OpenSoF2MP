@@ -628,8 +628,7 @@ int G2API_InitGhoul2Model(CGhoul2Info_v **ghoul2Ptr, const char *fileName, int m
 	}
 	if (model==ghoul2.size())
 	{	//init should not be used to create additional models, only the first one
-		//KLAAS TODO
-		//assert(ghoul2.size() < 4); //use G2API_CopySpecificG2Model to add models
+		assert(ghoul2.size() < 7); //use G2API_CopySpecificG2Model to add models
 		ghoul2.push_back(CGhoul2Info()); 
 	}
 

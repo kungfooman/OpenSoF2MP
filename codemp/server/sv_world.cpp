@@ -734,18 +734,7 @@ Ghoul2 Insert Start
 			}
 #endif
 
-			if (com_optvehtrace &&
-				com_optvehtrace->integer &&
-				touch->s.eType == ET_NPC &&
-				touch->s.NPC_class == CLASS_VEHICLE &&
-				touch->m_pVehicle)
-			{ //for vehicles cache the transform data.
-				re.G2API_CollisionDetectCache(G2Trace, *((CGhoul2Info_v *)touch->ghoul2), angles, touch->r.currentOrigin, svs.time, touch->s.number, clip->start, clip->end, touch->modelScale, G2VertSpaceServer, 0, clip->useLod, fRadius);
-			}
-			else
-			{
-				re.G2API_CollisionDetect(G2Trace, *((CGhoul2Info_v *)touch->ghoul2), angles, touch->r.currentOrigin, svs.time, touch->s.number, clip->start, clip->end, touch->modelScale, G2VertSpaceServer, 0, clip->useLod, fRadius);
-			}
+			re.G2API_CollisionDetect(G2Trace, *((CGhoul2Info_v *)touch->ghoul2), angles, touch->r.currentOrigin, svs.time, touch->s.number, clip->start, clip->end, touch->modelScale, G2VertSpaceServer, 0, clip->useLod, fRadius);
 
 			tN = 0;
 			while (tN < MAX_G2_COLLISIONS)

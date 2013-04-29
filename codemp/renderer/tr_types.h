@@ -83,7 +83,6 @@ typedef enum {
 	RT_SPRITE,
 	RT_ORIENTED_QUAD,
 	RT_BEAM,
-	//RT_SABER_GLOW,
 	RT_ELECTRICITY,
 	RT_PORTALSURFACE,		// doesn't draw anything, just info for portals
 	RT_LINE,

@@ -1363,14 +1363,14 @@ Ghoul2 Insert Start
 */
 
 #ifdef _DEBUG
-	if (r_noPrecacheGLA && r_noPrecacheGLA->integer && ident == MDXA_IDENT)
-	{ //I expect this will cause leaks, but I don't care because it's a debugging utility.
-		return mod->index;
-	}
+		if (r_noPrecacheGLA && r_noPrecacheGLA->integer && ident == MDXA_IDENT)
+		{ //I expect this will cause leaks, but I don't care because it's a debugging utility.
+			return mod->index;
+		}
 #endif
 
-	RE_InsertModelIntoHash(name, mod);
-	return mod->index;
+		RE_InsertModelIntoHash(name, mod);
+		return mod->index;
 /*
 Ghoul2 Insert End
 */

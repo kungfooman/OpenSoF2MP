@@ -866,7 +866,8 @@ int CL_CgameSystemCalls( int *args ) {
 	case CG_R_FONT_STRHEIGHTPIXELS:
 		return re.Font_HeightPixels( args[1], VMF(2) );
 	case CG_R_FONT_DRAWSTRING:
-		re.Font_DrawString( args[1], args[2], (const char *)VMA(3), (const float *) VMA(4), args[5], args[6], VMF(7) );
+		//KLAAS TODO
+		//re.Font_DrawString( args[1], args[2], (const char *)VMA(3), (const float *) VMA(4), args[5], args[6], VMF(7) );
 		return 0;
 	case CG_LANGUAGE_ISASIAN:
 		return re.Language_IsAsian();

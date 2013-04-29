@@ -1159,35 +1159,18 @@ int CL_UISystemCalls( int *args ) {
 		return re.RegisterFont( (const char *)VMA(1) );
 
 	case UI_R_GETTEXTWIDTH:
-		//KLAAS TODO
 		return re.Font_StrLenPixels((const char *)VMA(1), args[2], VMF(3));
 
 	case UI_R_GETTEXTHEIGHT:
-		//KLAAS TODO
 		return re.Font_HeightPixels(args[2], VMF(3));
+		
+	case UI_R_DRAWTEXTWITHCURSOR:
+		re.Font_DrawString(args[1], args[2], args[3], VMF(4), (vec_t *)VMA(5), (const char *)VMA(6), args[7], args[8], args[9], args[10]);
+		return 0;
 
 	case UI_R_DRAWTEXT:
-		re.Font_DrawString(args[1], args[2], (const char *)VMA(6), (float *)VMA(5), args[3], args[7], VMF(4));
+		re.Font_DrawString(args[1], args[2], args[3], VMF(4), (vec_t *)VMA(5), (const char *)VMA(6), args[7], args[8], 0, 0);
 		return 0;
-
-	/*case UI_R_FONT_STRLENCHARS:
-		return re.Font_StrLenChars( (const char *)VMA(1) );
-
-	case UI_R_FONT_STRHEIGHTPIXELS:
-		return re.Font_HeightPixels( args[1], VMF(2) );
-
-	case UI_R_FONT_DRAWSTRING:
-		re.Font_DrawString( args[1], args[2], (const char *)VMA(3), (const float *) VMA(4), args[5], args[6], VMF(7) );
-		return 0;
-
-	case UI_LANGUAGE_ISASIAN:
-		return re.Language_IsAsian();
-
-	case UI_LANGUAGE_USESSPACES:
-		return re.Language_UsesSpaces();
-
-	case UI_ANYLANGUAGE_READCHARFROMSTRING:
-		return re.AnyLanguage_ReadCharFromString( (const char *)VMA(1), (int *) VMA(2), (qboolean *) VMA(3) );*/
 
 	case UI_PC_ADD_GLOBAL_DEFINE:
 		return botlib_export->PC_AddGlobalDefine( (char *)VMA(1) );

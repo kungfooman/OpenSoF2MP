@@ -426,7 +426,6 @@ ICARUS_InterrogateScript
 void ICARUS_InterrogateScript( const char *filename )
 {
 	CBlockStream	stream;
-	CBlockMember	*blockMember;
 	CBlock			block;
 
 	if (!Q_stricmp(filename,"NULL") || !Q_stricmp(filename,"default"))
@@ -465,9 +464,8 @@ void ICARUS_InterrogateScript( const char *filename )
 	if ( stream.Open( buf, len ) == qfalse )
 		return;
 
-	const char	*sVal1, *sVal2;
+	const char	*sVal1;
 	char		temp[1024];
-	int			setID;
 
 	//Now iterate through all blocks of the script, searching for keywords
 	while ( stream.BlockAvailable() )

@@ -177,40 +177,12 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 #else
 		MSG_WriteDeltaPlayerstate( msg, &oldframe->ps, &frame->ps );
 #endif
-		if (frame->ps.m_iVehicleNum)
-		{ //then write the vehicle's playerstate too
-			if (!oldframe->ps.m_iVehicleNum)
-			{ //if last frame didn't have vehicle, then the old vps isn't gonna delta
-				//properly (because our vps on the client could be anything)
-#ifdef _ONEBIT_COMBO
-				MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, NULL, NULL, qtrue );
-#else
-				MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, qtrue );
-#endif
-			}
-			else
-			{
-#ifdef _ONEBIT_COMBO
-				MSG_WriteDeltaPlayerstate( msg, &oldframe->vps, &frame->vps, frame->pDeltaOneBitVeh, frame->pDeltaNumBitVeh, qtrue );
-#else
-				MSG_WriteDeltaPlayerstate( msg, &oldframe->vps, &frame->vps, qtrue );
-#endif
-			}
-		}
 	} else {
 #ifdef _ONEBIT_COMBO
 		MSG_WriteDeltaPlayerstate( msg, NULL, &frame->ps, NULL, NULL );
 #else
 		MSG_WriteDeltaPlayerstate( msg, NULL, &frame->ps );
 #endif
-		if (frame->ps.m_iVehicleNum)
-		{ //then write the vehicle's playerstate too
-#ifdef _ONEBIT_COMBO
-			MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, NULL, NULL, qtrue );
-#else
-			MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, qtrue );
-#endif
-		}
 	}
 
 	// delta encode the entities
@@ -390,12 +362,6 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 			continue;
 		}
 
-		if (ent->s.isPortalEnt)
-		{ //rww - portal entities are always sent as well
-			SV_AddEntToSnapshot( svEnt, ent, eNums );
-			continue;
-		}
-
 		if (com_RMG && com_RMG->integer)
 		{
 			VectorAdd(ent->r.absmax, ent->r.absmin, difference);
@@ -536,22 +502,6 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	frame->pDeltaOneBit = &ps->deltaOneBits;
 	frame->pDeltaNumBit = &ps->deltaNumBits;
 #endif
-
-	if (ps->m_iVehicleNum)
-	{ //get the vehicle's playerstate too then
-		sharedEntity_t *veh = SV_GentityNum(ps->m_iVehicleNum);
-
-		if (veh && veh->playerState)
-		{ //Now VMA it and we've got ourselves a playerState
-			playerState_t *vps = ((playerState_t *)VM_ArgPtr((int)veh->playerState));
-
-            frame->vps = *vps;
-#ifdef _ONEBIT_COMBO
-			frame->pDeltaOneBitVeh = &vps->deltaOneBits;
-			frame->pDeltaNumBitVeh = &vps->deltaNumBits;
-#endif
-		}
-	}
 
 	int							clientNum;
 	// never send client's own entity, because it can

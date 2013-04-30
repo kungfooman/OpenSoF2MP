@@ -1358,7 +1358,6 @@ void R_AddEntitySurfaces (void) {
 		case RT_LINE:
 		case RT_ORIENTEDLINE:
 		case RT_CYLINDER:
-		/*case RT_SABER_GLOW:
 			// self blood sprites, talk balloons, etc should not be drawn in the primary
 			// view.  We can't just do this check for all entities, because md3
 			// entities may still want to cast shadows from them
@@ -1367,7 +1366,7 @@ void R_AddEntitySurfaces (void) {
 			}
 			shader = R_GetShaderByHandle( ent->e.customShader );
 			R_AddDrawSurf( &entitySurface, shader, R_SpriteFogNum( ent ), 0 );
-			break;*/
+			break;
 
 		case RT_MODEL:
 			// we must set up parts of tr.ori for model culling

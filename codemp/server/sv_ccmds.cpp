@@ -696,86 +696,6 @@ static void SV_ConSay_f(void) {
 	SV_SendServerCommand(NULL, "chat \"%s\n\"", text);
 }
 
-static const char *forceToggleNamePrints[] = 
-{
-	"HEAL",//FP_HEAL
-	"JUMP",//FP_LEVITATION
-	"SPEED",//FP_SPEED
-	"PUSH",//FP_PUSH
-	"PULL",//FP_PULL
-	"MINDTRICK",//FP_TELEPTAHY
-	"GRIP",//FP_GRIP
-	"LIGHTNING",//FP_LIGHTNING
-	"DARK RAGE",//FP_RAGE
-	"PROTECT",//FP_PROTECT
-	"ABSORB",//FP_ABSORB
-	"TEAM HEAL",//FP_TEAM_HEAL
-	"TEAM REPLENISH",//FP_TEAM_FORCE
-	"DRAIN",//FP_DRAIN
-	"SEEING",//FP_SEE
-	"SABER OFFENSE",//FP_SABER_OFFENSE
-	"SABER DEFENSE",//FP_SABER_DEFENSE
-	"SABER THROW",//FP_SABERTHROW
-	NULL
-};
-
-/*
-==================
-SV_ForceToggle_f
-==================
-*/
-void SV_ForceToggle_f(void)
-{
-	int i = 0;
-	int fpDisabled = Cvar_VariableValue("g_forcePowerDisable");
-	int targetPower = 0;
-	const char *powerDisabled = "Enabled";
-
-	if ( Cmd_Argc () < 2 )
-	{ //no argument supplied, spit out a list of force powers and their numbers
-		while (i < NUM_FORCE_POWERS)
-		{
-			if (fpDisabled & (1 << i))
-			{
-				powerDisabled = "Disabled";
-			}
-			else
-			{
-				powerDisabled = "Enabled";
-			}
-
-			Com_Printf(va("%i - %s - Status: %s\n", i, forceToggleNamePrints[i], powerDisabled));
-			i++;
-		}
-
-		Com_Printf("Example usage: forcetoggle 3\n(toggles PUSH)\n");
-		return;
-	}
-
-	targetPower = atoi(Cmd_Argv(1));
-
-	if (targetPower < 0 || targetPower >= NUM_FORCE_POWERS)
-	{
-		Com_Printf("Specified a power that does not exist.\nExample usage: forcetoggle 3\n(toggles PUSH)\n");
-		return;
-	}
-
-	if (fpDisabled & (1 << targetPower))
-	{
-		powerDisabled = "enabled";
-		fpDisabled &= ~(1 << targetPower);
-	}
-	else
-	{
-		powerDisabled = "disabled";
-		fpDisabled |= (1 << targetPower);
-	}
-
-	Cvar_SetValue("g_forcePowerDisable", fpDisabled);
-
-	Com_Printf("%s has been %s.\n", forceToggleNamePrints[targetPower], powerDisabled);
-}
-
 /*
 ==================
 SV_Heartbeat_f
@@ -902,8 +822,6 @@ void SV_AddOperatorCommands( void ) {
 	{
 		Cmd_AddCommand ("svsay", SV_ConSay_f);
 	}
-
-	Cmd_AddCommand ("forcetoggle", SV_ForceToggle_f);
 }
 
 /*

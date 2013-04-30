@@ -1000,7 +1000,6 @@ typedef struct {
 	viewParms_t	viewParms;
 	orientationr_t	ori;		// Can't use or as it is a c++ reserved word DREWS 2/2/2002
 	backEndCounters_t	pc;
-	qboolean	isHyperspace;
 	trRefEntity_t	*currentEntity;
 	qboolean	skyRenderedThisView;	// flag for drawing sun
 

@@ -558,8 +558,7 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 			if ( touch->r.ownerNum == clip->passEntityNum) {
 				if (touch->r.svFlags & SVF_OWNERNOTSHARED)
 				{
-					if ( clip->contentmask != (MASK_SHOT | CONTENTS_LIGHTSABER) &&
-						clip->contentmask != (MASK_SHOT))
+					if (clip->contentmask != (MASK_SHOT))
 					{ //it's not a laser hitting the other "missile", don't care then
 						continue;
 					}
@@ -589,7 +588,7 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 			continue;
 		}
 
-		if ((clip->contentmask == (MASK_SHOT|CONTENTS_LIGHTSABER) || clip->contentmask == MASK_SHOT) && (touch->r.contents > 0 && (touch->r.contents & CONTENTS_NOSHOT)))
+		if (clip->contentmask == MASK_SHOT && (touch->r.contents > 0 && (touch->r.contents & CONTENTS_NOSHOT)))
 		{
 			continue;
 		}

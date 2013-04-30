@@ -692,11 +692,6 @@ void MSG_WriteDeltaUsercmd( msg_t *msg, usercmd_t *from, usercmd_t *to ) {
 	MSG_WriteDelta( msg, from->upmove, to->upmove, 8 );
 	MSG_WriteDelta( msg, from->buttons, to->buttons, 16 );
 	MSG_WriteDelta( msg, from->weapon, to->weapon, 8 );
-
-	MSG_WriteDelta( msg, from->forcesel, to->forcesel, 8 );
-	MSG_WriteDelta( msg, from->invensel, to->invensel, 8 );
-
-	MSG_WriteDelta( msg, from->generic_cmd, to->generic_cmd, 8 );
 }
 
 
@@ -719,11 +714,6 @@ void MSG_ReadDeltaUsercmd( msg_t *msg, usercmd_t *from, usercmd_t *to ) {
 	to->upmove = MSG_ReadDelta( msg, from->upmove, 8);
 	to->buttons = MSG_ReadDelta( msg, from->buttons, 16);
 	to->weapon = MSG_ReadDelta( msg, from->weapon, 8);
-
-	to->forcesel = MSG_ReadDelta( msg, from->forcesel, 8);
-	to->invensel = MSG_ReadDelta( msg, from->invensel, 8);
-
-	to->generic_cmd = MSG_ReadDelta( msg, from->generic_cmd, 8);
 }
 
 /*
@@ -746,10 +736,7 @@ void MSG_WriteDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *
 		from->rightmove == to->rightmove &&
 		from->upmove == to->upmove &&
 		from->buttons == to->buttons &&
-		from->weapon == to->weapon &&
-		from->forcesel == to->forcesel &&
-		from->invensel == to->invensel &&
-		from->generic_cmd == to->generic_cmd) {
+		from->weapon == to->weapon) {
 			MSG_WriteBits( msg, 0, 1 );				// no change
 			oldsize += 7;
 			return;
@@ -764,11 +751,6 @@ void MSG_WriteDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *
 	MSG_WriteDeltaKey( msg, key, from->upmove, to->upmove, 8 );
 	MSG_WriteDeltaKey( msg, key, from->buttons, to->buttons, 16 );
 	MSG_WriteDeltaKey( msg, key, from->weapon, to->weapon, 8 );
-
-	MSG_WriteDeltaKey( msg, key, from->forcesel, to->forcesel, 8 );
-	MSG_WriteDeltaKey( msg, key, from->invensel, to->invensel, 8 );
-
-	MSG_WriteDeltaKey( msg, key, from->generic_cmd, to->generic_cmd, 8 );
 }
 
 
@@ -793,11 +775,6 @@ void MSG_ReadDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *t
 		to->upmove = MSG_ReadDeltaKey( msg, key, from->upmove, 8);
 		to->buttons = MSG_ReadDeltaKey( msg, key, from->buttons, 16);
 		to->weapon = MSG_ReadDeltaKey( msg, key, from->weapon, 8);
-
-		to->forcesel = MSG_ReadDeltaKey( msg, key, from->forcesel, 8);
-		to->invensel = MSG_ReadDeltaKey( msg, key, from->invensel, 8);
-
-		to->generic_cmd = MSG_ReadDeltaKey( msg, key, from->generic_cmd, 8);
 	} else {
 		to->angles[0] = from->angles[0];
 		to->angles[1] = from->angles[1];
@@ -807,11 +784,6 @@ void MSG_ReadDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *t
 		to->upmove = from->upmove;
 		to->buttons = from->buttons;
 		to->weapon = from->weapon;
-
-		to->forcesel = from->forcesel;
-		to->invensel = from->invensel;
-
-		to->generic_cmd = from->generic_cmd;
 	}
 }
 
@@ -864,172 +836,54 @@ netField_t	entityStateFields[] =
 // suspicious
 { NETF(torsoAnim), 16 },		// Maximum number of animation sequences is 2048.  Top bit is reserved for the togglebit
 // large use beyond GENTITYNUM_BITS - should use generic1 insead
-{ NETF(genericenemyindex), 32 }, //Do not change to GENTITYNUM_BITS, used as a time offset for seeker
 { NETF(eFlags), 32 },
 { NETF(pos.trDuration), 32 },
 // might be able to reduce
-{ NETF(teamowner), 8 },
 { NETF(groundEntityNum), GENTITYNUM_BITS },
 { NETF(pos.trType), 8 },
 { NETF(angles[2]), 0 },
 { NETF(angles[0]), 0 },
 { NETF(solid), 24 },
 // flag states barely used - could be moved elsewhere
-{ NETF(fireflag), 2 },
 { NETF(event), 10 },			// There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
-// used mostly for players and npcs - appears to be static / never changing
-{ NETF(customRGBA[3]), 8 }, //0-255
-// used mostly for players and npcs - appears to be static / never changing
-{ NETF(customRGBA[0]), 8 }, //0-255
-// only used in fx system (which rick did) and chunks
-{ NETF(speed), 0 },
 // why are npc's clientnum's that big?
 { NETF(clientNum), GENTITYNUM_BITS }, //with npc's clientnum can be > MAX_CLIENTS so use entnum bits now instead.
 { NETF(apos.trBase[2]), 0 },
 { NETF(apos.trTime), 32 },
-// used mostly for players and npcs - appears to be static / never changing
-{ NETF(customRGBA[1]), 8 }, //0-255
-// used mostly for players and npcs - appears to be static / never changing
-{ NETF(customRGBA[2]), 8 }, //0-255
-// multiple meanings
-{ NETF(saberEntityNum), GENTITYNUM_BITS },
-// could probably just eliminate and assume a big number
-{ NETF(g2radius), 8 },
 { NETF(otherEntityNum2), GENTITYNUM_BITS },
 // used all over the place
-{ NETF(owner), GENTITYNUM_BITS },
 { NETF(modelindex2), 8 },
 // why was this changed from 0 to 8 ?
 { NETF(eventParm), 8 },
 // unknown about size?
-{ NETF(saberMove), 8 },
 { NETF(apos.trDelta[1]), 0 },
-{ NETF(boneAngles1[1]), 0 },
 // why raised from 8 to -16?
 { NETF(modelindex), -16 },
 // barely used, could probably be replaced
-{ NETF(emplacedOwner), 32 }, //As above, also used as a time value (for electricity render time)
 { NETF(apos.trDelta[0]), 0 },
 { NETF(apos.trDelta[2]), 0 },
 // shouldn't these be better off as flags?  otherwise, they may consume more bits this way
-{ NETF(torsoFlip), 1 },
 { NETF(angles2[1]), 0 },
 // used mostly in saber and npc
-{ NETF(lookTarget), GENTITYNUM_BITS },
 { NETF(origin2[2]), 0 },
 // randomly used, not sure why this was used instead of svc_noclient
 //	if (cent->currentState.modelGhoul2 == 127)
 //	{ //not ready to be drawn or initialized..
 //		return;
 //	}
-{ NETF(modelGhoul2), 8 },
 { NETF(loopSound), 8 },
 { NETF(origin2[0]), 0 },
-// multiple purpose bit flag
-{ NETF(shouldtarget), 1 },
-// widely used, does not appear that they have to be 16 bits
-{ NETF(trickedentindex), 16 }, //See note in PSF
 { NETF(otherEntityNum), GENTITYNUM_BITS },
 { NETF(origin2[1]), 0 },
 { NETF(time2), 32 },
-{ NETF(legsFlip), 1 },
-// fully used
-{ NETF(bolt2), GENTITYNUM_BITS },
-{ NETF(constantLight), 32 },
 { NETF(time), 32 },
-// why doesn't lookTarget just indicate this?
-{ NETF(hasLookTarget), 1 },
-{ NETF(boneAngles1[2]), 0 },
-// used for both force pass and an emplaced gun - gun is just a flag indicator
-{ NETF(activeForcePass), 6 },
-// used to indicate health
-{ NETF(health), 10 }, //if something's health exceeds 1024, then.. too bad!
-// appears to have multiple means, could be eliminated by indicating a sound set differently
-{ NETF(loopIsSoundset), 1 },
-{ NETF(saberHolstered), 2 },
 //NPC-SPECIFIC:
-// both are used for NPCs sabers, though limited
-{ NETF(npcSaber1), 9 },
-{ NETF(maxhealth), 10 },
-{ NETF(trickedentindex2), 16 },
-// appear to only be 18 powers?
-{ NETF(forcePowersActive), 32 },
-// used, doesn't appear to be flexible
-{ NETF(iModelScale), 10 }, //0-1024 (guess it's gotta be increased if we want larger allowable scale.. but 1024% is pretty big)
-// full bits used
-{ NETF(powerups), 16 },
-// can this be reduced?
-{ NETF(soundSetIndex), 8 }, //rww - if MAX_AMBIENT_SETS is changed from 256, REMEMBER TO CHANGE THIS
-// looks like this can be reduced to 4? (ship parts = 4, people parts = 2)
-{ NETF(brokenLimbs), 8 }, //up to 8 limbs at once (not that that many are used)
-{ NETF(csSounds_Std), 8 }, //soundindex must be 8 unless max sounds is changed
-// used extensively
-{ NETF(saberInFlight), 1 },
 { NETF(angles2[0]), 0 },
 { NETF(frame), 16 },
 { NETF(angles2[2]), 0 },
 // why not use torsoAnim and set a flag to do the same thing as forceFrame (saberLockFrame)
-{ NETF(forceFrame), 16 }, //if you have over 65536 frames, then this will explode. Of course if you have that many things then lots of things will probably explode.
 { NETF(generic1), 8 },
-// do we really need 4 indexes?
-{ NETF(boneIndex1), 6 }, //up to 64 bones can be accessed by this indexing method
-// only 54 classes, could cut down 2 bits
-{ NETF(NPC_class), 8 },
 { NETF(apos.trDuration), 32 },
-// there appears to be only 2 different version of parms passed - a flag would better be suited
-{ NETF(boneOrient), 9 }, //3 bits per orientation dir
-// this looks to be a single bit flag
-{ NETF(bolt1), 8 },
-{ NETF(trickedentindex3), 16 },
-// in use for vehicles
-{ NETF(m_iVehicleNum), GENTITYNUM_BITS }, // 10 bits fits all possible entity nums (2^10 = 1024). - AReis
-{ NETF(trickedentindex4), 16 },
-// but why is there an opposite state of surfaces field?
-{ NETF(surfacesOff), 32 },
-{ NETF(eFlags2), 10 },
-// should be bit field
-{ NETF(isJediMaster), 1 },
-// should be bit field
-{ NETF(isPortalEnt), 1 },
-// possible multiple definitions
-{ NETF(heldByClient), 6 },
-// this does not appear to be used in any production or non-cheat fashion - REMOVE
-{ NETF(ragAttach), GENTITYNUM_BITS },
-// used only in one spot for seige
-{ NETF(boltToPlayer), 6 },
-{ NETF(npcSaber2), 9 },
-{ NETF(csSounds_Combat), 8 },
-{ NETF(csSounds_Extra), 8 },
-{ NETF(csSounds_Jedi), 8 },
-// used only for surfaces on NPCs
-{ NETF(surfacesOn), 32 }, //allow up to 32 surfaces in the bitflag
-{ NETF(boneIndex2), 6 },
-{ NETF(boneIndex3), 6 },
-{ NETF(boneIndex4), 6 },
-{ NETF(boneAngles1[0]), 0 },
-{ NETF(boneAngles2[0]), 0 },
-{ NETF(boneAngles2[1]), 0 },
-{ NETF(boneAngles2[2]), 0 },
-{ NETF(boneAngles3[0]), 0 },
-{ NETF(boneAngles3[1]), 0 },
-{ NETF(boneAngles3[2]), 0 },
-{ NETF(boneAngles4[0]), 0 },
-{ NETF(boneAngles4[1]), 0 },
-{ NETF(boneAngles4[2]), 0 },
-
-//rww - for use by mod authors only
-{ NETF(userInt1), 1 },
-{ NETF(userInt2), 1 },
-{ NETF(userInt3), 1 },
-{ NETF(userFloat1), 1 },
-{ NETF(userFloat2), 1 },
-{ NETF(userFloat3), 1 },
-{ NETF(userVec1[0]), 1 },
-{ NETF(userVec1[1]), 1 },
-{ NETF(userVec1[2]), 1 },
-{ NETF(userVec2[0]), 1 },
-{ NETF(userVec2[1]), 1 },
-{ NETF(userVec2[2]), 1 }
 };
 
 // if (int)f == f and (int)f + ( 1<<(FLOAT_INT_BITS-1) ) < ( 1 << FLOAT_INT_BITS )
@@ -1306,13 +1160,6 @@ plyer_state_t communication
 //rww - Remember to update ext_data/MP/psf_overrides.txt if you change any of this!
 //(for the sake of being consistent)
 
-//=====_OPTIMIZED_VEHICLE_NETWORKING=======================================================================
-#ifdef _OPTIMIZED_VEHICLE_NETWORKING
-//Instead of sending 2 full playerStates for the pilot and the vehicle, send a smaller,
-//specialized pilot playerState and vehicle playerState.  Also removes some vehicle
-//fields from the normal playerState -mcg
-//=====_OPTIMIZED_VEHICLE_NETWORKING=======================================================================
-
 netField_t	playerStateFields[] = 
 {
 { PSF(commandTime), 32 },				
@@ -1333,560 +1180,34 @@ netField_t	playerStateFields[] =
 { PSF(torsoAnim), 16 },			// Maximum number of animation sequences is 2048.  Top bit is reserved for the togglebit
 { PSF(groundEntityNum), GENTITYNUM_BITS },
 { PSF(eFlags), 32 },
-{ PSF(fd.forcePower), 8 },
 { PSF(eventSequence), 16 },
 { PSF(torsoTimer), 16 },
-{ PSF(legsTimer), 16 },
 { PSF(viewheight), -8 },
-{ PSF(fd.saberAnimLevel), 4 },
-{ PSF(rocketLockIndex), GENTITYNUM_BITS },
-{ PSF(fd.saberDrawAnimLevel), 4 },
-{ PSF(genericEnemyIndex), 32 }, //NOTE: This isn't just an index all the time, it's often used as a time value, and thus needs 32 bits
 { PSF(events[0]), 10 },			// There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
 { PSF(events[1]), 10 },			// There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
-{ PSF(customRGBA[0]), 8 }, //0-255
 { PSF(movementDir), 4 },
-{ PSF(saberEntityNum), GENTITYNUM_BITS }, //Also used for channel tracker storage, but should never exceed entity number
-{ PSF(customRGBA[3]), 8 }, //0-255
 { PSF(weaponstate), 4 },
-{ PSF(saberMove), 32 }, //This value sometimes exceeds the max LS_ value and gets set to a crazy amount, so it needs 32 bits
-{ PSF(standheight), 10 },
-{ PSF(crouchheight), 10 },
-{ PSF(basespeed), -16 },
 { PSF(pm_flags), 16 },
-{ PSF(jetpackFuel), 8 },
-{ PSF(cloakFuel), 8 },
 { PSF(pm_time), -16 },
-{ PSF(customRGBA[1]), 8 }, //0-255
 { PSF(clientNum), GENTITYNUM_BITS },
-{ PSF(duelIndex), GENTITYNUM_BITS },
-{ PSF(customRGBA[2]), 8 }, //0-255
 { PSF(gravity), 16 },
 { PSF(weapon), 8 },
 { PSF(delta_angles[2]), 16 },
-{ PSF(saberCanThrow), 1 },
 { PSF(viewangles[2]), 0 },
-{ PSF(fd.forcePowersKnown), 32 },
-{ PSF(fd.forcePowerLevel[FP_LEVITATION]), 2 }, //unfortunately we need this for fall damage calculation (client needs to know the distance for the fall noise)
-{ PSF(fd.forcePowerDebounce[FP_LEVITATION]), 32 },
-{ PSF(fd.forcePowerSelected), 8 },
-{ PSF(torsoFlip), 1 },
 { PSF(externalEvent), 10 },
 { PSF(damageYaw), 8 },
 { PSF(damageCount), 8 },
-{ PSF(inAirAnim), 1 }, //just transmit it for the sake of knowing right when on the client to play a land anim, it's only 1 bit
 { PSF(eventParms[1]), 8 },
-{ PSF(fd.forceSide), 2 }, //so we know if we should apply greyed out shaders to dark/light force enlightenment
-{ PSF(saberAttackChainCount), 4 },
 { PSF(pm_type), 8 },					
 { PSF(externalEventParm), 8 },
 { PSF(eventParms[0]), -16 },
-{ PSF(lookTarget), GENTITYNUM_BITS },
-//{ PSF(vehOrientation[0]), 0 },
-{ PSF(weaponChargeSubtractTime), 32 }, //? really need 32 bits??
-//{ PSF(vehOrientation[1]), 0 },
-//{ PSF(moveDir[1]), 0 },
-//{ PSF(moveDir[0]), 0 },
-{ PSF(weaponChargeTime), 32 }, //? really need 32 bits??
-//{ PSF(vehOrientation[2]), 0 },
-{ PSF(legsFlip), 1 },
 { PSF(damageEvent), 8 },
-//{ PSF(moveDir[2]), 0 },
-{ PSF(rocketTargetTime), 32 },
-{ PSF(activeForcePass), 6 },
-{ PSF(electrifyTime), 32 },
-{ PSF(fd.forceJumpZStart), 0 },
 { PSF(loopSound), 16 }, //rwwFIXMEFIXME: max sounds is 256, doesn't this only need to be 8?
-{ PSF(hasLookTarget), 1 },
-{ PSF(saberBlocked), 8 },
-{ PSF(damageType), 2 },
-{ PSF(rocketLockTime), 32 },
-{ PSF(forceHandExtend), 8 },
-{ PSF(saberHolstered), 2 },
-{ PSF(fd.forcePowersActive), 32 },
 { PSF(damagePitch), 8 },
-{ PSF(m_iVehicleNum), GENTITYNUM_BITS }, // 10 bits fits all possible entity nums (2^10 = 1024). - AReis
-//{ PSF(vehTurnaroundTime), 32 },//only used by vehicle?
 { PSF(generic1), 8 },
-{ PSF(jumppad_ent), 10 },
-{ PSF(hasDetPackPlanted), 1 },
-{ PSF(saberInFlight), 1 },
-{ PSF(forceDodgeAnim), 16 },
-{ PSF(zoomMode), 2 }, // NOTENOTE Are all of these necessary?
-{ PSF(hackingTime), 32 },
 { PSF(zoomTime), 32 },	// NOTENOTE Are all of these necessary?
-{ PSF(brokenLimbs), 8 }, //up to 8 limbs at once (not that that many are used)
-{ PSF(zoomLocked), 1 },	// NOTENOTE Are all of these necessary?
 { PSF(zoomFov), 0 },	// NOTENOTE Are all of these necessary?
-{ PSF(fd.forceRageRecoveryTime), 32 },
-{ PSF(fallingToDeath), 32 },
-{ PSF(fd.forceMindtrickTargetIndex), 16 }, //NOTE: Not just an index, used as a (1 << val) bitflag for up to 16 clients
-{ PSF(fd.forceMindtrickTargetIndex2), 16 }, //NOTE: Not just an index, used as a (1 << val) bitflag for up to 16 clients
-//{ PSF(vehWeaponsLinked), 1 },//only used by vehicle?
-{ PSF(lastHitLoc[2]), 0 },
-//{ PSF(hyperSpaceTime), 32 },//only used by vehicle?
-{ PSF(fd.forceMindtrickTargetIndex3), 16 }, //NOTE: Not just an index, used as a (1 << val) bitflag for up to 16 clients
-{ PSF(lastHitLoc[0]), 0 },
-{ PSF(eFlags2), 10 },
-{ PSF(fd.forceMindtrickTargetIndex4), 16 }, //NOTE: Not just an index, used as a (1 << val) bitflag for up to 16 clients
-//{ PSF(hyperSpaceAngles[1]), 0 },//only used by vehicle?
-{ PSF(lastHitLoc[1]), 0 }, //currently only used so client knows to orient disruptor disintegration.. seems a bit much for just that though.
-//{ PSF(vehBoarding), 1 }, //only used by vehicle? not like the normal boarding value, this is a simple "1 or 0" value
-{ PSF(fd.sentryDeployed), 1 },
-{ PSF(saberLockTime), 32 },
-{ PSF(saberLockFrame), 16 },
-//{ PSF(vehTurnaroundIndex), GENTITYNUM_BITS },//only used by vehicle?
-//{ PSF(vehSurfaces), 16 }, //only used by vehicle? allow up to 16 surfaces in the flag I guess
-{ PSF(fd.forcePowerLevel[FP_SEE]), 2 }, //needed for knowing when to display players through walls
-{ PSF(saberLockEnemy), GENTITYNUM_BITS },
-{ PSF(fd.forceGripCripple), 1 }, //should only be 0 or 1 ever
-{ PSF(emplacedIndex), GENTITYNUM_BITS },
-{ PSF(holocronBits), 32 },
-{ PSF(isJediMaster), 1 },
-{ PSF(forceRestricted), 1 },
-{ PSF(trueJedi), 1 },
-{ PSF(trueNonJedi), 1 },
-{ PSF(duelTime), 32 },
-{ PSF(duelInProgress), 1 },
-{ PSF(saberLockAdvance), 1 },
-{ PSF(heldByClient), 6 },
-{ PSF(ragAttach), GENTITYNUM_BITS },
-{ PSF(iModelScale), 10 }, //0-1024 (guess it's gotta be increased if we want larger allowable scale.. but 1024% is pretty big)
-{ PSF(hackingBaseTime), 16 }, //up to 65536ms, over 10 seconds would just be silly anyway
-//{ PSF(hyperSpaceAngles[0]), 0 },//only used by vehicle?
-//{ PSF(hyperSpaceAngles[2]), 0 },//only used by vehicle?
-
-//rww - for use by mod authors only
-{ PSF(userInt1), 1 },
-{ PSF(userInt2), 1 },
-{ PSF(userInt3), 1 },
-{ PSF(userFloat1), 1 },
-{ PSF(userFloat2), 1 },
-{ PSF(userFloat3), 1 },
-{ PSF(userVec1[0]), 1 },
-{ PSF(userVec1[1]), 1 },
-{ PSF(userVec1[2]), 1 },
-{ PSF(userVec2[0]), 1 },
-{ PSF(userVec2[1]), 1 },
-{ PSF(userVec2[2]), 1 }
 };
-
-netField_t	pilotPlayerStateFields[] = 
-{
-{ PSF(commandTime), 32 },				
-{ PSF(origin[1]), 0 },
-{ PSF(origin[0]), 0 },
-{ PSF(viewangles[1]), 0 },
-{ PSF(viewangles[0]), 0 },
-{ PSF(origin[2]), 0 },
-{ PSF(weaponTime), -16 },
-{ PSF(delta_angles[1]), 16 },
-{ PSF(delta_angles[0]), 16 },
-{ PSF(eFlags), 32 },
-{ PSF(eventSequence), 16 },
-{ PSF(rocketLockIndex), GENTITYNUM_BITS },
-{ PSF(events[0]), 10 },			// There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
-{ PSF(events[1]), 10 },			// There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
-{ PSF(weaponstate), 4 },
-{ PSF(pm_flags), 16 },
-{ PSF(pm_time), -16 },
-{ PSF(clientNum), GENTITYNUM_BITS },
-{ PSF(weapon), 8 },
-{ PSF(delta_angles[2]), 16 },
-{ PSF(viewangles[2]), 0 },
-{ PSF(externalEvent), 10 },
-{ PSF(eventParms[1]), 8 },
-{ PSF(pm_type), 8 },					
-{ PSF(externalEventParm), 8 },
-{ PSF(eventParms[0]), -16 },
-{ PSF(weaponChargeSubtractTime), 32 }, //? really need 32 bits??
-{ PSF(weaponChargeTime), 32 }, //? really need 32 bits??
-{ PSF(rocketTargetTime), 32 },
-{ PSF(fd.forceJumpZStart), 0 },
-{ PSF(rocketLockTime), 32 },
-{ PSF(m_iVehicleNum), GENTITYNUM_BITS }, // 10 bits fits all possible entity nums (2^10 = 1024). - AReis
-{ PSF(generic1), 8 },//used by passengers
-{ PSF(eFlags2), 10 },
-
-//===THESE SHOULD NOT BE CHANGING OFTEN====================================================================
-{ PSF(legsAnim), 16 },			// Maximum number of animation sequences is 2048.  Top bit is reserved for the togglebit
-{ PSF(torsoAnim), 16 },			// Maximum number of animation sequences is 2048.  Top bit is reserved for the togglebit
-{ PSF(torsoTimer), 16 },
-{ PSF(legsTimer), 16 },
-{ PSF(jetpackFuel), 8 },
-{ PSF(cloakFuel), 8 },
-{ PSF(saberCanThrow), 1 },
-{ PSF(fd.forcePowerDebounce[FP_LEVITATION]), 32 },
-{ PSF(torsoFlip), 1 },
-{ PSF(legsFlip), 1 },
-{ PSF(fd.forcePowersActive), 32 },
-{ PSF(hasDetPackPlanted), 1 },
-{ PSF(fd.forceRageRecoveryTime), 32 },
-{ PSF(saberInFlight), 1 },
-{ PSF(fd.forceMindtrickTargetIndex), 16 }, //NOTE: Not just an index, used as a (1 << val) bitflag for up to 16 clients
-{ PSF(fd.forceMindtrickTargetIndex2), 16 }, //NOTE: Not just an index, used as a (1 << val) bitflag for up to 16 clients
-{ PSF(fd.forceMindtrickTargetIndex3), 16 }, //NOTE: Not just an index, used as a (1 << val) bitflag for up to 16 clients
-{ PSF(fd.forceMindtrickTargetIndex4), 16 }, //NOTE: Not just an index, used as a (1 << val) bitflag for up to 16 clients
-{ PSF(fd.sentryDeployed), 1 },
-{ PSF(fd.forcePowerLevel[FP_SEE]), 2 }, //needed for knowing when to display players through walls
-{ PSF(holocronBits), 32 },
-{ PSF(fd.forcePower), 8 },
-
-//===THE REST OF THESE SHOULD NOT BE RELEVANT, BUT, FOR SAFETY, INCLUDE THEM ANYWAY, JUST AT THE BOTTOM===============================================================
-{ PSF(velocity[0]), 0 },
-{ PSF(velocity[1]), 0 },
-{ PSF(velocity[2]), 0 },
-{ PSF(bobCycle), 8 },
-{ PSF(speed), 0 }, //sadly, the vehicles require negative speed values, so..
-{ PSF(groundEntityNum), GENTITYNUM_BITS },
-{ PSF(viewheight), -8 },
-{ PSF(fd.saberAnimLevel), 4 },
-{ PSF(fd.saberDrawAnimLevel), 4 },
-{ PSF(genericEnemyIndex), 32 }, //NOTE: This isn't just an index all the time, it's often used as a time value, and thus needs 32 bits
-{ PSF(customRGBA[0]), 8 }, //0-255
-{ PSF(movementDir), 4 },
-{ PSF(saberEntityNum), GENTITYNUM_BITS }, //Also used for channel tracker storage, but should never exceed entity number
-{ PSF(customRGBA[3]), 8 }, //0-255
-{ PSF(saberMove), 32 }, //This value sometimes exceeds the max LS_ value and gets set to a crazy amount, so it needs 32 bits
-{ PSF(standheight), 10 },
-{ PSF(crouchheight), 10 },
-{ PSF(basespeed), -16 },
-{ PSF(customRGBA[1]), 8 }, //0-255
-{ PSF(duelIndex), GENTITYNUM_BITS },
-{ PSF(customRGBA[2]), 8 }, //0-255
-{ PSF(gravity), 16 },
-{ PSF(fd.forcePowersKnown), 32 },
-{ PSF(fd.forcePowerLevel[FP_LEVITATION]), 2 }, //unfortunately we need this for fall damage calculation (client needs to know the distance for the fall noise)
-{ PSF(fd.forcePowerSelected), 8 },
-{ PSF(damageYaw), 8 },
-{ PSF(damageCount), 8 },
-{ PSF(inAirAnim), 1 }, //just transmit it for the sake of knowing right when on the client to play a land anim, it's only 1 bit
-{ PSF(fd.forceSide), 2 }, //so we know if we should apply greyed out shaders to dark/light force enlightenment
-{ PSF(saberAttackChainCount), 4 },
-{ PSF(lookTarget), GENTITYNUM_BITS },
-{ PSF(moveDir[1]), 0 },
-{ PSF(moveDir[0]), 0 },
-{ PSF(damageEvent), 8 },
-{ PSF(moveDir[2]), 0 },
-{ PSF(activeForcePass), 6 },
-{ PSF(electrifyTime), 32 },
-{ PSF(damageType), 2 },
-{ PSF(loopSound), 16 }, //rwwFIXMEFIXME: max sounds is 256, doesn't this only need to be 8?
-{ PSF(hasLookTarget), 1 },
-{ PSF(saberBlocked), 8 },
-{ PSF(forceHandExtend), 8 },
-{ PSF(saberHolstered), 2 },
-{ PSF(damagePitch), 8 },
-{ PSF(jumppad_ent), 10 },
-{ PSF(forceDodgeAnim), 16 },
-{ PSF(zoomMode), 2 }, // NOTENOTE Are all of these necessary?
-{ PSF(hackingTime), 32 },
-{ PSF(zoomTime), 32 },	// NOTENOTE Are all of these necessary?
-{ PSF(brokenLimbs), 8 }, //up to 8 limbs at once (not that that many are used)
-{ PSF(zoomLocked), 1 },	// NOTENOTE Are all of these necessary?
-{ PSF(zoomFov), 0 },	// NOTENOTE Are all of these necessary?
-{ PSF(fallingToDeath), 32 },
-{ PSF(lastHitLoc[2]), 0 },
-{ PSF(lastHitLoc[0]), 0 },
-{ PSF(lastHitLoc[1]), 0 }, //currently only used so client knows to orient disruptor disintegration.. seems a bit much for just that though.
-{ PSF(saberLockTime), 32 },
-{ PSF(saberLockFrame), 16 },
-{ PSF(saberLockEnemy), GENTITYNUM_BITS },
-{ PSF(fd.forceGripCripple), 1 }, //should only be 0 or 1 ever
-{ PSF(emplacedIndex), GENTITYNUM_BITS },
-{ PSF(isJediMaster), 1 },
-{ PSF(forceRestricted), 1 },
-{ PSF(trueJedi), 1 },
-{ PSF(trueNonJedi), 1 },
-{ PSF(duelTime), 32 },
-{ PSF(duelInProgress), 1 },
-{ PSF(saberLockAdvance), 1 },
-{ PSF(heldByClient), 6 },
-{ PSF(ragAttach), GENTITYNUM_BITS },
-{ PSF(iModelScale), 10 }, //0-1024 (guess it's gotta be increased if we want larger allowable scale.. but 1024% is pretty big)
-{ PSF(hackingBaseTime), 16 }, //up to 65536ms, over 10 seconds would just be silly anyway
-//===NEVER SEND THESE, ONLY USED BY VEHICLES==============================================================
-
-//{ PSF(vehOrientation[0]), 0 },
-//{ PSF(vehOrientation[1]), 0 },
-//{ PSF(vehOrientation[2]), 0 },
-//{ PSF(vehTurnaroundTime), 32 },//only used by vehicle?
-//{ PSF(vehWeaponsLinked), 1 },//only used by vehicle?
-//{ PSF(hyperSpaceTime), 32 },//only used by vehicle?
-//{ PSF(vehTurnaroundIndex), GENTITYNUM_BITS },//only used by vehicle?
-//{ PSF(vehSurfaces), 16 }, //only used by vehicle? allow up to 16 surfaces in the flag I guess
-//{ PSF(vehBoarding), 1 }, //only used by vehicle? not like the normal boarding value, this is a simple "1 or 0" value
-//{ PSF(hyperSpaceAngles[1]), 0 },//only used by vehicle?
-//{ PSF(hyperSpaceAngles[0]), 0 },//only used by vehicle?
-//{ PSF(hyperSpaceAngles[2]), 0 },//only used by vehicle?
-
-//rww - for use by mod authors only
-{ PSF(userInt1), 1 },
-{ PSF(userInt2), 1 },
-{ PSF(userInt3), 1 },
-{ PSF(userFloat1), 1 },
-{ PSF(userFloat2), 1 },
-{ PSF(userFloat3), 1 },
-{ PSF(userVec1[0]), 1 },
-{ PSF(userVec1[1]), 1 },
-{ PSF(userVec1[2]), 1 },
-{ PSF(userVec2[0]), 1 },
-{ PSF(userVec2[1]), 1 },
-{ PSF(userVec2[2]), 1 }
-};
-
-netField_t	vehPlayerStateFields[] = 
-{
-{ PSF(commandTime), 32 },				
-{ PSF(origin[1]), 0 },
-{ PSF(origin[0]), 0 },
-{ PSF(viewangles[1]), 0 },
-{ PSF(viewangles[0]), 0 },
-{ PSF(origin[2]), 0 },
-{ PSF(velocity[0]), 0 },
-{ PSF(velocity[1]), 0 },
-{ PSF(velocity[2]), 0 },
-{ PSF(weaponTime), -16 },
-{ PSF(delta_angles[1]), 16 },
-{ PSF(speed), 0 }, //sadly, the vehicles require negative speed values, so..
-{ PSF(legsAnim), 16 },			// Maximum number of animation sequences is 2048.  Top bit is reserved for the togglebit
-{ PSF(delta_angles[0]), 16 },
-{ PSF(groundEntityNum), GENTITYNUM_BITS },
-{ PSF(eFlags), 32 },
-{ PSF(eventSequence), 16 },
-{ PSF(legsTimer), 16 },
-{ PSF(rocketLockIndex), GENTITYNUM_BITS },
-//{ PSF(genericEnemyIndex), 32 }, //NOTE: This isn't just an index all the time, it's often used as a time value, and thus needs 32 bits
-{ PSF(events[0]), 10 },			// There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
-{ PSF(events[1]), 10 },			// There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
-//{ PSF(customRGBA[0]), 8 }, //0-255
-//{ PSF(movementDir), 4 },
-//{ PSF(customRGBA[3]), 8 }, //0-255
-{ PSF(weaponstate), 4 },
-//{ PSF(basespeed), -16 },
-{ PSF(pm_flags), 16 },
-{ PSF(pm_time), -16 },
-//{ PSF(customRGBA[1]), 8 }, //0-255
-{ PSF(clientNum), GENTITYNUM_BITS },
-//{ PSF(duelIndex), GENTITYNUM_BITS },
-//{ PSF(customRGBA[2]), 8 }, //0-255
-{ PSF(gravity), 16 },
-{ PSF(weapon), 8 },
-{ PSF(delta_angles[2]), 16 },
-{ PSF(viewangles[2]), 0 },
-{ PSF(externalEvent), 10 },
-{ PSF(eventParms[1]), 8 },
-{ PSF(pm_type), 8 },					
-{ PSF(externalEventParm), 8 },
-{ PSF(eventParms[0]), -16 },
-{ PSF(vehOrientation[0]), 0 },
-{ PSF(vehOrientation[1]), 0 },
-{ PSF(moveDir[1]), 0 },
-{ PSF(moveDir[0]), 0 },
-{ PSF(vehOrientation[2]), 0 },
-{ PSF(moveDir[2]), 0 },
-{ PSF(rocketTargetTime), 32 },
-//{ PSF(activeForcePass), 6 },//actually, you only need to know this for other vehicles, not your own
-{ PSF(electrifyTime), 32 },
-//{ PSF(fd.forceJumpZStart), 0 },//set on rider by vehicle, but not used by vehicle
-{ PSF(loopSound), 16 }, //rwwFIXMEFIXME: max sounds is 256, doesn't this only need to be 8?
-{ PSF(rocketLockTime), 32 },
-{ PSF(m_iVehicleNum), GENTITYNUM_BITS }, // 10 bits fits all possible entity nums (2^10 = 1024). - AReis
-{ PSF(vehTurnaroundTime), 32 },
-//{ PSF(generic1), 8 },//used by passengers of vehicles, but not vehicles themselves
-{ PSF(hackingTime), 32 },
-{ PSF(brokenLimbs), 8 }, //up to 8 limbs at once (not that that many are used)
-{ PSF(vehWeaponsLinked), 1 },
-{ PSF(hyperSpaceTime), 32 },
-{ PSF(eFlags2), 10 },
-{ PSF(hyperSpaceAngles[1]), 0 },
-{ PSF(vehBoarding), 1 }, //not like the normal boarding value, this is a simple "1 or 0" value
-{ PSF(vehTurnaroundIndex), GENTITYNUM_BITS },
-{ PSF(vehSurfaces), 16 }, //allow up to 16 surfaces in the flag I guess
-{ PSF(hyperSpaceAngles[0]), 0 },
-{ PSF(hyperSpaceAngles[2]), 0 },
-
-//rww - for use by mod authors only
-{ PSF(userInt1), 1 },
-{ PSF(userInt2), 1 },
-{ PSF(userInt3), 1 },
-{ PSF(userFloat1), 1 },
-{ PSF(userFloat2), 1 },
-{ PSF(userFloat3), 1 },
-{ PSF(userVec1[0]), 1 },
-{ PSF(userVec1[1]), 1 },
-{ PSF(userVec1[2]), 1 },
-{ PSF(userVec2[0]), 1 },
-{ PSF(userVec2[1]), 1 },
-{ PSF(userVec2[2]), 1 }
-};
-
-//=====_OPTIMIZED_VEHICLE_NETWORKING=======================================================================
-#else//_OPTIMIZED_VEHICLE_NETWORKING
-//The unoptimized way, throw *all* the vehicle stuff into the playerState along with everything else... :(
-//=====_OPTIMIZED_VEHICLE_NETWORKING=======================================================================
-
-netField_t	playerStateFields[] = 
-{
-{ PSF(commandTime), 32 },				
-{ PSF(origin[1]), 0 },
-{ PSF(origin[0]), 0 },
-{ PSF(viewangles[1]), 0 },
-{ PSF(viewangles[0]), 0 },
-{ PSF(origin[2]), 0 },
-{ PSF(velocity[0]), 0 },
-{ PSF(velocity[1]), 0 },
-{ PSF(velocity[2]), 0 },
-{ PSF(bobCycle), 8 },
-{ PSF(weaponTime), -16 },
-{ PSF(delta_angles[1]), 16 },
-{ PSF(speed), 0 }, //sadly, the vehicles require negative speed values, so..
-{ PSF(legsAnim), 16 },			// Maximum number of animation sequences is 2048.  Top bit is reserved for the togglebit
-{ PSF(delta_angles[0]), 16 },
-{ PSF(torsoAnim), 16 },			// Maximum number of animation sequences is 2048.  Top bit is reserved for the togglebit
-{ PSF(groundEntityNum), GENTITYNUM_BITS },
-{ PSF(eFlags), 32 },
-{ PSF(fd.forcePower), 8 },
-{ PSF(eventSequence), 16 },
-{ PSF(torsoTimer), 16 },
-{ PSF(legsTimer), 16 },
-{ PSF(viewheight), -8 },
-{ PSF(fd.saberAnimLevel), 4 },
-{ PSF(rocketLockIndex), GENTITYNUM_BITS },
-{ PSF(fd.saberDrawAnimLevel), 4 },
-{ PSF(genericEnemyIndex), 32 }, //NOTE: This isn't just an index all the time, it's often used as a time value, and thus needs 32 bits
-{ PSF(events[0]), 10 },			// There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
-{ PSF(events[1]), 10 },			// There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
-{ PSF(customRGBA[0]), 8 }, //0-255
-{ PSF(movementDir), 4 },
-{ PSF(saberEntityNum), GENTITYNUM_BITS }, //Also used for channel tracker storage, but should never exceed entity number
-{ PSF(customRGBA[3]), 8 }, //0-255
-{ PSF(weaponstate), 4 },
-{ PSF(saberMove), 32 }, //This value sometimes exceeds the max LS_ value and gets set to a crazy amount, so it needs 32 bits
-{ PSF(standheight), 10 },
-{ PSF(crouchheight), 10 },
-{ PSF(basespeed), -16 },
-{ PSF(pm_flags), 16 },
-{ PSF(jetpackFuel), 8 },
-{ PSF(cloakFuel), 8 },
-{ PSF(pm_time), -16 },
-{ PSF(customRGBA[1]), 8 }, //0-255
-{ PSF(clientNum), GENTITYNUM_BITS },
-{ PSF(duelIndex), GENTITYNUM_BITS },
-{ PSF(customRGBA[2]), 8 }, //0-255
-{ PSF(gravity), 16 },
-{ PSF(weapon), 8 },
-{ PSF(delta_angles[2]), 16 },
-{ PSF(saberCanThrow), 1 },
-{ PSF(viewangles[2]), 0 },
-{ PSF(fd.forcePowersKnown), 32 },
-{ PSF(fd.forcePowerLevel[FP_LEVITATION]), 2 }, //unfortunately we need this for fall damage calculation (client needs to know the distance for the fall noise)
-{ PSF(fd.forcePowerDebounce[FP_LEVITATION]), 32 },
-{ PSF(fd.forcePowerSelected), 8 },
-{ PSF(torsoFlip), 1 },
-{ PSF(externalEvent), 10 },
-{ PSF(damageYaw), 8 },
-{ PSF(damageCount), 8 },
-{ PSF(inAirAnim), 1 }, //just transmit it for the sake of knowing right when on the client to play a land anim, it's only 1 bit
-{ PSF(eventParms[1]), 8 },
-{ PSF(fd.forceSide), 2 }, //so we know if we should apply greyed out shaders to dark/light force enlightenment
-{ PSF(saberAttackChainCount), 4 },
-{ PSF(pm_type), 8 },					
-{ PSF(externalEventParm), 8 },
-{ PSF(eventParms[0]), -16 },
-{ PSF(lookTarget), GENTITYNUM_BITS },
-{ PSF(vehOrientation[0]), 0 },
-{ PSF(weaponChargeSubtractTime), 32 }, //? really need 32 bits??
-{ PSF(vehOrientation[1]), 0 },
-{ PSF(moveDir[1]), 0 },
-{ PSF(moveDir[0]), 0 },
-{ PSF(weaponChargeTime), 32 }, //? really need 32 bits??
-{ PSF(vehOrientation[2]), 0 },
-{ PSF(legsFlip), 1 },
-{ PSF(damageEvent), 8 },
-{ PSF(moveDir[2]), 0 },
-{ PSF(rocketTargetTime), 32 },
-{ PSF(activeForcePass), 6 },
-{ PSF(electrifyTime), 32 },
-{ PSF(fd.forceJumpZStart), 0 },
-{ PSF(loopSound), 16 }, //rwwFIXMEFIXME: max sounds is 256, doesn't this only need to be 8?
-{ PSF(hasLookTarget), 1 },
-{ PSF(saberBlocked), 8 },
-{ PSF(damageType), 2 },
-{ PSF(rocketLockTime), 32 },
-{ PSF(forceHandExtend), 8 },
-{ PSF(saberHolstered), 2 },
-{ PSF(fd.forcePowersActive), 32 },
-{ PSF(damagePitch), 8 },
-{ PSF(m_iVehicleNum), GENTITYNUM_BITS }, // 10 bits fits all possible entity nums (2^10 = 1024). - AReis
-{ PSF(vehTurnaroundTime), 32 },
-{ PSF(generic1), 8 },
-{ PSF(jumppad_ent), 10 },
-{ PSF(hasDetPackPlanted), 1 },
-{ PSF(saberInFlight), 1 },
-{ PSF(forceDodgeAnim), 16 },
-{ PSF(zoomMode), 2 }, // NOTENOTE Are all of these necessary?
-{ PSF(hackingTime), 32 },
-{ PSF(zoomTime), 32 },	// NOTENOTE Are all of these necessary?
-{ PSF(brokenLimbs), 8 }, //up to 8 limbs at once (not that that many are used)
-{ PSF(zoomLocked), 1 },	// NOTENOTE Are all of these necessary?
-{ PSF(zoomFov), 0 },	// NOTENOTE Are all of these necessary?
-{ PSF(fd.forceRageRecoveryTime), 32 },
-{ PSF(fallingToDeath), 32 },
-{ PSF(fd.forceMindtrickTargetIndex), 16 }, //NOTE: Not just an index, used as a (1 << val) bitflag for up to 16 clients
-{ PSF(fd.forceMindtrickTargetIndex2), 16 }, //NOTE: Not just an index, used as a (1 << val) bitflag for up to 16 clients
-{ PSF(vehWeaponsLinked), 1 },
-{ PSF(lastHitLoc[2]), 0 },
-{ PSF(hyperSpaceTime), 32 },
-{ PSF(fd.forceMindtrickTargetIndex3), 16 }, //NOTE: Not just an index, used as a (1 << val) bitflag for up to 16 clients
-{ PSF(lastHitLoc[0]), 0 },
-{ PSF(eFlags2), 10 },
-{ PSF(fd.forceMindtrickTargetIndex4), 16 }, //NOTE: Not just an index, used as a (1 << val) bitflag for up to 16 clients
-{ PSF(hyperSpaceAngles[1]), 0 },
-{ PSF(lastHitLoc[1]), 0 }, //currently only used so client knows to orient disruptor disintegration.. seems a bit much for just that though.
-{ PSF(vehBoarding), 1 }, //not like the normal boarding value, this is a simple "1 or 0" value
-{ PSF(fd.sentryDeployed), 1 },
-{ PSF(saberLockTime), 32 },
-{ PSF(saberLockFrame), 16 },
-{ PSF(vehTurnaroundIndex), GENTITYNUM_BITS },
-{ PSF(vehSurfaces), 16 }, //allow up to 16 surfaces in the flag I guess
-{ PSF(fd.forcePowerLevel[FP_SEE]), 2 }, //needed for knowing when to display players through walls
-{ PSF(saberLockEnemy), GENTITYNUM_BITS },
-{ PSF(fd.forceGripCripple), 1 }, //should only be 0 or 1 ever
-{ PSF(emplacedIndex), GENTITYNUM_BITS },
-{ PSF(holocronBits), 32 },
-{ PSF(isJediMaster), 1 },
-{ PSF(forceRestricted), 1 },
-{ PSF(trueJedi), 1 },
-{ PSF(trueNonJedi), 1 },
-{ PSF(duelTime), 32 },
-{ PSF(duelInProgress), 1 },
-{ PSF(saberLockAdvance), 1 },
-{ PSF(heldByClient), 6 },
-{ PSF(ragAttach), GENTITYNUM_BITS },
-{ PSF(iModelScale), 10 }, //0-1024 (guess it's gotta be increased if we want larger allowable scale.. but 1024% is pretty big)
-{ PSF(hackingBaseTime), 16 }, //up to 65536ms, over 10 seconds would just be silly anyway
-{ PSF(hyperSpaceAngles[0]), 0 },
-{ PSF(hyperSpaceAngles[2]), 0 },
-
-//rww - for use by mod authors only
-{ PSF(userInt1), 1 },
-{ PSF(userInt2), 1 },
-{ PSF(userInt3), 1 },
-{ PSF(userFloat1), 1 },
-{ PSF(userFloat2), 1 },
-{ PSF(userFloat3), 1 },
-{ PSF(userVec1[0]), 1 },
-{ PSF(userVec1[1]), 1 },
-{ PSF(userVec1[2]), 1 },
-{ PSF(userVec2[0]), 1 },
-{ PSF(userVec2[1]), 1 },
-{ PSF(userVec2[2]), 1 }
-};
-
-//=====_OPTIMIZED_VEHICLE_NETWORKING=======================================================================
-#endif//_OPTIMIZED_VEHICLE_NETWORKING
-//=====_OPTIMIZED_VEHICLE_NETWORKING=======================================================================
 
 typedef struct bitStorage_s bitStorage_t;
 
@@ -2113,7 +1434,6 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 	int				statsbits;
 	int				persistantbits;
 	int				ammobits;
-	int				powerupbits;
 	int				numFields;
 	int				c;
 	netField_t		*field;
@@ -2133,32 +1453,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 
 	c = msg->cursize;
 
-//=====_OPTIMIZED_VEHICLE_NETWORKING=======================================================================
-#ifdef _OPTIMIZED_VEHICLE_NETWORKING
-	if ( isVehiclePS )
-	{//a vehicle playerstate
-		numFields = sizeof( vehPlayerStateFields ) / sizeof( vehPlayerStateFields[0] );
-		PSFields = vehPlayerStateFields;
-	}
-	else
-	{//regular client playerstate
-		if ( to->m_iVehicleNum
-			&& (to->eFlags&EF_NODRAW) )
-		{//pilot riding *inside* a vehicle!
-			MSG_WriteBits( msg, 1, 1 );	// Pilot player state
-			numFields = sizeof( pilotPlayerStateFields ) / sizeof( pilotPlayerStateFields[0] ) - 82;
-			PSFields = pilotPlayerStateFields;
-		}
-		else
-		{//normal client
-			MSG_WriteBits( msg, 0, 1 );	// Normal player state
-			numFields = sizeof( playerStateFields ) / sizeof( playerStateFields[0] );
-		}
-	}
-//=====_OPTIMIZED_VEHICLE_NETWORKING=======================================================================
-#else// _OPTIMIZED_VEHICLE_NETWORKING
 	numFields = sizeof( playerStateFields ) / sizeof( playerStateFields[0] );
-#endif// _OPTIMIZED_VEHICLE_NETWORKING
 
 	lc = 0;
 	for ( i = 0, field = PSFields ; i < numFields ; i++, field++ ) {
@@ -2245,14 +1540,8 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 			ammobits |= 1<<i;
 		}
 	}
-	/*powerupbits = 0;
-	for (i=0 ; i<16 ; i++) {
-		if (to->powerups[i] != from->powerups[i]) {
-			powerupbits |= 1<<i;
-		}
-	}*/
 
-	if (!statsbits && !persistantbits && !ammobits && !powerupbits) {
+	if (!statsbits && !persistantbits && !ammobits) {
 		MSG_WriteBits( msg, 0, 1 );	// no change
 		oldsize += 4;
 #ifdef _ONEBIT_COMBO
@@ -2384,30 +1673,7 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 		print = 0;
 	}
 
-//=====_OPTIMIZED_VEHICLE_NETWORKING=======================================================================
-#ifdef _OPTIMIZED_VEHICLE_NETWORKING
-	if ( isVehiclePS )
-	{//a vehicle playerstate
-		numFields = sizeof( vehPlayerStateFields ) / sizeof( vehPlayerStateFields[0] );
-		PSFields = vehPlayerStateFields;
-	}
-	else
-	{
-		int isPilot = MSG_ReadBits( msg, 1 );
-		if ( isPilot )
-		{//pilot riding *inside* a vehicle!
-			numFields = sizeof( pilotPlayerStateFields ) / sizeof( pilotPlayerStateFields[0] ) - 82;
-			PSFields = pilotPlayerStateFields;
-		}
-		else
-		{//normal client
-			numFields = sizeof( playerStateFields ) / sizeof( playerStateFields[0] );
-		}
-	}
-//=====_OPTIMIZED_VEHICLE_NETWORKING=======================================================================
-#else//_OPTIMIZED_VEHICLE_NETWORKING
 	numFields = sizeof( playerStateFields ) / sizeof( playerStateFields[0] );
-#endif//_OPTIMIZED_VEHICLE_NETWORKING
 
 	lc = MSG_ReadByte(msg);
 

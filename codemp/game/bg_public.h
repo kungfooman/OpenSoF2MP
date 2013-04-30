@@ -245,14 +245,6 @@ extern stringID_table_t footstepTypeTable[NUM_FOOTSTEP_TYPES+1];
 #define	AED_MOVE_FWD				0
 #define	AED_MOVE_RT					1
 #define	AED_MOVE_UP					2
-//indices for AEV_SABER_SWING data
-#define	AED_SABER_SWING_SABERNUM	0
-#define	AED_SABER_SWING_TYPE		1
-#define	AED_SABER_SWING_PROBABILITY	2
-//indices for AEV_SABER_SPIN data
-#define	AED_SABER_SPIN_SABERNUM		0
-#define	AED_SABER_SPIN_TYPE			1	//0 = saberspinoff, 1 = saberspin, 2-4 = saberspin1-saberspin3
-#define	AED_SABER_SPIN_PROBABILITY	2	
 
 typedef enum
 {//NOTENOTE:  Be sure to update animEventTypeTable and ParseAnimationEvtBlock(...) if you change this enum list!
@@ -263,8 +255,6 @@ typedef enum
 	AEV_FIRE,		//# animID AEV_FIRE framenum altfire chancetofire
 	AEV_MOVE,		//# animID AEV_MOVE framenum forwardpush rightpush uppush
 	AEV_SOUNDCHAN,  //# animID AEV_SOUNDCHAN framenum CHANNEL soundpath randomlow randomhi chancetoplay 
-	AEV_SABER_SWING,  //# animID AEV_SABER_SWING framenum CHANNEL randomlow randomhi chancetoplay 
-	AEV_SABER_SPIN,  //# animID AEV_SABER_SPIN framenum CHANNEL chancetoplay 
 	AEV_NUM_AEV
 } animEventType_t;
 
@@ -543,7 +533,6 @@ typedef enum
 #define	EF2_ALERTED				(1<<2)		// For certain special anims, for Rancor: means you've had an enemy, so use the more alert stand
 #define	EF2_GENERIC_NPC_FLAG	(1<<3)		// So far, used for Rancor...
 #define	EF2_FLYING				(1<<4)		// Flying FIXME: only used on NPCs doesn't *really* have to be passed over, does it?
-#define	EF2_HYPERSPACE			(1<<5)		// Used to both start the hyperspace effect on the predicted client and to let the vehicle know it can now jump into hyperspace (after turning to face the proper angle)
 #define	EF2_BRACKET_ENTITY		(1<<6)		// Draw as bracketed
 #define	EF2_SHIP_DEATH			(1<<7)		// "died in ship" mode
 #define	EF2_NOT_USED_1			(1<<8)		// not used
@@ -792,52 +781,6 @@ typedef enum {
 	TEAMTASK_CAMP
 } teamtask_t;
 
-// means of death
-typedef enum {
-	MOD_UNKNOWN,
-
-	// Knife
-	MOD_KNIFE,
-
-	// Pistols
-	MOD_M1911A1_PISTOL,
-	MOD_USSOCOM_PISTOL,         
-	MOD_SILVER_TALON,
-
-	// Secondarys
-	MOD_M590_SHOTGUN,
-	MOD_MICRO_UZI_SUBMACHINEGUN, 
-	MOD_M3A1_SUBMACHINEGUN,      
-	MOD_MP5,
-
-	// Primaries
-	MOD_USAS_12_SHOTGUN,         
-	MOD_M4_ASSAULT_RIFLE,        
-	MOD_AK74_ASSAULT_RIFLE,      
-	MOD_SIG551,
-
-	MOD_MSG90A1_SNIPER_RIFLE,    
-	MOD_M60_MACHINEGUN,          
-	MOD_MM1_GRENADE_LAUNCHER,    
-	MOD_RPG7_LAUNCHER,           
-
-	// Grenades
-	MOD_M84_GRENADE,
-	MOD_SMOHG92_GRENADE,
-	MOD_ANM14_GRENADE,
-	MOD_M15_GRENADE,
-
-	MOD_WATER,
-	MOD_CRUSH,
-	MOD_TELEFRAG,
-	MOD_FALLING,
-	MOD_SUICIDE,
-	MOD_TEAMCHANGE,
-	MOD_TARGET_LASER,
-	MOD_TRIGGER_HURT,
-	MOD_TRIGGER_HURT_NOSUICIDE
-} meansOfDeath_t;
-
 
 //---------------------------------------------------------
 
@@ -957,10 +900,8 @@ typedef enum {
 #ifdef LS_NONE
 #undef LS_NONE
 #endif
-
 bgEntity_t *PM_BGEntForNum( int num );
 qboolean BG_KnockDownable(playerState_t *ps);
-qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber, int teamForce, int gametype, int fpDisabled);
 
 
 #ifdef __LCC__ //can't inline it then, it is declared over in bg_misc in this case
@@ -1069,7 +1010,7 @@ int BG_GetItemIndexByTag(int tag, int type);
 qboolean BG_IsItemSelectable(playerState_t *ps, int item);
 
 qboolean BG_HasYsalamiri(int gametype, playerState_t *ps);
-qboolean BG_CanUseFPNow(int gametype, playerState_t *ps, int time, forcePowers_t power);
+qboolean BG_CanUseFPNow(int gametype, playerState_t *ps, int time);
 
 void *BG_Alloc ( int size );
 void *BG_AllocUnaligned ( int size );
@@ -1078,26 +1019,11 @@ void BG_TempFree( int size );
 char *BG_StringAlloc ( const char *source );
 qboolean BG_OutOfMemory ( void );
 
-void BG_BLADE_ActivateTrail ( bladeInfo_t *blade, float duration );
-void BG_BLADE_DeactivateTrail ( bladeInfo_t *blade, float duration );
-void BG_SI_Activate( saberInfo_t *saber );
-void BG_SI_Deactivate( saberInfo_t *saber );
-void BG_SI_BladeActivate( saberInfo_t *saber, int iBlade, qboolean bActive );
-qboolean BG_SI_Active(saberInfo_t *saber);
-void BG_SI_SetLength( saberInfo_t *saber, float length );
-void BG_SI_SetDesiredLength(saberInfo_t *saber, float len, int bladeNum);
-void BG_SI_SetLengthGradual( saberInfo_t *saber, int time );
-float BG_SI_Length(saberInfo_t *saber);
-float BG_SI_LengthMax(saberInfo_t *saber);
-void BG_SI_ActivateTrail ( saberInfo_t *saber, float duration );
-void BG_SI_DeactivateTrail ( saberInfo_t *saber, float duration );
 extern void BG_AttachToRancor( void *ghoul2,float rancYaw,vec3_t rancOrigin,int time,qhandle_t *modelList,vec3_t modelScale,qboolean inMouth,vec3_t out_origin,vec3_t out_angles,vec3_t out_axis[3] );
 void BG_ClearRocketLock( playerState_t *ps );
 
 extern int WeaponReadyAnim[WP_NUM_WEAPONS];
 extern int WeaponAttackAnim[WP_NUM_WEAPONS];
-
-extern int forcePowerDarkLight[NUM_FORCE_POWERS];
 
 
 #define ARENAS_PER_TIER		4

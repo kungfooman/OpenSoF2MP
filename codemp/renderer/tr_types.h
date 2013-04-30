@@ -52,7 +52,6 @@
 // refdef flags
 #define RDF_NOWORLDMODEL	1		// used for player configuration screen
 #define RDF_PROJECTION2D	2
-#define RDF_HYPERSPACE		4		// teleportation effect
 
 //#define RDF_SKYBOXPORTAL	8
 //#define RDF_DRAWSKYBOX		16		// the above marks a scene as being a 'portal sky'.  this flag says to draw it or not

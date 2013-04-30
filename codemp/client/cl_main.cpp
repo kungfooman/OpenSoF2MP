@@ -2625,10 +2625,6 @@ void CL_Init( void ) {
 	Cvar_Get ("password", "", CVAR_USERINFO);
 	Cvar_Get ("cg_predictItems", "1", CVAR_USERINFO | CVAR_ARCHIVE );
 
-	//default sabers
-	Cvar_Get ("saber1",  "single_1", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("saber2",  "none", CVAR_USERINFO | CVAR_ARCHIVE );
-
 	//skin color
 	Cvar_Get ("char_color_red",  "255", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("char_color_green",  "255", CVAR_USERINFO | CVAR_ARCHIVE );

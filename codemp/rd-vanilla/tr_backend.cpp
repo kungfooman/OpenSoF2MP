@@ -408,28 +408,6 @@ void GL_State( unsigned long stateBits )
 
 
 
-/*
-================
-RB_Hyperspace
-
-A player has predicted a teleport, but hasn't arrived yet
-================
-*/
-static void RB_Hyperspace( void ) {
-	float		c;
-
-	if ( !backEnd.isHyperspace ) {
-		// do initialization shit
-	}
-
-	c = ( backEnd.refdef.time & 255 ) / 255.0f;
-	qglClearColor( c, c, c, 1 );
-	qglClear( GL_COLOR_BUFFER_BIT );
-
-	backEnd.isHyperspace = qtrue;
-}
-
-
 void SetViewportAndScissor( void ) {
 	qglMatrixMode(GL_PROJECTION);
 	qglLoadMatrixf( backEnd.viewParms.projectionMatrix );
@@ -528,16 +506,6 @@ void RB_BeginDrawingView (void) {
 	if (clearBits)
 	{
 		qglClear( clearBits );
-	}
-
-	if ( ( backEnd.refdef.rdflags & RDF_HYPERSPACE ) )
-	{
-		RB_Hyperspace();
-		return;
-	}
-	else
-	{
-		backEnd.isHyperspace = qfalse;
 	}
 
 	glState.faceCulling = -1;		// force face culling to set next time
@@ -688,7 +656,6 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	drawSurf_t		*drawSurf;
 	unsigned int	oldSort;
 	float			originalTime;
-	trRefEntity_t	*curEnt;
 	postRender_t	*pRender;
 	bool			didShadowPass = false;
 #ifdef __MACOS__

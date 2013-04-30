@@ -1849,25 +1849,6 @@ void RE_WorldEffectCommand(const char *command)
 
 
 
-float R_GetChanceOfSaberFizz()
-{
- 	float	chance = 0.0f;
-	int		numWater = 0;
-	for (int i=0; i<mParticleClouds.size(); i++)
-	{
-		if (mParticleClouds[i].mWaterParticles)
-		{
-			chance += (mParticleClouds[i].mGravity/20000.0f);
-			numWater ++;
-		}
-	}
-	if (numWater)
-	{
-		return (chance / numWater);
-	}
-	return 0.0f;
-}
-
 bool R_IsRaining()
 {
 	return !mParticleClouds.empty();

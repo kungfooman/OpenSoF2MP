@@ -128,8 +128,5 @@ typedef enum //# animNumber_e
 	MAX_ANIMATIONS
 } animNumber_t;
 
-#define SABER_ANIM_GROUP_SIZE (BOTH_A2_T__B_ - BOTH_A1_T__B_)
-
-
 #endif// #ifndef __ANIMS_H__
 

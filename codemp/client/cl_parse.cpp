@@ -261,16 +261,8 @@ void CL_ParseSnapshot( msg_t *msg ) {
 	SHOWNET( msg, "playerstate" );
 	if ( old ) {
 		MSG_ReadDeltaPlayerstate( msg, &old->ps, &newSnap.ps );
-		if (newSnap.ps.m_iVehicleNum)
-		{ //this means we must have written our vehicle's ps too
-			MSG_ReadDeltaPlayerstate( msg, &old->vps, &newSnap.vps, qtrue );
-		}
 	} else {
 		MSG_ReadDeltaPlayerstate( msg, NULL, &newSnap.ps );
-		if (newSnap.ps.m_iVehicleNum)
-		{ //this means we must have written our vehicle's ps too
-			MSG_ReadDeltaPlayerstate( msg, NULL, &newSnap.vps, qtrue );			
-		}
 	}
 
 	// read packet entities

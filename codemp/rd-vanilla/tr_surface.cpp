@@ -451,31 +451,6 @@ static void DoSprite( vec3_t origin, float radius, float rotation )
 	RB_AddQuadStamp( origin, left, up, backEnd.currentEntity->e.shaderRGBA );
 }
 
-//------------------
-// RB_SurfaceSaber
-//------------------
-/*static void RB_SurfaceSaberGlow()
-{ 
-	vec3_t		end;
-	refEntity_t *e;
-
-	e = &backEnd.currentEntity->e;
-
-	// Render the glow part of the blade
-	for ( float i = e->saberLength; i > 0; i -= e->radius * 0.65f )
-	{
-		VectorMA( e->origin, i, e->axis[0], end );
-
-		DoSprite( end, e->radius, 0.0f );//random() * 360.0f );
-		e->radius += 0.017f;
-	}
-
-	// Big hilt sprite
-	// Please don't kill me Pat...I liked the hilt glow blob, but wanted a subtle pulse.:)  Feel free to ditch it if you don't like it.  --Jeff
-	// Please don't kill me Jeff...  The pulse is good, but now I want the halo bigger if the saber is shorter...  --Pat
-	DoSprite( e->origin, 5.5f + random() * 0.25f, 0.0f );//random() * 360.0f );
-}*/
-
 /*
 ==============
 RB_SurfaceLine
@@ -1603,9 +1578,6 @@ void RB_SurfaceEntity( surfaceType_t *surfType ) {
 	case RT_ORIENTEDLINE:
 		RB_SurfaceOrientedLine();
 		break;
-	/*case RT_SABER_GLOW:
-		RB_SurfaceSaberGlow();
-		break;*/
 	case RT_CYLINDER:
 		RB_SurfaceCylinder();
 		break;

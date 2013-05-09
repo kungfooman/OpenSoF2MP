@@ -740,17 +740,9 @@ static rserr_t GLW_SetMode( int mode,
 			//
 			char sErrorHead[1024];	// ott
 
-			extern qboolean Language_IsAsian(void);
-			Q_strncpyz(sErrorHead, Language_IsAsian() ? "Low Desktop Color Depth" : ri.SE_GetString("CON_TEXT_LOW_DESKTOP_COLOUR_DEPTH"), sizeof(sErrorHead) );
+			Q_strncpyz(sErrorHead, ri.SE_GetString("CON_TEXT_LOW_DESKTOP_COLOUR_DEPTH"), sizeof(sErrorHead) );
 
-			const char *psErrorBody = Language_IsAsian() ?
-												"It is highly unlikely that a correct windowed\n"
-												"display can be initialized with the current\n"
-												"desktop display depth.  Select 'OK' to try\n"
-												"anyway.  Select 'Cancel' to try a fullscreen\n"
-												"mode instead."
-												:
-												ri.SE_GetString("CON_TEXT_TRY_ANYWAY");
+			const char *psErrorBody = ri.SE_GetString("CON_TEXT_TRY_ANYWAY");
 
 			if ( MessageBox( NULL, 							
 						psErrorBody,

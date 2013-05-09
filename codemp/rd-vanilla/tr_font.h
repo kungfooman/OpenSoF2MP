@@ -24,10 +24,6 @@ void RE_Font_DrawString(int x, int y, qhandle_t font, float scale, vec4_t color,
 //
 unsigned int AnyLanguage_ReadCharFromString( const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation = NULL);
 
-qboolean Language_IsAsian(void);
-qboolean Language_UsesSpaces(void);
-
-
 #endif	// #ifndef TR_FONT_H
 
 // end

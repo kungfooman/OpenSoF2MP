@@ -1608,8 +1608,6 @@ Q_EXPORT refexport_t* QDECL GetRefAPI( int apiVersion, refimport_t *rimp ) {
 	re.Font_StrLenChars						= RE_Font_StrLenChars;
 	re.Font_HeightPixels					= RE_Font_HeightPixels;
 	re.Font_DrawString						= RE_Font_DrawString;
-	re.Language_IsAsian						= Language_IsAsian;
-	re.Language_UsesSpaces					= Language_UsesSpaces;
 	re.AnyLanguage_ReadCharFromString		= AnyLanguage_ReadCharFromString;
 
 	re.RemapShader							= R_RemapShader;

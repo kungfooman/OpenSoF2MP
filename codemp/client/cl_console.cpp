@@ -483,7 +483,7 @@ void Con_DrawInput (void) {
 		return;
 	}
 
-	y = con.vislines - ( SMALLCHAR_HEIGHT * (re.Language_IsAsian() ? 1.5 : 2) );
+	y = con.vislines - ( SMALLCHAR_HEIGHT * 2 );
 
 	re.SetColor( con.color );
 
@@ -539,54 +539,22 @@ void Con_DrawNotify (void)
 			cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", 0);
 		}
 
-		// asian language needs to use the new font system to print glyphs...
-		//
-		// (ignore colours since we're going to print the whole thing as one string)
-		//
-		if (re.Language_IsAsian())
-		{
-			static int iFontIndex = re.RegisterFont("ocr_a");	// this seems naughty
-			const float fFontScale = 0.75f*con.yadjust;
-			const int iPixelHeightToAdvance =   2+(1.3/con.yadjust) * re.Font_HeightPixels(iFontIndex, fFontScale);	// for asian spacing, since we don't want glyphs to touch.
-
-			// concat the text to be printed...
-			//
-			char sTemp[4096]={0};	// ott
-			for (x = 0 ; x < con.linewidth ; x++) 
+		for (x = 0 ; x < con.linewidth ; x++) {
+			if ( ( text[x] & 0xff ) == ' ' ) {
+				continue;
+			}
+			if ( ( (text[x]>>8)&7 ) != currentColor ) {
+				currentColor = (text[x]>>8)&7;
+				re.SetColor( g_color_table[currentColor] );
+			}
+			if (!cl_conXOffset)
 			{
-				if ( ( (text[x]>>8)&7 ) != currentColor ) {
-					currentColor = (text[x]>>8)&7;
-					strcat(sTemp,va("^%i", (text[x]>>8)&7) );
-				}
-				strcat(sTemp,va("%c",text[x] & 0xFF));				
+				cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", 0);
 			}
-			//
-			// and print...
-			//
-			//KLAAS TODO
-			//re.Font_DrawString(cl_conXOffset->integer + con.xadjust*(con.xadjust + (1*SMALLCHAR_WIDTH/*aesthetics*/)), con.yadjust*(v), sTemp, g_color_table[currentColor], iFontIndex, -1, fFontScale);
-
-			v +=  iPixelHeightToAdvance;
+			SCR_DrawSmallChar( (int)(cl_conXOffset->integer + con.xadjust + (x+1)*SMALLCHAR_WIDTH), v, text[x] & 0xff );
 		}
-		else
-		{		
-			for (x = 0 ; x < con.linewidth ; x++) {
-				if ( ( text[x] & 0xff ) == ' ' ) {
-					continue;
-				}
-				if ( ( (text[x]>>8)&7 ) != currentColor ) {
-					currentColor = (text[x]>>8)&7;
-					re.SetColor( g_color_table[currentColor] );
-				}
-				if (!cl_conXOffset)
-				{
-					cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", 0);
-				}
-				SCR_DrawSmallChar( (int)(cl_conXOffset->integer + con.xadjust + (x+1)*SMALLCHAR_WIDTH), v, text[x] & 0xff );
-			}
 
-			v += SMALLCHAR_HEIGHT;
-		}
+		v += SMALLCHAR_HEIGHT;
 	}
 
 	re.SetColor( NULL );
@@ -691,17 +659,7 @@ void Con_DrawSolidConsole( float frac ) {
 	currentColor = 7;
 	re.SetColor( g_color_table[currentColor] );
 
-	static int iFontIndexForAsian = 0;
-	const float fFontScaleForAsian = 0.75f*con.yadjust;
 	int iPixelHeightToAdvance = SMALLCHAR_HEIGHT;
-	if (re.Language_IsAsian())
-	{
-		if (!iFontIndexForAsian) 
-		{
-			iFontIndexForAsian = re.RegisterFont("ocr_a");
-		}
-		iPixelHeightToAdvance = (1.3/con.yadjust) * re.Font_HeightPixels(iFontIndexForAsian, fFontScaleForAsian);	// for asian spacing, since we don't want glyphs to touch.
-	}
 
 	for (i=0 ; i<rows ; i++, y -= iPixelHeightToAdvance, row--)
 	{
@@ -714,42 +672,16 @@ void Con_DrawSolidConsole( float frac ) {
 
 		text = con.text + (row % con.totallines)*con.linewidth;
 
-		// asian language needs to use the new font system to print glyphs...
-		//
-		// (ignore colours since we're going to print the whole thing as one string)
-		//
-		if (re.Language_IsAsian())
-		{
-			// concat the text to be printed...
-			//
-			char sTemp[4096]={0};	// ott
-			for (x = 0 ; x < con.linewidth ; x++) 
-			{
-				if ( ( (text[x]>>8)&7 ) != currentColor ) {
-					currentColor = (text[x]>>8)&7;
-					strcat(sTemp,va("^%i", (text[x]>>8)&7) );
-				}
-				strcat(sTemp,va("%c",text[x] & 0xFF));				
+		for (x=0 ; x<con.linewidth ; x++) {
+			if ( ( text[x] & 0xff ) == ' ' ) {
+				continue;
 			}
-			//
-			// and print...
-			//
-			//KLAAS TODO
-			//re.Font_DrawString(con.xadjust*(con.xadjust + (1*SMALLCHAR_WIDTH/*(aesthetics)*/)), con.yadjust*(y), sTemp, g_color_table[currentColor], iFontIndexForAsian, -1, fFontScaleForAsian);
-		}
-		else
-		{	
-			for (x=0 ; x<con.linewidth ; x++) {
-				if ( ( text[x] & 0xff ) == ' ' ) {
-					continue;
-				}
 
-				if ( ( (text[x]>>8)&7 ) != currentColor ) {
-					currentColor = (text[x]>>8)&7;
-					re.SetColor( g_color_table[currentColor] );
-				}
-				SCR_DrawSmallChar(  (int) (con.xadjust + (x+1)*SMALLCHAR_WIDTH), y, text[x] & 0xff );
+			if ( ( (text[x]>>8)&7 ) != currentColor ) {
+				currentColor = (text[x]>>8)&7;
+				re.SetColor( g_color_table[currentColor] );
 			}
+			SCR_DrawSmallChar(  (int) (con.xadjust + (x+1)*SMALLCHAR_WIDTH), y, text[x] & 0xff );
 		}
 	}
 

@@ -1156,19 +1156,13 @@ void QuickMemTest(void)
 		{
 			// err...
 			//
-			LPCSTR psContinue = re.Language_IsAsian() ? 
-								"Your machine failed to allocate %dMB in a memory test, which may mean you'll have problems running this game all the way through.\n\nContinue anyway?"
-								: 
-								SE_GetString("CON_TEXT_FAILED_MEMTEST");
+			LPCSTR psContinue = SE_GetString("CON_TEXT_FAILED_MEMTEST");
 								// ( since it's too much hassle doing MBCS code pages and decodings etc for MessageBox command )
 
 			#define GetYesNo(psQuery)	(!!(MessageBox(NULL,psQuery,"Query",MB_YESNO|MB_ICONWARNING|MB_TASKMODAL)==IDYES))
 			if (!GetYesNo(va(psContinue,iMemTestMegs)))
 			{
-				LPCSTR psNoMem = re.Language_IsAsian() ?
-								"Insufficient memory to run this game!\n"
-								:
-								SE_GetString("CON_TEXT_INSUFFICIENT_MEMORY");
+				LPCSTR psNoMem = SE_GetString("CON_TEXT_INSUFFICIENT_MEMORY");
 								// ( since it's too much hassle doing MBCS code pages and decodings etc for MessageBox command )
 
 				Com_Error( ERR_FATAL, psNoMem );

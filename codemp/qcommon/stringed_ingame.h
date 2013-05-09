@@ -78,32 +78,6 @@ inline SE_BOOL Language_IsPolish(void)
 	return (se_language && !Q_stricmp(se_language->string, "polish")) ? SE_TRUE : SE_FALSE;	
 }
 
-inline SE_BOOL Language_IsKorean(void)
-{
-	return (se_language && !Q_stricmp(se_language->string, "korean")) ? SE_TRUE : SE_FALSE;
-}
-
-inline SE_BOOL Language_IsTaiwanese(void)
-{
-	return (se_language && !Q_stricmp(se_language->string, "taiwanese")) ? SE_TRUE : SE_FALSE;
-}
-
-inline SE_BOOL Language_IsJapanese(void)
-{
-	return (se_language && !Q_stricmp(se_language->string, "japanese")) ? SE_TRUE : SE_FALSE;
-}
-
-inline SE_BOOL Language_IsChinese(void)
-{
-	return (se_language && !Q_stricmp(se_language->string, "chinese")) ? SE_TRUE : SE_FALSE;
-}
-
-inline SE_BOOL Language_IsThai(void)
-{
-	return (se_language && !Q_stricmp(se_language->string, "thai")) ? SE_TRUE : SE_FALSE;
-}
-
-
 #endif	// #ifndef STRINGED_INGAME_H
 
 /////////////////// eof ////////////////

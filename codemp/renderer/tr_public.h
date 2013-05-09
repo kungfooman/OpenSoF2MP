@@ -89,8 +89,6 @@ typedef struct {
 	int					(*Font_StrLenChars)						( const char *text );
 	int					(*Font_HeightPixels)					( const int iFontIndex, const float scale );
 	void				(*Font_DrawString)						( int x, int y, qhandle_t font, float scale, vec4_t color, const char* text, int limit, int flags, int cursorPos, char cursor );
-	qboolean			(*Language_IsAsian)						( void );
-	qboolean			(*Language_UsesSpaces)					( void );
 	unsigned int		(*AnyLanguage_ReadCharFromString)		( const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation/* = NULL*/ );
 
 	void				(*RemapShader)							( const char *oldShader, const char *newShader, const char *offsetTime );

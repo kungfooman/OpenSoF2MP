@@ -9,8 +9,8 @@
 
 #define PRODUCT_NAME			"sof2mp"
 
-#define CLIENT_WINDOW_TITLE "Soldier Of Fortune 2 (MP)"
-#define CLIENT_CONSOLE_TITLE "Soldier Of Fortune 2 (MP)"
+#define CLIENT_WINDOW_TITLE "SoF2 MP"
+#define CLIENT_CONSOLE_TITLE "Soldier of Fortune 2 Console"
 
 //NOTENOTE: Only change this to re-point ICARUS to a new script directory
 #define Q3_SCRIPT_DIR	"scripts"

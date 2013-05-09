@@ -1285,18 +1285,8 @@ Ghoul2 Insert Start
 		}*/
 
 	case UI_G2_GETGLANAME:
-		//	return (int)G2API_GetGLAName(*((CGhoul2Info_v *)VMA(1)), args[2]);
-		{
-			char *point = ((char *)VMA(3));
-			char *local;
-			local = re.G2API_GetGLAName(*((CGhoul2Info_v *)args[1]), args[2]);
-			if (local)
-			{
-				strcpy(point, local);
-			}
-		}
-		return 0;
-
+		return (int)re.G2API_GetGLAName(*((CGhoul2Info_v *)args[1]), args[2]);
+		
 	case UI_G2_COPYGHOUL2INSTANCE:
 		return (int)re.G2API_CopyGhoul2Instance(*((CGhoul2Info_v *)args[1]), *((CGhoul2Info_v *)args[2]), args[3]);
 
@@ -1324,8 +1314,12 @@ Ghoul2 Insert Start
 	case UI_G2_ADDBOLT:
 		return re.G2API_AddBolt(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3));
 
-//	case UI_G2_REMOVEBOLT:
-//		return G2API_RemoveBolt(*((CGhoul2Info_v *)VMA(1)), args[2]);
+	case UI_G2_REMOVEBOLT:
+		{
+			CGhoul2Info_v &g2 = *((CGhoul2Info_v *)args[1]);
+			int modelIndex = args[2];
+			return re.G2API_RemoveBolt(&g2[modelIndex], args[3]);
+		}
 
 	/*case UI_G2_SETBOLTON:
 		re.G2API_SetBoltInfo(*((CGhoul2Info_v *)args[1]), args[2], args[3]);
@@ -1343,8 +1337,7 @@ Ghoul2 Insert Start
 		{
 			CGhoul2Info_v &g2 = *((CGhoul2Info_v *)args[1]);
 			//KLAAS TODO
-			int modelIndex = args[2];
-
+			//int modelIndex = args[2];
 			return re.G2API_SetSurfaceOnOff(g2, (const char *)VMA(3), args[4]);
 		}
 
@@ -1390,8 +1383,7 @@ Ghoul2 Insert Start
 		{
 			CGhoul2Info_v &g2 = *((CGhoul2Info_v *)args[1]);
 			int modelIndex = args[2];
-			
-			return re.G2API_SetSkin(&g2[modelIndex], args[3], args[4]);
+			return re.G2API_SetSkin(&g2[modelIndex], args[3], 0);
 		}
 
 	case UI_G2_ATTACHG2MODEL:
@@ -1407,7 +1399,7 @@ Ghoul2 Insert Start
 			qhandle_t modelIndex = (qhandle_t) args[2];
 			char * srcFilename;
 			qboolean retval = re.G2API_GetAnimFileName(&ghoul2[modelIndex], &srcFilename);
-			strncpy((char *) args[3], srcFilename, MAX_QPATH);
+			strncpy((char *) VMA(3), srcFilename, MAX_QPATH);
 			return (int) retval;
 		}
 
@@ -1474,7 +1466,7 @@ Ghoul2 Insert End
 	case UI_GPG_FIND_PAIR:
 		return (int)GPG_FindPair((TGPGroup) args[1], (const char *) VMA(2));
 	case UI_GPG_FIND_PAIRVALUE:
-		return (int)GPG_FindPairValue((TGPGroup) args[1], (const char *) VMA(2), (const char *) VMA(2), (char *) VMA(4));
+		return (int)GPG_FindPairValue((TGPGroup) args[1], (const char *) VMA(2), (const char *) VMA(3), (char *) VMA(4));
 		
 	case UI_GPV_GET_NAME:
 		return (int)GPV_GetName((TGPValue) args[1], (char *) VMA(2));
@@ -1488,7 +1480,14 @@ Ghoul2 Insert End
 	case UI_GPV_IS_LIST:
 		return (int)GPV_IsList((TGPValue) args[1]);
 	case UI_GPV_GET_TOP_VALUE:
-		return (int)GPV_GetTopValue((TGPValue) args[1]);
+		{
+			const char * topValue = GPV_GetTopValue((TGPValue) args[1]);
+			if (topValue)
+			{
+				strcpy((char *) VMA(2), topValue);
+			}
+			return 0;
+		}
 	case UI_GPV_GET_LIST:
 		return (int)GPV_GetList((TGPValue) args[1]);
 

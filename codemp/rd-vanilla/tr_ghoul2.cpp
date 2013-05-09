@@ -2433,7 +2433,7 @@ void RenderSurfaces(CRenderSurface &RS) //also ended up just ripping right from 
 			for ( j = 0 ; j < RS.skin->numSurfaces ; j++ )
 			{
 				// the names have both been lowercased
-				if ( !strcmp( RS.skin->surfaces[j]->name, surfInfo->name ) ) 
+				if ( !strcmp( RS.skin->surfaces[j]->name, surfInfo->shader ) ) 
 				{
 					shader = (shader_t*)RS.skin->surfaces[j]->shader;
 					break;
@@ -4303,20 +4303,25 @@ qboolean R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, qboolean 
 			LL(surfInfo->childIndexes[j]);
 		}
 
-		// get the shader name
-		sh = R_FindShader( surfInfo->shader, lightmapsNone, stylesDefault, qtrue );
-		// insert it in the surface list
-		if ( !sh->defaultShader ) 
+		// No need to search for the shader if it doesn't resemble a path
+		if (strstr(surfInfo->shader, "/"))
 		{
-			surfInfo->shaderIndex = sh->index;
-		}
+			// get the shader name
+			sh = R_FindShader( surfInfo->shader, lightmapsNone, stylesDefault, qtrue );
+
+			// insert it in the surface list
+			if ( !sh->defaultShader ) 
+			{
+				surfInfo->shaderIndex = sh->index;
+			}
 
 		
-		if (surfInfo->shaderIndex)
+			if (surfInfo->shaderIndex)
 
-		{
-			RE_RegisterModels_StoreShaderRequest(mod_name, &surfInfo->shader[0], &surfInfo->shaderIndex);		
+			{
+				RE_RegisterModels_StoreShaderRequest(mod_name, &surfInfo->shader[0], &surfInfo->shaderIndex);		
 
+			}
 		}
 		
 		// find the next surface

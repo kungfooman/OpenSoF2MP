@@ -2983,33 +2983,10 @@ qhandle_t RE_RegisterSkin( const char *name, int numPairs, char *skinPairs ) {
 		skin->numSurfaces++;
 	}
 
-	// If not a .skin file, load as a single shader
-	/*if ( strcmp( name + strlen( name ) - 5, ".skin" ) ) {
-		skin->numSurfaces = 1;
-		skin->surfaces[0] = (_skinSurface_t *)Hunk_Alloc( sizeof(skin->surfaces[0]), h_low );
-		skin->surfaces[0]->shader = R_FindShader( name, lightmapsNone, stylesDefault, qtrue );
-		return hSkin;
-	}*/
-
-	/*char skinhead[MAX_QPATH]={0};
-	char skintorso[MAX_QPATH]={0};
-	char skinlower[MAX_QPATH]={0};
-	if ( RE_SplitSkins(skins, (char*)&skinhead, (char*)&skintorso, (char*)&skinlower ) )
-	{//three part
-		hSkin = RE_RegisterIndividualSkin(skinhead, hSkin);
-		if (hSkin)
-		{
-			hSkin = RE_RegisterIndividualSkin(skintorso, hSkin);
-			if (hSkin)
-			{
-				hSkin = RE_RegisterIndividualSkin(skinlower, hSkin);
-			}
-		}
+	// never let a skin have 0 shaders
+	if ( skin->numSurfaces == 0 ) {
+		return 0;		// use default skin
 	}
-	else
-	{//single skin
-		hSkin = RE_RegisterIndividualSkin(skins, hSkin);
-	}*/
 
 	return(hSkin);
 }

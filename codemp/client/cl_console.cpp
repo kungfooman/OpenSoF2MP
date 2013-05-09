@@ -619,11 +619,11 @@ void Con_DrawSolidConsole( float frac ) {
 		SCR_DrawPic( 0, 0, cls.glconfig.vidWidth, (float) y, cls.consoleShader );
 	}
 
-	const vec4_t color = { 0.509f, 0.609f, 0.847f,  1.0f};
-	// draw the bottom bar and version number
+	const vec4_t color = { 1.0f, 0.0f, 0.0f,  1.0f};
 
+	// draw the bottom bar and version number
 	re.SetColor( color );
-	re.DrawStretchPic( 0, y, cls.glconfig.vidWidth, 2, 0, 0, 0, 0, cls.whiteShader );
+	re.DrawStretchPic( 0, y, cls.glconfig.vidWidth, 4, 0, 0, 0, 0, cls.whiteShader );
 
 	i = strlen( JK_VERSION );
 

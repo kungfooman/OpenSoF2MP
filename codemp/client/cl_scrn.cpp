@@ -415,7 +415,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	// don't need to render anything under it
 	//actually, yes you do, unless you want clients to cycle out their reliable
 	//commands from sitting in the menu. -rww
-	if ( (uivm && !uiFullscreen) || (!(cls.framecount&7) && cls.state == CA_ACTIVE) ) {
+	if ( !uiFullscreen || (!(cls.framecount&7) && cls.state == CA_ACTIVE) ) {
 	//if ( !VM_Call( uivm, UI_IS_FULLSCREEN ) || (!(cls.framecount&7) && cls.state == CA_ACTIVE)) {
 		switch( cls.state ) {
 		default:
@@ -456,7 +456,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	}
 
 	// the menu draws next
-	if ( cls.keyCatchers & KEYCATCH_UI && uivm ) {
+	if ( cls.keyCatchers & KEYCATCH_UI ) {
 		VM_Call( uivm, UI_REFRESH, cls.realtime );
 	}
 

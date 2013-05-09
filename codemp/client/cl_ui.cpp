@@ -1010,7 +1010,18 @@ int CL_UISystemCalls( int *args ) {
 		return 0;
 
 	case UI_UPDATESCREEN:
-		SCR_UpdateScreen();
+		if ( args[1] )
+		{
+			// draw loading screen
+			VM_Call( uivm, UI_REFRESH, cls.realtime );
+			VM_Call( uivm, UI_DRAW_LOADING_SCREEN );
+			re.BeginFrame( STEREO_CENTER );
+			re.EndFrame( NULL, NULL );
+		}
+		else
+		{
+			SCR_UpdateScreen();
+		}
 		return 0;
 
 	case UI_CM_LERPTAG:

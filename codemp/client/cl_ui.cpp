@@ -1352,43 +1352,6 @@ Ghoul2 Insert Start
 			return re.G2API_SetSurfaceOnOff(g2, (const char *)VMA(3), args[4]);
 		}
 
-	/*case UI_G2_SETNEWORIGIN:
-		return re.G2API_SetNewOrigin(*((CGhoul2Info_v *)args[1]), args[2]);
-
-	case UI_G2_GETTIME:
-		return re.G2API_GetTime(0);
-
-	case UI_G2_SETTIME:
-		re.G2API_SetTime(args[1], args[2]);
-		return 0;
-
-	case UI_G2_SETRAGDOLL:
-		return 0; //not supported for ui
-		break;
-	case UI_G2_ANIMATEG2MODELS:
-		return 0; //not supported for ui
-		break;
-
-	case UI_G2_SETBONEIKSTATE:
-		return re.G2API_SetBoneIKState(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3), args[4], (sharedSetBoneIKStateParams_t *)VMA(5));
-	case UI_G2_IKMOVE:
-		return re.G2API_IKMove(*((CGhoul2Info_v *)args[1]), args[2], (sharedIKMoveParams_t *)VMA(3));
-
-	case UI_G2_GETSURFACENAME:
-		{ //Since returning a pointer in such a way to a VM seems to cause MASSIVE FAILURE<tm>, we will shove data into the pointer the vm passes instead
-			char *point = ((char *)VMA(4));
-			char *local;
-			int modelindex = args[3];
-
-			CGhoul2Info_v &g2 = *((CGhoul2Info_v *)args[1]);
-
-			local = re.G2API_GetSurfaceName(&g2[modelindex], args[2]);
-			if (local)
-			{
-				strcpy(point, local);
-			}
-		}*/
-
 		return 0;
 	case UI_G2_SETSKIN:
 		{

@@ -1532,6 +1532,7 @@ RB_SurfaceAxis
 Draws x/y/z lines from the origin for orientation debugging
 ===================
 */
+#ifdef _DEBUG
 static void RB_SurfaceAxis( void ) {
 	GL_Bind( tr.whiteImage );
 	qglLineWidth( 3 );
@@ -1548,6 +1549,7 @@ static void RB_SurfaceAxis( void ) {
 	qglEnd();
 	qglLineWidth( 1 );
 }
+#endif
 
 //===========================================================================
 
@@ -1607,7 +1609,9 @@ void RB_SurfaceEntity( surfaceType_t *surfType ) {
 		}
 		break;
 	default:
+#ifdef _DEBUG
 		RB_SurfaceAxis();
+#endif
 		break;
 	}
 	return;

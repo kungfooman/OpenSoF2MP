@@ -856,7 +856,7 @@ qboolean ServerLoadMDXM( model_t *mod, void *buffer, const char *mod_name, qbool
 	}
 		
 	// first up, go load in the animation file we need that has the skeletal animation info for this model
-	mdxm->animIndex = RE_RegisterServerModel(va ("%s.gla",mdxm->animName));
+	mdxm->animIndex = RE_RegisterServerModel(va ("%s_mp.gla",mdxm->animName));
 	if (!mdxm->animIndex) 
 	{
 		return qfalse;

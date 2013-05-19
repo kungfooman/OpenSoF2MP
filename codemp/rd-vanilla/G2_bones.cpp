@@ -645,9 +645,6 @@ qboolean G2_Set_Bone_Anim_Index(
 		{
 			return qtrue; // don't accept any calls on ragdoll bones
 		}
-
-		//mark it for needing a transform for the cached trace transform stuff
-		blist[index].flags |= BONE_NEED_TRANSFORM;
 	}
 
 	if (setFrame != -1)
@@ -2265,7 +2262,7 @@ static bool G2_RagDollSetup(CGhoul2Info &ghoul2,int frameNum,bool resetOrigin,co
 		if (bone.boneNumber>=0)
 		{
 			assert(bone.boneNumber<MAX_BONES_RAG);
-			if ((bone.flags & BONE_ANGLES_RAGDOLL) || (bone.flags & BONE_ANGLES_IK))
+			if (bone.flags & BONE_ANGLES_RAGDOLL)
 			{
 				//rww - this was (!anyRendered) before. Isn't that wrong? (if anyRendered, then wasRendered should be true)
 				bool wasRendered=
@@ -4532,7 +4529,6 @@ static int G2_Set_Bone_Angles_IK(
 	if (index != -1)
 	{
 		boneInfo_t &bone=blist[index];
-		bone.flags |= BONE_ANGLES_IK;
 		bone.flags &= ~BONE_ANGLES_RAGDOLL;
 
 		bone.ragStartTime=G2API_GetTime(0);
@@ -4664,7 +4660,6 @@ qboolean G2_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName
 				if (bone.boneNumber != -1)
 				{
 					bone.flags &= ~BONE_ANGLES_RAGDOLL;
-					bone.flags &= ~BONE_ANGLES_IK;
 					bone.RagFlags = 0;
 					bone.lastTimeUpdated = 0;
 				}
@@ -4718,7 +4713,6 @@ qboolean G2_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName
 		//G2_Remove_Bone_Index(blist, index);
 		//actually, I want to keep it on the rag list, and remove it as an IK bone instead.
 		bone.flags &= ~BONE_ANGLES_RAGDOLL;
-		bone.flags |= BONE_ANGLES_IK;
 		bone.RagFlags &= ~RAG_PCJ_IK_CONTROLLED;
 		return qtrue;
 	}

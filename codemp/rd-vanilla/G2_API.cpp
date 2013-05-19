@@ -2007,10 +2007,8 @@ static inline bool G2_NeedRetransform(CGhoul2Info *g2, int frameNum)
 		int newFrame = bone.startFrame + (time * bone.animSpeed);
 
 		if (newFrame < bone.endFrame ||
-			(bone.flags & BONE_ANIM_OVERRIDE_LOOP) ||
-			(bone.flags & BONE_NEED_TRANSFORM))
+			(bone.flags & BONE_ANIM_OVERRIDE_LOOP))
 		{ //ok, we're gonna have to do it. bone is apparently animating.
-			bone.flags &= ~BONE_NEED_TRANSFORM;
 			needTrans = true;
 		}
 		i++;

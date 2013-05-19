@@ -205,98 +205,18 @@ typedef struct animation_s {
 } animation_t;
 #pragma pack(pop)
 
-#define MAX_ANIM_FILES	16
-#define MAX_ANIM_EVENTS 300
-
-typedef enum
+typedef struct ladder_s 
 {
-	FOOTSTEP_R,
-	FOOTSTEP_L,
-	FOOTSTEP_HEAVY_R,
-	FOOTSTEP_HEAVY_L,
-	NUM_FOOTSTEP_TYPES
-} footstepType_t;
+	vec3_t	origin;
+	vec3_t	fwd;
 
-extern stringID_table_t animEventTypeTable[MAX_ANIM_EVENTS+1];
-extern stringID_table_t footstepTypeTable[NUM_FOOTSTEP_TYPES+1];
+} ladder_t;
 
-//size of Anim eventData array...
-#define MAX_RANDOM_ANIM_SOUNDS		4
-#define	AED_ARRAY_SIZE				(MAX_RANDOM_ANIM_SOUNDS+3)
-//indices for AEV_SOUND data
-#define	AED_SOUNDINDEX_START		0
-#define	AED_SOUNDINDEX_END			(MAX_RANDOM_ANIM_SOUNDS-1)
-#define	AED_SOUND_NUMRANDOMSNDS		(MAX_RANDOM_ANIM_SOUNDS)
-#define	AED_SOUND_PROBABILITY		(MAX_RANDOM_ANIM_SOUNDS+1)
-//indices for AEV_SOUNDCHAN data
-#define	AED_SOUNDCHANNEL			(MAX_RANDOM_ANIM_SOUNDS+2)
-//indices for AEV_FOOTSTEP data
-#define	AED_FOOTSTEP_TYPE			0
-#define	AED_FOOTSTEP_PROBABILITY	1
-//indices for AEV_EFFECT data
-#define	AED_EFFECTINDEX				0
-#define	AED_BOLTINDEX				1
-#define	AED_EFFECT_PROBABILITY		2
-#define	AED_MODELINDEX				3
-//indices for AEV_FIRE data
-#define	AED_FIRE_ALT				0
-#define	AED_FIRE_PROBABILITY		1
-//indices for AEV_MOVE data
-#define	AED_MOVE_FWD				0
-#define	AED_MOVE_RT					1
-#define	AED_MOVE_UP					2
-
-typedef enum
-{//NOTENOTE:  Be sure to update animEventTypeTable and ParseAnimationEvtBlock(...) if you change this enum list!
-	AEV_NONE,
-	AEV_SOUND,		//# animID AEV_SOUND framenum soundpath randomlow randomhi chancetoplay
-	AEV_FOOTSTEP,	//# animID AEV_FOOTSTEP framenum footstepType chancetoplay
-	AEV_EFFECT,		//# animID AEV_EFFECT framenum effectpath boltName chancetoplay
-	AEV_FIRE,		//# animID AEV_FIRE framenum altfire chancetofire
-	AEV_MOVE,		//# animID AEV_MOVE framenum forwardpush rightpush uppush
-	AEV_SOUNDCHAN,  //# animID AEV_SOUNDCHAN framenum CHANNEL soundpath randomlow randomhi chancetoplay 
-	AEV_NUM_AEV
-} animEventType_t;
-
-typedef struct animevent_s 
-{
-	animEventType_t	eventType;
-	unsigned short	keyFrame;			//Frame to play event on
-	signed short	eventData[AED_ARRAY_SIZE];	//Unique IDs, can be soundIndex of sound file to play OR effect index or footstep type, etc.
-	char			*stringData;		//we allow storage of one string, temporarily (in case we have to look up an index later, then make sure to set stringData to NULL so we only do the look-up once)
-} animevent_t;
-
-typedef struct
-{
-	char			filename[MAX_QPATH];
-	animation_t		*anims;
-//	animsounds_t	torsoAnimSnds[MAX_ANIM_SOUNDS];
-//	animsounds_t	legsAnimSnds[MAX_ANIM_SOUNDS];
-//	qboolean		soundsCached;
-} bgLoadedAnim_t;
-
-typedef struct
-{
-	char			filename[MAX_QPATH];
-	animevent_t		torsoAnimEvents[MAX_ANIM_EVENTS];
-	animevent_t		legsAnimEvents[MAX_ANIM_EVENTS];
-	qboolean		eventsParsed;
-} bgLoadedEvents_t;
-
-
-extern bgLoadedAnim_t bgAllAnims[MAX_ANIM_FILES];
-
-//In SP this is shared in with the anim stuff, and humanoid anim sets can be loaded
-//multiple times just for the sake of sounds being different. We probably wouldn't
-//care normally but since we're working in VMs we have to do everything possible to
-//cut memory cost.
-//On the bright side this also means we're cutting a rather large size out of
-//required game-side memory.
-#ifndef QAGAME
-extern bgLoadedEvents_t bgAllEvents[MAX_ANIM_FILES];
-extern int bgNumAnimEvents;
-#endif
-
+// flip the togglebit every time an animation
+// changes so a restart of the same anim can be detected
+#define	ANIM_TOGGLEBIT				2048		// Note that there are 12 bits (max 4095) for animations.
+#define ITEM_AUTOSWITCHBIT			(1<<31)	
+#define ITEM_QUIETPICKUP			(1<<30)
 
 typedef enum {
 	PM_NORMAL,		// can accelerate and turn

@@ -1694,10 +1694,6 @@ void G2_TransformBone (int child,CBoneCache &BC)
 	if (angleOverride & BONE_ANGLES_REPLACE)
 	{
 		bool isRag=!!(angleOverride & BONE_ANGLES_RAGDOLL);
-		if (!isRag)
-		{ //do the same for ik.. I suppose.
-			isRag = !!(angleOverride & BONE_ANGLES_IK);
-		}
 
 		mdxaBone_t &bone = BC.mFinalBones[child].boneMatrix;
 		boneInfo_t &boneOverride = boneList[boneListIndex];
@@ -1866,7 +1862,7 @@ void G2_TransformBone (int child,CBoneCache &BC)
 	}
 	else if (angleOverride & BONE_ANGLES_PREMULT)
 	{
-		if ((angleOverride&BONE_ANGLES_RAGDOLL) || (angleOverride&BONE_ANGLES_IK))
+		if (angleOverride&BONE_ANGLES_RAGDOLL)
 		{
 			mdxaBone_t	tmp;
 			if (!child)
@@ -3235,8 +3231,7 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 		return;
 	}
 
-	int currentTime=G2API_GetTime(tr.refdef.time);
-
+	int currentTime=tr.refdef.time;
 
 	// cull the entire model if merged bounding box of both frames
 	// is outside the view frustum.
@@ -4259,7 +4254,7 @@ qboolean R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, qboolean 
 	}
 		
 	// first up, go load in the animation file we need that has the skeletal animation info for this model
-	mdxm->animIndex = RE_RegisterModel(va ("%s.gla",mdxm->animName));
+	mdxm->animIndex = RE_RegisterModel(va ("%s_mp.gla",mdxm->animName));
 
 	if (!mdxm->animIndex) 
 	{

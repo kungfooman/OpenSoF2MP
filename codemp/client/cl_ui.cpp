@@ -1083,6 +1083,9 @@ int CL_UISystemCalls( int *args ) {
 	case UI_GETCONFIGSTRING:
 		return GetConfigString( args[1], (char *)VMA(2), args[3] );
 
+	case UI_NET_AVAILABLE:
+		return qtrue;
+
 	case UI_LAN_LOADCACHEDSERVERS:
 		LAN_LoadCachedServers();
 		return 0;
@@ -1460,6 +1463,11 @@ Ghoul2 Insert End
 		}
 	case UI_GPV_GET_LIST:
 		return (int)GPV_GetList((TGPValue) args[1]);
+
+	case UI_PB_ISENABLED:
+	case UI_PB_ENABLE:
+	case UI_PB_DISABLE:
+		return qfalse;
 
 	default:
 		Com_Printf("Bad UI system trap: %i", args[0] );

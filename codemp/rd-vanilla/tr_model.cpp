@@ -1239,7 +1239,7 @@ Ghoul2 Insert Start
 
 	if (name[0] == '*')
 	{	// don't create a bad model for a bsp model
-		if (Q_stricmp(name, "*default.gla"))
+		if (Q_stricmp(name, "*default_mp.gla"))
 		{
 			return 0;
 		}

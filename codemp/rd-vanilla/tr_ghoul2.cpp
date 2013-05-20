@@ -4282,11 +4282,6 @@ qboolean R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, qboolean 
 		LL(surfInfo->parentIndex);
 
 		Q_strlwr(surfInfo->name);	//just in case
-		if ( !strcmp( &surfInfo->name[strlen(surfInfo->name)-4],"_off") )
-		{
-			surfInfo->name[strlen(surfInfo->name)-4]=0;	//remove "_off" from name
-		}
-
 		if ( surfInfo->shader[0] == '[' )
 		{
 			surfInfo->shader[0] = 0;	//kill the stupid [nomaterial] since carcass doesn't

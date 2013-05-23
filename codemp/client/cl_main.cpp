@@ -1561,12 +1561,10 @@ void CL_InitServerInfo( serverInfo_t *server, serverAddress_t *address ) {
 	server->minPing = 0;
 	server->netType = 0;
 	server->needPassword = qfalse;
-	server->trueJedi = 0;
-	server->weaponDisable = 0;
-	server->forceDisable = 0;
 	server->ping = -1;
 	server->game[0] = '\0';
-	server->gameType = 0;
+	server->gameType[0] = '\0';
+	server->allowAnonymous = 0;
 	//server->pure = qfalse;
 }
 
@@ -2746,19 +2744,17 @@ static void CL_SetServerInfo(serverInfo_t *server, const char *info, int ping) {
 			Q_strncpyz(server->mapName, Info_ValueForKey(info, "mapname"), MAX_NAME_LENGTH);
 			server->maxClients = atoi(Info_ValueForKey(info, "sv_maxclients"));
 			Q_strncpyz(server->game,Info_ValueForKey(info, "game"), MAX_NAME_LENGTH);
-			server->gameType = atoi(Info_ValueForKey(info, "gametype"));
+			Q_strncpyz(server->gameType,Info_ValueForKey(info, "gametype"), MAX_NAME_LENGTH);
 			server->netType = atoi(Info_ValueForKey(info, "nettype"));
 			server->minPing = atoi(Info_ValueForKey(info, "minping"));
 			server->maxPing = atoi(Info_ValueForKey(info, "maxping"));
-//			server->allowAnonymous = atoi(Info_ValueForKey(info, "sv_allowAnonymous"));
+			server->allowAnonymous = atoi(Info_ValueForKey(info, "sv_allowAnonymous"));
 			server->needPassword = (qboolean)atoi(Info_ValueForKey(info, "needpass" ));
-			server->trueJedi = atoi(Info_ValueForKey(info, "truejedi" ));
-			server->weaponDisable = atoi(Info_ValueForKey(info, "wdisable" ));
-			server->forceDisable = atoi(Info_ValueForKey(info, "fdisable" ));
 //			server->pure = (qboolean)atoi(Info_ValueForKey(info, "pure" ));
 		}
 		server->ping = ping;
 	}
+
 }
 
 static void CL_SetServerInfoByAddress(netadr_t from, const char *info, int ping) {
@@ -2884,13 +2880,10 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	cls.localServers[i].minPing = 0;
 	cls.localServers[i].netType = from.type;
 	cls.localServers[i].needPassword = qfalse;
-	cls.localServers[i].trueJedi = 0;
-	cls.localServers[i].weaponDisable = 0;
-	cls.localServers[i].forceDisable = 0;
 	cls.localServers[i].ping = -1;
 	cls.localServers[i].game[0] = '\0';
-	cls.localServers[i].gameType = 0;
-//	cls.localServers[i].allowAnonymous = 0;
+	cls.localServers[i].gameType[0] = '\0';
+	cls.localServers[i].allowAnonymous = 0;
 //	cls.localServers[i].pure = qfalse;
 
 	Q_strncpyz( info, MSG_ReadString( msg ), MAX_INFO_STRING );

@@ -949,8 +949,7 @@ void SV_Init (void) {
 
 	sv_allowDownload = Cvar_Get ("sv_allowDownload", "0", CVAR_SERVERINFO);
 	sv_master[0] = Cvar_Get ("sv_master1", MASTER_SERVER_NAME, 0 );
-	sv_master[1] = Cvar_Get("sv_master2", JKHUB_MASTER_SERVER_NAME, 0);
-	for(int index = 2; index < MAX_MASTER_SERVERS; index++)
+	for(int index = 1; index < MAX_MASTER_SERVERS; index++)
 		sv_master[index] = Cvar_Get(va("sv_master%d", index + 1), "", CVAR_ARCHIVE);
 	sv_reconnectlimit = Cvar_Get ("sv_reconnectlimit", "3", 0);
 	sv_showghoultraces = Cvar_Get ("sv_showghoultraces", "0", 0);

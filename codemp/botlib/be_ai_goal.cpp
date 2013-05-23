@@ -71,25 +71,6 @@ typedef struct campspot_s
 	struct campspot_s *next;
 } campspot_t;
 
-//FIXME: these are game specific
-typedef enum {
-	GT_FFA,				// free for all
-	GT_HOLOCRON,		// holocron match
-	GT_JEDIMASTER,		// jedi master
-	GT_DUEL,		// one on one tournament
-	GT_POWERDUEL,
-	GT_SINGLE_PLAYER,	// single player tournament
-
-	//-- team games go after this --
-
-	GT_TEAM,			// team deathmatch
-	GT_SIEGE,			// siege
-	GT_CTF,				// capture the flag
-	GT_CTY,
-	GT_MAX_GAME_TYPE
-};
-typedef int gametype_t;
-
 typedef struct levelitem_s
 {
 	int number;							//number of the level item
@@ -858,16 +839,13 @@ int BotGetLevelItemGoal(int index, char *name, bot_goal_t *goal)
 	} //end for
 	for (; li; li = li->next)
 	{
-		//
-		if (g_gametype == GT_SINGLE_PLAYER) {
-			if (li->flags & IFL_NOTSINGLE) continue;
-		}
-		else if (g_gametype >= GT_TEAM) {
+		//KLAAS TODO
+		/*if (g_gametype >= GT_TEAM) {
 			if (li->flags & IFL_NOTTEAM) continue;
 		}
 		else {
 			if (li->flags & IFL_NOTFREE) continue;
-		}
+		}*/
 		if (li->flags & IFL_NOTBOT) continue;
 		//
 		if (!Q_stricmp(name, itemconfig->iteminfo[li->iteminfo].name))
@@ -1069,16 +1047,13 @@ void BotUpdateEntityItems(void)
 		{
 			//if this level item is already linked
 			if (li->entitynum) continue;
-			//
-			if (g_gametype == GT_SINGLE_PLAYER) {
-				if (li->flags & IFL_NOTSINGLE) continue;
-			}
-			else if (g_gametype >= GT_TEAM) {
+			//KLAAS TODO
+			/*if (g_gametype >= GT_TEAM) {
 				if (li->flags & IFL_NOTTEAM) continue;
 			}
 			else {
 				if (li->flags & IFL_NOTFREE) continue;
-			}
+			}*/
 			//if the model of the level item and the entity are the same
 			if (ic->iteminfo[li->iteminfo].modelindex == modelindex)
 			{
@@ -1303,18 +1278,15 @@ int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 	//go through the items in the level
 	for (li = levelitems; li; li = li->next)
 	{
-		if (g_gametype == GT_SINGLE_PLAYER) {
-			if (li->flags & IFL_NOTSINGLE)
-				continue;
-		}
-		else if (g_gametype >= GT_TEAM) {
+		//KLAAS TODO
+		/*if (g_gametype >= GT_TEAM) {
 			if (li->flags & IFL_NOTTEAM)
 				continue;
 		}
 		else {
 			if (li->flags & IFL_NOTFREE)
 				continue;
-		}
+		}*/
 		if (li->flags & IFL_NOTBOT)
 			continue;
 		//if the item is not in a possible goal area
@@ -1474,18 +1446,15 @@ int BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 	//go through the items in the level
 	for (li = levelitems; li; li = li->next)
 	{
-		if (g_gametype == GT_SINGLE_PLAYER) {
-			if (li->flags & IFL_NOTSINGLE)
-				continue;
-		}
-		else if (g_gametype >= GT_TEAM) {
+		//KLAAS TODO
+		/*if (g_gametype >= GT_TEAM) {
 			if (li->flags & IFL_NOTTEAM)
 				continue;
 		}
 		else {
 			if (li->flags & IFL_NOTFREE)
 				continue;
-		}
+		}*/
 		if (li->flags & IFL_NOTBOT)
 			continue;
 		//if the item is in a possible goal area

@@ -153,22 +153,6 @@ typedef enum
 //for supplier class items
 #define TOSS_DEBOUNCE_TIME				5000
 
-typedef enum {
-	GT_FFA,				// free for all
-	GT_HOLOCRON,		// holocron ffa
-	GT_DUEL,		// one on one tournament
-	GT_POWERDUEL,
-	GT_SINGLE_PLAYER,	// single player ffa
-
-	//-- team games go after this --
-
-	GT_TEAM,			// team deathmatch
-	GT_SIEGE,			// siege
-	GT_CTF,				// capture the flag
-	GT_CTY,
-	GT_MAX_GAME_TYPE
-} gametype_t;
-
 typedef enum { GENDER_MALE, GENDER_FEMALE, GENDER_NEUTER } gender_t;
 
 extern vec3_t WP_MuzzlePoint[WP_NUM_WEAPONS];

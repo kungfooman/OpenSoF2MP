@@ -198,18 +198,15 @@ PROTOCOL
 ==============================================================
 */
 
-#define	PROTOCOL_VERSION	26
+#define	PROTOCOL_VERSION	2004
 
-#define	UPDATE_SERVER_NAME			"updatejk3.ravensoft.com"
-#define MASTER_SERVER_NAME			"masterjk3.ravensoft.com"
+#define	UPDATE_SERVER_NAME			"master.sof2.ravensoft.com"
+#define MASTER_SERVER_NAME			"master.sof2.ravensoft.com"
 
-#define JKHUB_MASTER_SERVER_NAME	"master.jkhub.org"
-#define JKHUB_UPDATE_SERVER_NAME	"update.jkhub.org"
+#define	PORT_MASTER			20110
+#define	PORT_UPDATE			20112
 
-#define	PORT_MASTER			29060
-#define	PORT_UPDATE			29061
-//#define	PORT_AUTHORIZE		29062
-#define	PORT_SERVER			29070	//...+9 more for multiple servers
+#define	PORT_SERVER			20100	//...+9 more for multiple servers
 #define	NUM_SERVER_PORTS	4		// broadcast scan this many ports after PORT_SERVER so a single machine can run multiple servers
 
 // the svc_strings[] array in cl_parse.c should mirror this

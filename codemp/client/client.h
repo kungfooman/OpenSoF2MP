@@ -247,18 +247,15 @@ typedef struct {
 	char	  	mapName[MAX_NAME_LENGTH];
 	char	  	game[MAX_NAME_LENGTH];
 	int			netType;
-	int			gameType;
+	char		gameType[MAX_NAME_LENGTH];
 	int		  	clients;
 	int		  	maxClients;
 	int			minPing;
 	int			maxPing;
 	int			ping;
 	qboolean	visible;
-//	int			allowAnonymous;
+	int			allowAnonymous;
 	qboolean	needPassword;
-	int			trueJedi;
-	int			weaponDisable;
-	int			forceDisable;
 //	qboolean	pure;
 } serverInfo_t;
 

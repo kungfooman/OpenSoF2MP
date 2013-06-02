@@ -815,8 +815,8 @@ typedef struct {
 netField_t	entityStateFields[] = 
 {
 { NETF(pos.trTime), 32 },
-{ NETF(pos.trBase[1]), 0 },
 { NETF(pos.trBase[0]), 0 },
+{ NETF(pos.trBase[1]), 0 },
 { NETF(apos.trBase[1]), 0 },
 { NETF(pos.trBase[2]), 0 },
 { NETF(apos.trBase[0]), 0 },

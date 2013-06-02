@@ -1001,8 +1001,7 @@ extern	vec4_t		colorLtBlue;
 extern	vec4_t		colorDkBlue;
 
 #define Q_COLOR_ESCAPE	'^'
-// you MUST have the last bit on here about colour strings being less than 7 or taiwanese strings register as colour!!!!
-#define Q_IsColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) != Q_COLOR_ESCAPE && *((p)+1) <= '7' && *((p)+1) >= '0' )
+#define Q_IsColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) != Q_COLOR_ESCAPE )
 
 
 #define COLOR_BLACK		'0'
@@ -1630,19 +1629,6 @@ typedef enum {
 
 #define	GENTITYNUM_BITS	10		// don't need to send any more
 #define	MAX_GENTITIES	(1<<GENTITYNUM_BITS)
-
-//I am reverting. I guess. For now.
-/*
-#define	GENTITYNUM_BITS		11
-							//rww - I am raising this 1 bit. SP actually has room for 1024 ents - none - world - 1 client.
-							//Which means 1021 useable entities. However we have 32 clients.. so if we keep our limit
-							//at 1024 we are not going to be able to load any SP levels at the edge of the ent limit.
-#define		MAX_GENTITIES	(1024+(MAX_CLIENTS-1))
-							//rww - we do have enough room to send over 2048 ents now. However, I cannot live with the guilt of
-							//actually increasing the entity limit to 2048 (as it would slow down countless things, and
-							//there are tons of ent list traversals all over the place). So I am merely going to give enough
-							//to compensate for our larger maxclients.
-*/
 
 // entitynums are communicated with GENTITY_BITS, so any reserved
 // values thatare going to be communcated over the net need to

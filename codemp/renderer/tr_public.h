@@ -269,7 +269,7 @@ typedef struct {
 	int				(*FS_ReadFile)						( const char *qpath, void **buffer );
 	void			(*FS_FCloseFile)					( fileHandle_t f );
 	int				(*FS_FOpenFileRead)					( const char *qpath, fileHandle_t *file, qboolean uniqueFILE );
-	fileHandle_t	(*FS_FOpenFileWrite)				( const char *qpath );
+	fileHandle_t	(*FS_FOpenFileWrite)				( const char *qpath, const bool astext );
 	int				(*FS_FOpenFileByMode)				( const char *qpath, fileHandle_t *f, fsMode_t mode );
 	qboolean		(*FS_FileExists)					( const char *file );
 	int				(*FS_FileIsInPAK)					( const char *filename, int *pChecksum );

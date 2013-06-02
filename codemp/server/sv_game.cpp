@@ -1635,8 +1635,105 @@ int SV_GameSystemCalls( int *args ) {
 	case G_GET_ENTITY_TOKEN:
 		return SV_GetEntityToken((char *)VMA(1), args[2]);
 
+
+	case G_VM_LOCALALLOC:
+		return (int)BG_Alloc((int) args[1]);
+	case G_VM_LOCALALLOCUNALIGNED:
+		return (int)BG_AllocUnaligned((int) args[1]);
+	case G_VM_LOCALTEMPALLOC:
+		return (int)BG_TempAlloc((int) args[1]);
+	case G_VM_LOCALTEMPFREE:
+		BG_TempFree((int) args[1]);
+		return 0;
+	case G_VM_LOCALSTRINGALLOC:
+		return (int)BG_StringAlloc((char *) VMA(1));
+
+	case G_GP_PARSE:
+		return (int)GP_Parse((char **) VMA(1), (bool) args[2], (bool) args[3]);
+	case G_GP_PARSE_FILE:
+		{
+			char * data;
+			FS_ReadFile((char *) args[1], (void **) &data);
+			return (int)GP_Parse(&data, (bool) args[2], (bool) args[3]);
+		}
+	case G_GP_CLEAN:
+		GP_Clean((TGenericParser2) args[1]);
+		return 0;
+	case G_GP_DELETE:
+		GP_Delete((TGenericParser2 *) args[1]);
+		return 0;
+	case G_GP_GET_BASE_PARSE_GROUP:
+		return (int)GP_GetBaseParseGroup((TGenericParser2) args[1]);
+
+	case G_GPG_GET_NAME:
+		return (int)GPG_GetName((TGPGroup) args[1], (char *) VMA(2));
+	case G_GPG_GET_NEXT:
+		return (int)GPG_GetNext((TGPGroup) args[1]);
+	case G_GPG_GET_INORDER_NEXT:
+		return (int)GPG_GetInOrderNext((TGPGroup) args[1]);
+	case G_GPG_GET_INORDER_PREVIOUS:
+		return (int)GPG_GetInOrderPrevious((TGPGroup) args[1]);
+	case G_GPG_GET_PAIRS:
+		return (int)GPG_GetPairs((TGPGroup) args[1]);
+	case G_GPG_GET_INORDER_PAIRS:
+		return (int)GPG_GetInOrderPairs((TGPGroup) args[1]);
+	case G_GPG_GET_SUBGROUPS:
+		return (int)GPG_GetSubGroups((TGPGroup) args[1]);
+	case G_GPG_GET_INORDER_SUBGROUPS:
+		return (int)GPG_GetInOrderSubGroups((TGPGroup) args[1]);
+	case G_GPG_FIND_SUBGROUP:
+		return (int)GPG_FindSubGroup((TGPGroup) args[1], (char *) VMA(2));
+	case G_GPG_FIND_PAIR:
+		return (int)GPG_FindPair((TGPGroup) args[1], (const char *) VMA(2));
+	case G_GPG_FIND_PAIRVALUE:
+		return (int)GPG_FindPairValue((TGPGroup) args[1], (const char *) VMA(2), (const char *) VMA(3), (char *) VMA(4));
+
+	case G_GET_WORLD_BOUNDS:
+		CM_ModelBounds(0, (vec_t *)VMA(1), (vec_t *)VMA(2));
+		return 0;
+
+	case G_GPV_GET_NAME:
+		return (int)GPV_GetName((TGPValue) args[1], (char *) VMA(2));
+	case G_GPV_GET_NEXT:
+		return (int)GPV_GetNext((TGPValue) args[1]);
+	case G_GPV_GET_INORDER_NEXT:
+		return (int)GPV_GetInOrderNext((TGPValue) args[1]);
+	case G_GPV_GET_INORDER_PREVIOUS:
+		return (int)GPV_GetInOrderPrevious((TGPValue) args[1]);
+	case G_GPV_IS_LIST:
+		return (int)GPV_IsList((TGPValue) args[1]);
+	case G_GPV_GET_TOP_VALUE:
+		{
+			const char * topValue = GPV_GetTopValue((TGPValue) args[1]);
+			if (topValue)
+			{
+				strcpy((char *) VMA(2), topValue);
+			}
+			return 0;
+		}
+	case G_GPV_GET_LIST:
+		return (int)GPV_GetList((TGPValue) args[1]);
+
+	case G_GT_INIT:
+		//KLAAS TODO
+		//  const char* gametype, qboolean restart
+		return 0;
+	case G_GT_RUNFRAME:
+		//KLAAS TODO
+		// int time
+		return 0;
+	case G_GT_START:
+		//KLAAS TODO
+		// int time
+		return 0;
+	case G_GT_SENDEVENT:
+		//KLAAS TODO
+		// int event, int time, int arg0, int arg1, int arg2, int arg3, int arg4
+		return 0;
+
 	default:
-		Com_Error( ERR_DROP, "Bad game system trap: %i", args[0] );
+		Com_Printf("Bad game system trap: %i", args[0] );
+		//Com_Error( ERR_DROP, "Bad game system trap: %i", args[0] );
 	}
 	return -1;
 }

@@ -659,46 +659,6 @@ void SV_SendClientSnapshot( client_t *client ) {
 	byte		msg_buf[MAX_MSGLEN];
 	msg_t		msg;
 
-	if (!client->sentGamedir)
-	{ //rww - if this is the case then make sure there is an svc_setgame sent before this snap
-		int i = 0;
-
-		MSG_Init (&msg, msg_buf, sizeof(msg_buf));
-
-		//have to include this for each message.
-		MSG_WriteLong( &msg, client->lastClientCommand );
-
-		MSG_WriteByte (&msg, svc_setgame);
-
-		while (fs_gamedirvar->string[i])
-		{
-			MSG_WriteByte(&msg, fs_gamedirvar->string[i]);
-			i++;
-		}
-		MSG_WriteByte(&msg, 0);
-
-		// MW - my attempt to fix illegible server message errors caused by 
-		// packet fragmentation of initial snapshot.
-		//rww - reusing this code here
-		while(client->state&&client->netchan.unsentFragments)
-		{
-			// send additional message fragments if the last message
-			// was too large to send at once
-			Com_Printf ("[ISM]SV_SendClientGameState() [1] for %s, writing out old fragments\n", client->name);
-			SV_Netchan_TransmitNextFragment(&client->netchan);
-		}
-
-		// record information about the message
-		client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageSize = msg.cursize;
-		client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageSent = svs.time;
-		client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageAcked = -1;
-
-		// send the datagram
-		SV_Netchan_Transmit( client, &msg );	//msg->cursize, msg->data );
-
-		client->sentGamedir = qtrue;
-	}
-
 	// build the snapshot
 	SV_BuildClientSnapshot( client );
 

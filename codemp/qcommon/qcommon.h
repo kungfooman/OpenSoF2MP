@@ -222,7 +222,6 @@ enum svc_ops_e {
 	svc_serverCommand,			// [string] to be executed by client game module
 	svc_download,				// [short] size [size bytes]
 	svc_snapshot,
-	svc_setgame,
 	svc_mapchange,
 	svc_EOF
 };
@@ -540,7 +539,7 @@ int		FS_LoadStack();
 int		FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize );
 int		FS_GetModList(  char *listbuf, int bufsize );
 
-fileHandle_t	FS_FOpenFileWrite( const char *qpath );
+fileHandle_t	FS_FOpenFileWrite( const char *qpath, const bool astext = false );
 // will properly create any needed paths and deal with seperater character issues
 
 int		FS_filelength( fileHandle_t f );

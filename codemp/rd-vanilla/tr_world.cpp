@@ -976,7 +976,7 @@ qboolean R_WriteWireframeMapToFile(void)
 	}
 	
 
-	f = ri.FS_FOpenFileWrite("blahblah.bla");
+	f = ri.FS_FOpenFileWrite("blahblah.bla", false);
 	if (!f)
 	{ //can't create?
 		return qfalse;

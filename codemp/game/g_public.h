@@ -478,10 +478,6 @@ typedef enum {
 	G_GT_RUNFRAME,
 	G_GT_START,
 	G_GT_SENDEVENT,
-/*
-Ghoul2 Insert End
-*/
-
 } gameImport_t;
 
 //bstate.h

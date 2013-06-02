@@ -497,7 +497,7 @@ FS_FOpenFileWrite
 
 ===========
 */
-fileHandle_t FS_FOpenFileWrite( const char *filename ) {
+fileHandle_t FS_FOpenFileWrite( const char *filename, const bool astext ) {
 	char			*ospath;
 	fileHandle_t	f;
 
@@ -521,7 +521,7 @@ fileHandle_t FS_FOpenFileWrite( const char *filename ) {
 	// enabling the following line causes a recursive function call loop
 	// when running with +set logfile 1 +set developer 1
 	//Com_DPrintf( "writing to: %s\n", ospath );
-	fsh[f].handleFiles.file.o = fopen( ospath, "wb" );
+	fsh[f].handleFiles.file.o = fopen( ospath, (astext ? "w" : "wb") );
 
 	Q_strncpyz( fsh[f].name, filename, sizeof( fsh[f].name ) );
 
@@ -538,7 +538,7 @@ FS_FOpenFileAppend
 
 ===========
 */
-fileHandle_t FS_FOpenFileAppend( const char *filename ) {
+fileHandle_t FS_FOpenFileAppend( const char *filename, const bool astext = false ) {
 	char			*ospath;
 	fileHandle_t	f;
 
@@ -564,7 +564,7 @@ fileHandle_t FS_FOpenFileAppend( const char *filename ) {
 		return 0;
 	}
 
-	fsh[f].handleFiles.file.o = fopen( ospath, "ab" );
+	fsh[f].handleFiles.file.o = fopen( ospath, (astext ? "a" : "ab") );
 	fsh[f].handleSync = qfalse;
 	if (!fsh[f].handleFiles.file.o) {
 		f = 0;
@@ -3074,6 +3074,7 @@ Handle based file calls for virtual machines
 int		FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode ) {
 	int		r;
 	qboolean	sync;
+	bool astext = false;
 
 	sync = qfalse;
 
@@ -3081,17 +3082,27 @@ int		FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode ) {
 	case FS_READ:
 		r = FS_FOpenFileRead( qpath, f, qtrue );
 		break;
+	case FS_WRITE_TEXT:
+		astext = true;
 	case FS_WRITE:
-		*f = FS_FOpenFileWrite( qpath );
+		*f = FS_FOpenFileWrite( qpath, astext );
 		r = 0;
 		if (*f == 0) {
 			r = -1;
 		}
 		break;
+	case FS_APPEND_SYNC_TEXT:
+		sync = qtrue;
+	case FS_APPEND_TEXT:
+		*f = FS_FOpenFileAppend( qpath, true );
+		r = 0;
+		if (*f == 0) {
+			r = -1;
+		}
 	case FS_APPEND_SYNC:
 		sync = qtrue;
 	case FS_APPEND:
-		*f = FS_FOpenFileAppend( qpath );
+		*f = FS_FOpenFileAppend( qpath, astext );
 		r = 0;
 		if (*f == 0) {
 			r = -1;

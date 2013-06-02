@@ -23,7 +23,6 @@ char *svc_strings[256] = {
 	"svc_serverCommand",
 	"svc_download",
 	"svc_snapshot",
-	"svc_setgame",
 	"svc_mapchange",
 };
 
@@ -310,50 +309,6 @@ void CL_ParseSnapshot( msg_t *msg ) {
 	cl.newSnapshots = qtrue;
 }
 
-
-/*
-================
-CL_ParseSetGame
-
-rww - Update fs_game, this message is so we can use the ext_data
-*_overrides.txt files for mods.
-================
-*/
-void MSG_CheckNETFPSFOverrides(qboolean psfOverrides);
-void FS_UpdateGamedir(void);
-void CL_ParseSetGame( msg_t *msg )
-{
-	char newGameDir[MAX_QPATH];
-	int i = 0;
-	char next;
-
-	while (i < MAX_QPATH)
-	{
-		next = MSG_ReadByte( msg );
-
-		if (next)
-		{ //if next is 0 then we have finished reading to the end of the message
-			newGameDir[i] = next;
-		}
-		else
-		{
-			break;
-		}
-		i++;
-	}
-	newGameDir[i] = 0;
-
-	Cvar_Set("fs_game", newGameDir);
-
-	//Update the search path for the mod dir
-	FS_UpdateGamedir();
-
-	//Now update the overrides manually
-	MSG_CheckNETFPSFOverrides(qfalse);
-	MSG_CheckNETFPSFOverrides(qtrue);
-}
-
-
 //=====================================================================
 
 int cl_connectedToPureServer;
@@ -568,51 +523,13 @@ void CL_ParseGamestate( msg_t *msg ) {
 		}
 		
 		if ( cmd == svc_configstring ) {
-			int		len, start;
-
-			start = msg->readcount;
+			int		len;
 
 			i = MSG_ReadShort( msg );
 			if ( i < 0 || i >= MAX_CONFIGSTRINGS ) {
 				Com_Error( ERR_DROP, "configstring > MAX_CONFIGSTRINGS" );
 			}
 			s = MSG_ReadBigString( msg );
-
-			if (cl_shownet->integer >= 2)
-			{
-				Com_Printf("%3i: %d: %s\n", start, i, s);
-			}
-
-			/*
-			if (i == CS_SERVERINFO)
-			{ //get the special value here
-				char *f = strstr(s, "g_debugMelee");
-				if (f)
-				{
-					while (*f && *f != '\\')
-					{ //find the \ after it
-						f++;
-					}
-					if (*f == '\\')
-					{ //got it
-						int i = 0;
-
-						f++;
-						while (*f && *f != '\\' && i < 128)
-						{
-							hiddenCvarVal[i] = *f;
-							i++;
-							f++;
-						}
-						hiddenCvarVal[i] = 0;
-
-						//resume here
-						s = f;
-					}
-				}
-			}
-			*/
-
 			len = strlen( s );
 
 			if ( len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS ) {
@@ -909,9 +826,6 @@ void CL_ParseServerMessage( msg_t *msg ) {
 			break;
 		case svc_snapshot:
 			CL_ParseSnapshot( msg );
-			break;
-		case svc_setgame:
-			CL_ParseSetGame( msg );
 			break;
 		case svc_download:
 			CL_ParseDownload( msg );

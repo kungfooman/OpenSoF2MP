@@ -884,6 +884,12 @@ netField_t	entityStateFields[] =
 // why not use torsoAnim and set a flag to do the same thing as forceFrame (saberLockFrame)
 { NETF(generic1), 8 },
 { NETF(apos.trDuration), 32 },
+
+//TODO KLAAS
+{ NETF(generic1), 8 },
+{ NETF(generic1), 8 },
+{ NETF(generic1), 8 },
+{ NETF(generic1), 8 },
 };
 
 // if (int)f == f and (int)f + ( 1<<(FLOAT_INT_BITS-1) ) < ( 1 << FLOAT_INT_BITS )

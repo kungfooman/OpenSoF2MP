@@ -148,6 +148,7 @@ char		*G2API_GetGLAName(CGhoul2Info_v &ghoul2, int modelIndex);
 qboolean	G2API_SetBoneAnglesMatrix(CGhoul2Info *ghlInfo, const char *boneName, const mdxaBone_t &matrix, const int flags, qhandle_t *modelList, int blendTime = 0, int currentTime = 0);
 qboolean	G2API_SetNewOrigin(CGhoul2Info_v &ghoul2, const int boltIndex);
 int			G2API_GetBoneIndex(CGhoul2Info *ghlInfo, const char *boneName);
+int			G2API_GetBoltIndex(CGhoul2Info *ghlInfo, const int modelIndex);
 qboolean	G2API_StopBoneAnglesIndex(CGhoul2Info *ghlInfo, const int index);
 qboolean	G2API_StopBoneAnimIndex(CGhoul2Info *ghlInfo, const int index);
 qboolean	G2API_SetBoneAnglesIndex( CGhoul2Info *ghlInfo, const int index, const vec3_t angles, const int flags, const Eorientations yaw, const Eorientations pitch, const Eorientations roll, qhandle_t *modelList, int blendTime, int currentTime );

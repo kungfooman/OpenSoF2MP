@@ -211,6 +211,7 @@ typedef struct {
 	qboolean			(*G2API_StopBoneAnglesIndex)			( CGhoul2Info *ghlInfo, const int index );
 	qboolean			(*G2API_StopBoneAnim)					( CGhoul2Info *ghlInfo, const char *boneName );
 	qboolean			(*G2API_StopBoneAnimIndex)				( CGhoul2Info *ghlInfo, const int index );
+	int					(*G2API_GetBoltIndex)					( CGhoul2Info *ghlInfo, const int modelIndex);
 
 	#ifdef _G2_GORE
 	int					(*G2API_GetNumGoreMarks)				( CGhoul2Info *g2 );

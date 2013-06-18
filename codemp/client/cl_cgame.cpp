@@ -1416,6 +1416,13 @@ Ghoul2 Insert End
 		S_UpdateAmbientSet((const char *)VMA(1), (float *)VMA(2));
 		return 0;
 
+	case CG_G2_GETBOLTINDEX:
+		return re.G2API_GetBoltIndex((CGhoul2Info *) args[1], args[2]);
+
+	case CG_UI_SETACTIVEMENU:
+		VM_Call( uivm, UI_SET_ACTIVE_MENU, args[1] );
+		return 0;
+
 	default:
 		Com_Printf("Bad UI system trap: %i", args[0] );
 		//Com_Error( ERR_DROP, "Bad cgame system trap: %i", args[0] );

@@ -2462,6 +2462,15 @@ int G2API_GetBoneIndex(CGhoul2Info *ghlInfo, const char *boneName)
 	return -1;
 }
 
+int G2API_GetBoltIndex(CGhoul2Info *ghlInfo, const int modelIndex)
+{
+	if (G2_SetupModelPointers(ghlInfo))
+	{
+		return G2_Find_Bolt_Bone_Num(ghlInfo->mBltlist, modelIndex);
+	}
+	return -1;
+}
+
 qboolean G2API_SaveGhoul2Models(CGhoul2Info_v &ghoul2, char **buffer, int *size)
 {
 	return G2_SaveGhoul2Models(ghoul2, buffer, size);

@@ -1728,6 +1728,7 @@ Q_EXPORT refexport_t* QDECL GetRefAPI( int apiVersion, refimport_t *rimp ) {
 	re.G2API_StopBoneAnglesIndex			= G2API_StopBoneAnglesIndex;
 	re.G2API_StopBoneAnim					= G2API_StopBoneAnim;
 	re.G2API_StopBoneAnimIndex				= G2API_StopBoneAnimIndex;
+	re.G2API_GetBoltIndex					= G2API_GetBoltIndex;
 
 	#ifdef _G2_GORE
 	re.G2API_GetNumGoreMarks				= G2API_GetNumGoreMarks;

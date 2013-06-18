@@ -1412,9 +1412,13 @@ Ghoul2 Insert End
 		//KLAAS TODO
 		return 0;
 
+	case CG_AS_UPDATEAMBIENTSET:
+		S_UpdateAmbientSet((const char *)VMA(1), (float *)VMA(2));
+		return 0;
+
 	default:
-	        assert(0); // bk010102
-		Com_Error( ERR_DROP, "Bad cgame system trap: %i", args[0] );
+		Com_Printf("Bad UI system trap: %i", args[0] );
+		//Com_Error( ERR_DROP, "Bad cgame system trap: %i", args[0] );
 	}
 	return 0;
 }

@@ -2280,6 +2280,12 @@ void G2API_CopySpecificG2Model(CGhoul2Info_v &ghoul2From, int modelFrom, CGhoul2
 		// assume we actually have a model to copy from
 		if (ghoul2From.size() > modelFrom)
 		{
+			// if it's -1 append it to the end
+			if (modelTo == -1)
+			{
+				modelTo = ghoul2To.size();
+			}
+
 			// if we don't have enough models on the to side, resize us so we do
 			if (ghoul2To.size() <= modelTo)
 			{

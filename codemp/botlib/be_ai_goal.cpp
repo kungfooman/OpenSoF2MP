@@ -839,7 +839,7 @@ int BotGetLevelItemGoal(int index, char *name, bot_goal_t *goal)
 	} //end for
 	for (; li; li = li->next)
 	{
-		//KLAAS TODO
+		//SOF2 TODO
 		/*if (g_gametype >= GT_TEAM) {
 			if (li->flags & IFL_NOTTEAM) continue;
 		}
@@ -1047,7 +1047,7 @@ void BotUpdateEntityItems(void)
 		{
 			//if this level item is already linked
 			if (li->entitynum) continue;
-			//KLAAS TODO
+			//SOF2 TODO
 			/*if (g_gametype >= GT_TEAM) {
 				if (li->flags & IFL_NOTTEAM) continue;
 			}
@@ -1278,7 +1278,7 @@ int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 	//go through the items in the level
 	for (li = levelitems; li; li = li->next)
 	{
-		//KLAAS TODO
+		//SOF2 TODO
 		/*if (g_gametype >= GT_TEAM) {
 			if (li->flags & IFL_NOTTEAM)
 				continue;
@@ -1446,7 +1446,7 @@ int BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 	//go through the items in the level
 	for (li = levelitems; li; li = li->next)
 	{
-		//KLAAS TODO
+		//SOF2 TODO
 		/*if (g_gametype >= GT_TEAM) {
 			if (li->flags & IFL_NOTTEAM)
 				continue;

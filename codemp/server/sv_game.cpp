@@ -1715,19 +1715,19 @@ int SV_GameSystemCalls( int *args ) {
 		return (int)GPV_GetList((TGPValue) args[1]);
 
 	case G_GT_INIT:
-		//KLAAS TODO
+		//SOF2 TODO
 		//  const char* gametype, qboolean restart
 		return 0;
 	case G_GT_RUNFRAME:
-		//KLAAS TODO
+		//SOF2 TODO
 		// int time
 		return 0;
 	case G_GT_START:
-		//KLAAS TODO
+		//SOF2 TODO
 		// int time
 		return 0;
 	case G_GT_SENDEVENT:
-		//KLAAS TODO
+		//SOF2 TODO
 		// int event, int time, int arg0, int arg1, int arg2, int arg3, int arg4
 		return 0;
 

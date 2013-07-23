@@ -957,7 +957,7 @@ int CL_UISystemCalls( int *args ) {
 		return re.RegisterModel( (const char *)VMA(1) );
 
 	case UI_R_REGISTERSKIN:
-		//KLAAS TODO
+		//SOF2 TODO
 		return re.RegisterSkin( (const char *)VMA(1), 0, NULL );
 
 	case UI_R_REGISTERSHADERNOMIP:
@@ -972,7 +972,7 @@ int CL_UISystemCalls( int *args ) {
 		return 0;
 
 	case UI_R_ADDPOLYTOSCENE:
-		//KLAAS TODO
+		//SOF2 TODO
 		re.AddPolyToScene( args[1], args[2], (const polyVert_t *)VMA(3), 1 );
 		return 0;
 
@@ -1337,7 +1337,7 @@ Ghoul2 Insert Start
 	case UI_G2_SETSURFACEONOFF:
 		{
 			CGhoul2Info_v &g2 = *((CGhoul2Info_v *)args[1]);
-			//KLAAS TODO
+			//SOF2 TODO
 			//int modelIndex = args[2];
 			return re.G2API_SetSurfaceOnOff(g2, (const char *)VMA(3), args[4]);
 		}

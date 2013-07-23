@@ -818,7 +818,7 @@ int CL_CgameSystemCalls( int *args ) {
 	case CG_R_REGISTERMODEL:
 		return re.RegisterModel( (const char *)VMA(1) );
 	case CG_R_REGISTERSKIN:
-		//KLAAS TODO
+		//SOF2 TODO
 		return re.RegisterSkin( (const char *)VMA(1), 0, NULL );
 	case CG_R_REGISTERSHADER:
 		return re.RegisterShader( (const char *)VMA(1) );
@@ -1196,7 +1196,7 @@ Ghoul2 Insert End
 		return re.G2API_SetRootSurface(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3));
 
 	case CG_G2_SETSURFACEONOFF:
-		//KLAAS TODO
+		//SOF2 TODO
 		//int modelIndex = args[2];
 		return re.G2API_SetSurfaceOnOff(*((CGhoul2Info_v *)args[1]), (const char *)VMA(3), args[4]);
 
@@ -1368,33 +1368,33 @@ Ghoul2 Insert End
 
 
 	case CG_MAT_RESET:
-		//KLAAS TODO
+		//SOF2 TODO
 		return 0;
 	case CG_MAT_CACHE:
-		//KLAAS TODO
+		//SOF2 TODO
 		return 0;
 	case CG_MAT_GET_SOUND:
-		//KLAAS TODO
+		//SOF2 TODO
 		//(char *key, int material)
 		return 0;
 	case CG_MAT_GET_DECAL:
-		//KLAAS TODO
+		//SOF2 TODO
 		//(char *key, int material)
 		return 0;
 	case CG_MAT_GET_DECAL_SCALE:
-		//KLAAS TODO
+		//SOF2 TODO
 		//(char *key, int material)
 		return 0;
 	case CG_MAT_GET_EFFECT:
-		//KLAAS TODO
+		//SOF2 TODO
 		//(char *key, int material)
 		return 0;
 	case CG_MAT_GET_DEBRIS:
-		//KLAAS TODO
+		//SOF2 TODO
 		//(char *key, int material)
 		return 0;
 	case CG_MAT_GET_DEBRIS_SCALE:
-		//KLAAS TODO
+		//SOF2 TODO
 		//(char *key, int material)
 		return 0;
 
@@ -1409,7 +1409,7 @@ Ghoul2 Insert End
 
 
 	case CG_RESETAUTORUN:
-		//KLAAS TODO
+		//SOF2 TODO
 		return 0;
 
 	case CG_AS_UPDATEAMBIENTSET:

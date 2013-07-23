@@ -885,7 +885,7 @@ netField_t	entityStateFields[] =
 { NETF(generic1), 8 },
 { NETF(apos.trDuration), 32 },
 
-//TODO KLAAS
+//SOF2 TODO
 { NETF(generic1), 8 },
 { NETF(generic1), 8 },
 { NETF(generic1), 8 },

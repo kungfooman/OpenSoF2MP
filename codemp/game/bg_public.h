@@ -116,7 +116,7 @@ Ghoul2 Insert End
 
 #define CS_MAX					(CS_BSP_MODELS + MAX_SUB_BSP)
 
-//KLAAS TODO
+//SOF2 TODO
 //#if (CS_MAX) > MAX_CONFIGSTRINGS
 //#error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
 //#endif

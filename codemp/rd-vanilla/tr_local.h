@@ -472,6 +472,10 @@ typedef struct shader_s {
 
   int shaderStates[MAX_STATES_PER_SHADER];          // index to valid shader states
 */
+	char		hitMaterial[MAX_QPATH];
+	char		hitLocation[MAX_QPATH];
+	int			damage;
+	int			damageShaderNum;
 
 	struct shader_s *remappedShader;                  // current shader this one is remapped too
 	struct	shader_s	*next;

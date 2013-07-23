@@ -2768,6 +2768,7 @@ Ghoul2 Insert Start
 			token = COM_ParseExt( text, qfalse );
 			if ( token[0] == 0 )
 				break;
+			Q_strncpyz(shader.hitLocation, token, MAX_QPATH);
 			continue;
 		}
 		// 
@@ -2780,8 +2781,45 @@ Ghoul2 Insert Start
 			token = COM_ParseExt( text, qfalse );
 			if ( token[0] == 0 )
 				break;
+			Q_strncpyz(shader.hitMaterial, token, MAX_QPATH);
 			continue;
 
+		}
+		//
+		// damage shader
+		//
+		else if ( !Q_stricmp( token, "damageShader" ) )
+		{
+			token = COM_ParseExt( text, qfalse );
+			if ( !token[0] )
+			{
+				Com_Printf( S_COLOR_YELLOW "WARNING: missing param for 'damageShader' keyword in shader '%s'\n", shader.name );
+				continue;
+			}
+
+			//SOF2 TODO
+			/*CCMShader *damageShader = CM_GetShaderInfo(token);
+			if(damageShader)
+			{
+				shader.damageShaderNum = damageShader - cm.shaders;
+			}*/
+
+			token = COM_ParseExt( text, qfalse );
+			if (token)
+			{
+				shader.damage = atof(token);
+			}
+			continue;
+		}
+		//
+		// alias shader
+		//
+		else if ( !Q_stricmp( token, "aliasShader" ) )
+		{
+			token = COM_ParseExt( text, qfalse );
+			if ( token[0] == 0 )
+				break;
+			//SOF2 TODO
 		}
 /*
 Ghoul2 Insert End

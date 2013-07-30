@@ -1460,6 +1460,15 @@ Ghoul2 Insert End
 	case UI_PB_DISABLE:
 		return qfalse;
 
+	case UI_GET_TEAM_COUNT:
+		//arg1 = int team
+		//TODO SOF2
+		return 1;
+	case UI_GET_TEAM_SCORE:
+		//arg1 = int team
+		//TODO SOF2
+		return 1;
+
 	default:
 		Com_Printf("Bad UI system trap: %i", args[0] );
 		//Com_Error( ERR_DROP, "Bad UI system trap: %i", args[0] );

@@ -167,32 +167,32 @@ static byte virtualKeyConvert[0x92][2] =
 	{ 0,				0				}, // 3E Undefined  
 	{ 0,				0				}, // 3F Undefined  
 	{ 0,				0				}, // 40 Undefined  
-	{ K_CAP_A,			K_CAP_A			}, // 41 A key  
-	{ K_CAP_B,			K_CAP_B			}, // 42 B key  
-	{ K_CAP_C,			K_CAP_C			}, // 43 C key  
-	{ K_CAP_D,			K_CAP_D			}, // 44 D key  
-	{ K_CAP_E,			K_CAP_E			}, // 45 E key  
-	{ K_CAP_F,			K_CAP_F			}, // 46 F key  
-	{ K_CAP_G,			K_CAP_G			}, // 47 G key  
-	{ K_CAP_H,			K_CAP_H			}, // 48 H key  
-	{ K_CAP_I,			K_CAP_I			}, // 49 I key  
-	{ K_CAP_J,			K_CAP_J			}, // 4A J key  
-	{ K_CAP_K,			K_CAP_K			}, // 4B K key  
-	{ K_CAP_L,			K_CAP_L			}, // 4C L key  
-	{ K_CAP_M,			K_CAP_M			}, // 4D M key  
-	{ K_CAP_N,			K_CAP_N			}, // 4E N key  
-	{ K_CAP_O,			K_CAP_O			}, // 4F O key  
-	{ K_CAP_P,			K_CAP_P			}, // 50 P key  
-	{ K_CAP_Q,			K_CAP_Q			}, // 51 Q key  
-	{ K_CAP_R,			K_CAP_R			}, // 52 R key  
-	{ K_CAP_S,			K_CAP_S			}, // 53 S key  
-	{ K_CAP_T,			K_CAP_T			}, // 54 T key  
-	{ K_CAP_U,			K_CAP_U			}, // 55 U key  
-	{ K_CAP_V,			K_CAP_V			}, // 56 V key  
-	{ K_CAP_W,			K_CAP_W			}, // 57 W key  
-	{ K_CAP_X,			K_CAP_X			}, // 58 X key  
-	{ K_CAP_Y,			K_CAP_Y			}, // 59 Y key  
-	{ K_CAP_Z,			K_CAP_Z			}, // 5A Z key  
+	{ K_LOW_A,			K_LOW_A			}, // 41 A key  
+	{ K_LOW_B,			K_LOW_B			}, // 42 B key  
+	{ K_LOW_C,			K_LOW_C			}, // 43 C key  
+	{ K_LOW_D,			K_LOW_D			}, // 44 D key  
+	{ K_LOW_E,			K_LOW_E			}, // 45 E key  
+	{ K_LOW_F,			K_LOW_F			}, // 46 F key  
+	{ K_LOW_G,			K_LOW_G			}, // 47 G key  
+	{ K_LOW_H,			K_LOW_H			}, // 48 H key  
+	{ K_LOW_I,			K_LOW_I			}, // 49 I key  
+	{ K_LOW_J,			K_LOW_J			}, // 4A J key  
+	{ K_LOW_K,			K_LOW_K			}, // 4B K key  
+	{ K_LOW_L,			K_LOW_L			}, // 4C L key  
+	{ K_LOW_M,			K_LOW_M			}, // 4D M key  
+	{ K_LOW_N,			K_LOW_N			}, // 4E N key  
+	{ K_LOW_O,			K_LOW_O			}, // 4F O key  
+	{ K_LOW_P,			K_LOW_P			}, // 50 P key  
+	{ K_LOW_Q,			K_LOW_Q			}, // 51 Q key  
+	{ K_LOW_R,			K_LOW_R			}, // 52 R key  
+	{ K_LOW_S,			K_LOW_S			}, // 53 S key  
+	{ K_LOW_T,			K_LOW_T			}, // 54 T key  
+	{ K_LOW_U,			K_LOW_U			}, // 55 U key  
+	{ K_LOW_V,			K_LOW_V			}, // 56 V key  
+	{ K_LOW_W,			K_LOW_W			}, // 57 W key  
+	{ K_LOW_X,			K_LOW_X			}, // 58 X key  
+	{ K_LOW_Y,			K_LOW_Y			}, // 59 Y key  
+	{ K_LOW_Z,			K_LOW_Z			}, // 5A Z key  
 	{ 0,				0				}, // VK_LWIN 5B Left Windows key (Microsoft® Natural® keyboard)  
 	{ 0,				0				}, // VK_RWIN 5C Right Windows key (Natural keyboard)  
 	{ 0,				0				}, // VK_APPS 5D Applications key (Natural keyboard)  

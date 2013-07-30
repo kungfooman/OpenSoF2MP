@@ -35,11 +35,8 @@ typedef struct keyGlobals_s
 
 typedef struct 
 {
-	word	upper;
-	word	lower;
 	char	*name;
 	int		keynum;
-	bool	menukey;
 } keyname_t;
 
 extern keyGlobals_t	kg;

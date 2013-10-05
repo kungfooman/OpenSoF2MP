@@ -817,79 +817,56 @@ netField_t	entityStateFields[] =
 { NETF(pos.trTime), 32 },
 { NETF(pos.trBase[0]), 0 },
 { NETF(pos.trBase[1]), 0 },
-{ NETF(apos.trBase[1]), 0 },
-{ NETF(pos.trBase[2]), 0 },
-{ NETF(apos.trBase[0]), 0 },
 { NETF(pos.trDelta[0]), 0 },
 { NETF(pos.trDelta[1]), 0 },
-{ NETF(eType), 8 },
-{ NETF(angles[1]), 0 },
+{ NETF(pos.trBase[2]), 0 },
+{ NETF(apos.trBase[1]), 0 },
 { NETF(pos.trDelta[2]), 0 },
+{ NETF(apos.trBase[0]), 0 },
+{ NETF(event), 10 },
+{ NETF(angles2[1]), 0 },
+{ NETF(eType), 8 },
+{ NETF(torsoAnim), 12 },
+{ NETF(torsoTimer), 13 },
+{ NETF(eventParm), 0 },
+{ NETF(legsAnim), 12 },
+{ NETF(groundEntityNum), GENTITYNUM_BITS },
+{ NETF(pos.trType), 8 },
+{ NETF(eFlags), 32 },
+{ NETF(otherEntityNum), GENTITYNUM_BITS },
+{ NETF(weapon), 8 },
+{ NETF(clientNum), 8 },
+{ NETF(angles[1]), 0 },
+{ NETF(pos.trDuration), 32 },
+{ NETF(apos.trType), 8 },
 { NETF(origin[0]), 0 },
 { NETF(origin[1]), 0 },
 { NETF(origin[2]), 0 },
-// does this need to be 8 bits?
-{ NETF(weapon), 8 },
-{ NETF(apos.trType), 8 },
-// changed from 12 to 16
-{ NETF(legsAnim), 16 },			// Maximum number of animation sequences is 2048.  Top bit is reserved for the togglebit
-// suspicious
-{ NETF(torsoAnim), 16 },		// Maximum number of animation sequences is 2048.  Top bit is reserved for the togglebit
-// large use beyond GENTITYNUM_BITS - should use generic1 insead
-{ NETF(eFlags), 32 },
-{ NETF(pos.trDuration), 32 },
-// might be able to reduce
-{ NETF(groundEntityNum), GENTITYNUM_BITS },
-{ NETF(pos.trType), 8 },
-{ NETF(angles[2]), 0 },
-{ NETF(angles[0]), 0 },
 { NETF(solid), 24 },
-// flag states barely used - could be moved elsewhere
-{ NETF(event), 10 },			// There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
-// why are npc's clientnum's that big?
-{ NETF(clientNum), GENTITYNUM_BITS }, //with npc's clientnum can be > MAX_CLIENTS so use entnum bits now instead.
-{ NETF(apos.trBase[2]), 0 },
-{ NETF(apos.trTime), 32 },
+{ NETF(gametypeitems), 8 },
+{ NETF(modelindex), 8 },
 { NETF(otherEntityNum2), GENTITYNUM_BITS },
-// used all over the place
-{ NETF(modelindex2), 8 },
-// why was this changed from 0 to 8 ?
-{ NETF(eventParm), 8 },
-// unknown about size?
-{ NETF(apos.trDelta[1]), 0 },
-// why raised from 8 to -16?
-{ NETF(modelindex), -16 },
-// barely used, could probably be replaced
-{ NETF(apos.trDelta[0]), 0 },
-{ NETF(apos.trDelta[2]), 0 },
-// shouldn't these be better off as flags?  otherwise, they may consume more bits this way
-{ NETF(angles2[1]), 0 },
-// used mostly in saber and npc
-{ NETF(origin2[2]), 0 },
-// randomly used, not sure why this was used instead of svc_noclient
-//	if (cent->currentState.modelGhoul2 == 127)
-//	{ //not ready to be drawn or initialized..
-//		return;
-//	}
 { NETF(loopSound), 8 },
+{ NETF(generic1), 8 },
+{ NETF(mSoundSet), 6 },
+{ NETF(origin2[2]), 0 },
 { NETF(origin2[0]), 0 },
-{ NETF(otherEntityNum), GENTITYNUM_BITS },
 { NETF(origin2[1]), 0 },
-{ NETF(time2), 32 },
+{ NETF(modelindex2), 8 },
+{ NETF(angles[0]), 0 },
 { NETF(time), 32 },
-//NPC-SPECIFIC:
-{ NETF(angles2[0]), 0 },
-{ NETF(frame), 16 },
-{ NETF(angles2[2]), 0 },
-// why not use torsoAnim and set a flag to do the same thing as forceFrame (saberLockFrame)
-{ NETF(generic1), 8 },
+{ NETF(apos.trTime), 32 },
 { NETF(apos.trDuration), 32 },
-
-//SOF2 TODO
-{ NETF(generic1), 8 },
-{ NETF(generic1), 8 },
-{ NETF(generic1), 8 },
-{ NETF(generic1), 8 },
+{ NETF(apos.trBase[2]), 0 },
+{ NETF(apos.trDelta[0]), 0 },
+{ NETF(apos.trDelta[1]), 0 },
+{ NETF(apos.trDelta[2]), 0 },
+{ NETF(time2), 32 },
+{ NETF(angles[2]), 0 },
+{ NETF(angles2[0]), 0 },
+{ NETF(angles2[2]), 0 },
+{ NETF(frame), 16 },
+{ NETF(leanOffset), 6 },
 };
 
 // if (int)f == f and (int)f + ( 1<<(FLOAT_INT_BITS-1) ) < ( 1 << FLOAT_INT_BITS )
@@ -1168,51 +1145,69 @@ plyer_state_t communication
 
 netField_t	playerStateFields[] = 
 {
-{ PSF(commandTime), 32 },				
-{ PSF(origin[1]), 0 },
+{ PSF(commandTime), 32 },
 { PSF(origin[0]), 0 },
-{ PSF(viewangles[1]), 0 },
-{ PSF(viewangles[0]), 0 },
-{ PSF(origin[2]), 0 },
+{ PSF(origin[1]), 0 },
+{ PSF(bobCycle), 8 },
 { PSF(velocity[0]), 0 },
 { PSF(velocity[1]), 0 },
-{ PSF(velocity[2]), 0 },
-{ PSF(bobCycle), 8 },
+{ PSF(viewangles[1]), 0 },
+{ PSF(viewangles[0]), 0 },
 { PSF(weaponTime), -16 },
-{ PSF(delta_angles[1]), 16 },
-{ PSF(speed), 0 }, //sadly, the vehicles require negative speed values, so..
-{ PSF(legsAnim), 16 },			// Maximum number of animation sequences is 2048.  Top bit is reserved for the togglebit
-{ PSF(delta_angles[0]), 16 },
-{ PSF(torsoAnim), 16 },			// Maximum number of animation sequences is 2048.  Top bit is reserved for the togglebit
-{ PSF(groundEntityNum), GENTITYNUM_BITS },
-{ PSF(eFlags), 32 },
-{ PSF(eventSequence), 16 },
-{ PSF(torsoTimer), 16 },
-{ PSF(viewheight), -8 },
-{ PSF(events[0]), 10 },			// There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
-{ PSF(events[1]), 10 },			// There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
-{ PSF(movementDir), 4 },
-{ PSF(weaponstate), 4 },
-{ PSF(pm_flags), 16 },
+{ PSF(weaponAnimTime), -16 },
+{ PSF(weaponFireBurstCount), 3 },
+{ PSF(weaponAnimId), -16 },
+{ PSF(weaponAnimIdChoice), -16 },
+{ PSF(weaponCallbackTime), 16 },
+{ PSF(weaponCallbackStep), -8 },
+{ PSF(origin[2]), 0 },
+{ PSF(velocity[2]), 0 },
 { PSF(pm_time), -16 },
-{ PSF(clientNum), GENTITYNUM_BITS },
-{ PSF(gravity), 16 },
-{ PSF(weapon), 8 },
-{ PSF(delta_angles[2]), 16 },
-{ PSF(viewangles[2]), 0 },
+{ PSF(eventSequence), 16 },
+{ PSF(torsoAnim), 12 },
+{ PSF(movementDir), 4 },
+{ PSF(events[0]), 10 },
+{ PSF(events[1]), 10 },
+{ PSF(events[2]), 10 },
+{ PSF(events[3]), 10 },
+{ PSF(legsAnim), 12 },
+{ PSF(pm_flags), 32 },
+{ PSF(pm_debounce), 16 },
+{ PSF(groundEntityNum), GENTITYNUM_BITS },
+{ PSF(weaponstate), 4 },
+{ PSF(eFlags), 32 },
 { PSF(externalEvent), 10 },
-{ PSF(damageYaw), 8 },
-{ PSF(damageCount), 8 },
-{ PSF(eventParms[1]), 8 },
-{ PSF(pm_type), 8 },					
+{ PSF(gravity), 16 },
+{ PSF(speed), 16 },
+{ PSF(delta_angles[1]), 16 },
 { PSF(externalEventParm), 8 },
-{ PSF(eventParms[0]), -16 },
+{ PSF(viewheight), -8 },
 { PSF(damageEvent), 8 },
-{ PSF(loopSound), 16 }, //rwwFIXMEFIXME: max sounds is 256, doesn't this only need to be 8?
+{ PSF(damageYaw), 8 },
 { PSF(damagePitch), 8 },
+{ PSF(damageCount), 8 },
+{ PSF(inaccuracy), 32 },
+{ PSF(inaccuracyTime), 16 },
+{ PSF(kickPitch), 18 },
 { PSF(generic1), 8 },
-{ PSF(zoomTime), 32 },	// NOTENOTE Are all of these necessary?
-{ PSF(zoomFov), 0 },	// NOTENOTE Are all of these necessary?
+{ PSF(pm_type), 8 },
+{ PSF(delta_angles[0]), 16 },
+{ PSF(delta_angles[2]), 16 },
+{ PSF(torsoTimer), 13 },
+{ PSF(eventParms[0]), 32 },
+{ PSF(eventParms[1]), 32 },
+{ PSF(eventParms[2]), 32 },
+{ PSF(eventParms[3]), 32 },
+{ PSF(clientNum), 8 },
+{ PSF(weapon), 5 },
+{ PSF(viewangles[2]), 0 },
+{ PSF(loopSound), 16 },
+{ PSF(zoomTime), 32 },
+{ PSF(zoomFov), 6 },
+{ PSF(ladder), 6 },
+{ PSF(leanTime), 16 },
+{ PSF(grenadeTimer), 13 },
+{ PSF(respawnTimer), 32 },
 };
 
 typedef struct bitStorage_s bitStorage_t;

@@ -1675,19 +1675,6 @@ typedef struct {
 
 //=========================================================
 
-// all the different tracking "channels"
-typedef enum {
-	TRACK_CHANNEL_NONE = 50,
-	TRACK_CHANNEL_1,
-	TRACK_CHANNEL_2, // force speed
-	TRACK_CHANNEL_3, // force rage
-	TRACK_CHANNEL_4,
-	TRACK_CHANNEL_5, // force sight
-	NUM_TRACK_CHANNELS
-} trackchan_t;
-
-#define TRACK_CHANNEL_MAX (NUM_TRACK_CHANNELS-50)
-
 // bit field limits
 #define	MAX_STATS				16
 #define	MAX_PERSISTANT			16
@@ -1839,32 +1826,15 @@ typedef struct siegePers_s
 										// walking will use different animations and
 										// won't generate footsteps
 #define	BUTTON_USE				32			// the ol' use key returns!
-#define BUTTON_FORCEGRIP		64			// 
+#define BUTTON_RELOAD			64			// reloads current weapon
 #define BUTTON_ALT_ATTACK		128
-
 #define	BUTTON_ANY				256			// any key whatsoever
+#define BUTTON_ZOOMIN		(1<<9)
+#define BUTTON_ZOOMOUT		(1<<10)
+#define BUTTON_FIREMODE		(1<<11)
 
-#define BUTTON_FORCEPOWER		512			// use the "active" force power
-
-#define BUTTON_FORCE_LIGHTNING	1024
-
-#define BUTTON_FORCE_DRAIN		2048
-
-// Here's an interesting bit.  The bots in TA used buttons to do additional gestures.
-// I ripped them out because I didn't want too many buttons given the fact that I was already adding some for JK2.
-// We can always add some back in if we want though.
-/*
-#define BUTTON_AFFIRMATIVE	32
-#define	BUTTON_NEGATIVE		64
-
-#define BUTTON_GETFLAG		128
-#define BUTTON_GUARDBASE	256
-#define BUTTON_PATROL		512
-#define BUTTON_FOLLOWME		1024
-*/
-
-#define	MOVE_RUN			120			// if forwardmove or rightmove are >= MOVE_RUN,
-										// then BUTTON_WALKING should be set
+#define BUTTON_LEAN_RIGHT	(1<<12)
+#define BUTTON_LEAN_LEFT	(1<<13)
 
 // usercmd_t is sent to the server each client frame
 typedef struct usercmd_s {
@@ -2098,7 +2068,6 @@ typedef struct qtime_s {
 #define AS_GLOBAL			1
 #define AS_FAVORITES		2
 
-#define AS_MPLAYER			3 // (Obsolete)
 
 // cinematic states
 typedef enum {

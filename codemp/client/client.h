@@ -295,9 +295,6 @@ typedef struct {
 	int			numfavoriteservers;
 	serverInfo_t	favoriteServers[MAX_OTHER_SERVERS];
 
-	int			nummplayerservers;
-	serverInfo_t	mplayerServers[MAX_OTHER_SERVERS];
-
 	int pingUpdateSource;		// source currently pinging or updating
 
 	int masterNum;

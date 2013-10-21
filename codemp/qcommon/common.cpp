@@ -1579,7 +1579,6 @@ try
 Com_Shutdown
 =================
 */
-void MSG_shutdownHuffman();
 void Com_Shutdown (void) 
 {
 	CM_ClearMap();
@@ -1594,17 +1593,6 @@ void Com_Shutdown (void)
 		FS_FCloseFile( com_journalFile );
 		com_journalFile = 0;
 	}
-
-	MSG_shutdownHuffman();
-/*
-	// Only used for testing changes to huffman frequency table when tuning.
-	{
-		extern float Huff_GetCR(void);
-		char mess[256];
-		sprintf(mess,"Eff. CR = %f\n",Huff_GetCR());
-		OutputDebugString(mess);
-	}
-*/
 }
 
 

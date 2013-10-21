@@ -895,14 +895,14 @@ void CL_CmdButtons( usercmd_t *cmd ) {
 		in_buttons[i].wasPressed = qfalse;
 	}
 
-	if (cmd->buttons & BUTTON_FORCEPOWER)
+	/*if (cmd->buttons & BUTTON_FORCEPOWER)
 	{ //check for transferring a use force to a use inventory...
 		if ((cmd->buttons & BUTTON_USE) || CL_NoUseableForce())
 		{ //it's pushed, remap it!
 			cmd->buttons &= ~BUTTON_FORCEPOWER;
 			cmd->buttons |= BUTTON_USE_HOLDABLE;
 		}
-	}
+	}*/
 
 	if ( cls.keyCatchers ) {
 		cmd->buttons |= BUTTON_TALK;

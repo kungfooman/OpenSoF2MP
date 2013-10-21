@@ -594,7 +594,7 @@ void * QDECL Sys_LoadGameDll( const char *name, int (QDECL **entryPoint)(int, ..
 	char	*fn;
 	char	filename[MAX_QPATH];
 
-	Com_sprintf( filename, sizeof( filename ), "%sx86.dll", name );
+	Com_sprintf( filename, sizeof( filename ), "mp/%sx86.dll", name );
 
 	if (!Sys_UnpackDLL(filename))
 	{

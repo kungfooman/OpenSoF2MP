@@ -1098,7 +1098,6 @@ we also have to reload the UI and CGame because the renderer
 doesn't know what graphics to reload
 =================
 */
-extern bool g_nOverrideChecked;
 void CL_Vid_Restart_f( void ) {
 	// Settings may have changed so stop recording now
 	if( CL_VideoRecording( ) ) {
@@ -1107,11 +1106,6 @@ void CL_Vid_Restart_f( void ) {
 
 	if(clc.demorecording)
 		CL_StopRecord_f();
-
-	//rww - sort of nasty, but when a user selects a mod
-	//from the menu all it does is a vid_restart, so we
-	//have to check for new net overrides for the mod then.
-	g_nOverrideChecked = false;
 
 	// don't let them loop during the restart
 	S_StopAllSounds();
@@ -1590,10 +1584,6 @@ void CL_ServersResponsePacket( netadr_t from, msg_t *msg ) {
 		cls.numGlobalServerAddresses = 0;
 	}
 
-	if (cls.nummplayerservers == -1) {
-		cls.nummplayerservers = 0;
-	}
-
 	// parse through server response string
 	numservers = 0;
 	buffptr    = msg->data;
@@ -1644,17 +1634,12 @@ void CL_ServersResponsePacket( netadr_t from, msg_t *msg ) {
 		}
 	}
 
-	if (cls.masterNum == 0) {
-		count = cls.numglobalservers;
-		max = MAX_GLOBAL_SERVERS;
-	} else {
-		count = cls.nummplayerservers;
-		max = MAX_OTHER_SERVERS;
-	}
+	count = cls.numglobalservers;
+	max = MAX_GLOBAL_SERVERS;
 
 	for (i = 0; i < numservers && count < max; i++) {
 		// build net address
-		serverInfo_t *server = (cls.masterNum == 0) ? &cls.globalServers[count] : &cls.mplayerServers[count];
+		serverInfo_t *server = &cls.globalServers[count];
 
 		CL_InitServerInfo( server, &addresses[i] );
 		// advance to next slot
@@ -1678,13 +1663,8 @@ void CL_ServersResponsePacket( netadr_t from, msg_t *msg ) {
 		}
 	}
 
-	if (cls.masterNum == 0) {
-		cls.numglobalservers = count;
-		total = count + cls.numGlobalServerAddresses;
-	} else {
-		cls.nummplayerservers = count;
-		total = count;
-	}
+	cls.numglobalservers = count;
+	total = count + cls.numGlobalServerAddresses;
 
 	Com_Printf("%d servers parsed (total %d)\n", numservers, total);
 }
@@ -2442,10 +2422,6 @@ void CL_SetModel_f( void ) {
 	}
 }
 
-void CL_SetForcePowers_f( void ) {
-	return;
-}
-
 /*
 ===============
 CL_Video_f
@@ -2612,21 +2588,10 @@ void CL_Init( void ) {
 	Cvar_Get ("rate", "25000", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("snaps", "40", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("model", "kyle/default", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("forcepowers", "7-1-032330000000001333", CVAR_USERINFO | CVAR_ARCHIVE );
 //	Cvar_Get ("g_redTeam", "Empire", CVAR_SERVERINFO | CVAR_ARCHIVE);
 //	Cvar_Get ("g_blueTeam", "Rebellion", CVAR_SERVERINFO | CVAR_ARCHIVE);
-	Cvar_Get ("color1",  "4", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("color2", "4", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("handicap", "100", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("teamtask", "0", CVAR_USERINFO );
-	Cvar_Get ("sex", "male", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("password", "", CVAR_USERINFO);
 	Cvar_Get ("cg_predictItems", "1", CVAR_USERINFO | CVAR_ARCHIVE );
-
-	//skin color
-	Cvar_Get ("char_color_red",  "255", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("char_color_green",  "255", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("char_color_blue",  "255", CVAR_USERINFO | CVAR_ARCHIVE );
 
 	// cgame might not be initialized before menu is used
 	Cvar_Get ("cg_viewsize", "100", CVAR_ARCHIVE );
@@ -2655,7 +2620,6 @@ void CL_Init( void ) {
 	Cmd_AddCommand ("fs_openedList", CL_OpenedPK3List_f );
 	Cmd_AddCommand ("fs_referencedList", CL_ReferencedPK3List_f );
 	Cmd_AddCommand ("model", CL_SetModel_f );
-	Cmd_AddCommand ("forcepowers", CL_SetForcePowers_f );
 	Cmd_AddCommand ("video", CL_Video_f );
 	Cmd_AddCommand ("stopvideo", CL_StopVideo_f );
 
@@ -2722,7 +2686,6 @@ void CL_Shutdown( void ) {
 	Cmd_RemoveCommand ("serverstatus");
 	Cmd_RemoveCommand ("showip");
 	Cmd_RemoveCommand ("model");
-	Cmd_RemoveCommand ("forcepowers");
 	Cmd_RemoveCommand ("video");
 	Cmd_RemoveCommand ("stopvideo");
 
@@ -2763,12 +2726,6 @@ static void CL_SetServerInfoByAddress(netadr_t from, const char *info, int ping)
 	for (i = 0; i < MAX_OTHER_SERVERS; i++) {
 		if (NET_CompareAdr(from, cls.localServers[i].adr)) {
 			CL_SetServerInfo(&cls.localServers[i], info, ping);
-		}
-	}
-
-	for (i = 0; i < MAX_OTHER_SERVERS; i++) {
-		if (NET_CompareAdr(from, cls.mplayerServers[i].adr)) {
-			CL_SetServerInfo(&cls.mplayerServers[i], info, ping);
 		}
 	}
 
@@ -3412,10 +3369,6 @@ qboolean CL_UpdateVisiblePings_f(int source) {
 			case AS_LOCAL :
 				server = &cls.localServers[0];
 				max = cls.numlocalservers;
-			break;
-			case AS_MPLAYER :
-				server = &cls.mplayerServers[0];
-				max = cls.nummplayerservers;
 			break;
 			case AS_GLOBAL :
 				server = &cls.globalServers[0];

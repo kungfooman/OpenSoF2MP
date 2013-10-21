@@ -11,11 +11,6 @@
 
 extern	cvar_t	*cl_shownet;
 
-
-
-//#define _NEWHUFFTABLE_		// Build "c:\\netchan.bin"
-//#define _USINGNEWHUFFTABLE_		// Build a new frequency table to cut and paste.
-
 static huffman_t		msgHuff;
 
 static qboolean			msgInit = qfalse;
@@ -36,23 +31,9 @@ Handles byte ordering and avoids alignment errors
 
 int oldsize = 0;
 
-bool g_nOverrideChecked = false;
-void MSG_CheckNETFPSFOverrides(qboolean psfOverrides);
-
 void MSG_initHuffman();
 
 void MSG_Init( msg_t *buf, byte *data, int length ) {
-	if (!g_nOverrideChecked)
-	{
-		//Check for netf overrides
-		MSG_CheckNETFPSFOverrides(qfalse);
-		
-		//Then for psf overrides
-		MSG_CheckNETFPSFOverrides(qtrue);
-
-		g_nOverrideChecked = true;
-	}
-
 	if (!msgInit)
 	{
 		MSG_initHuffman();
@@ -64,17 +45,6 @@ void MSG_Init( msg_t *buf, byte *data, int length ) {
 }
 
 void MSG_InitOOB( msg_t *buf, byte *data, int length ) {
-	if (!g_nOverrideChecked)
-	{
-		//Check for netf overrides
-		MSG_CheckNETFPSFOverrides(qfalse);
-		
-		//Then for psf overrides
-		MSG_CheckNETFPSFOverrides(qtrue);
-
-		g_nOverrideChecked = true;
-	}
-
 	if (!msgInit)
 	{
 		MSG_initHuffman();
@@ -191,9 +161,6 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 		}
 		if (bits) {
 			for(i=0;i<bits;i+=8) {
-#ifdef _NEWHUFFTABLE_
-				fwrite(&value, 1, 1, fp);
-#endif // _NEWHUFFTABLE_
 				Huff_offsetTransmit (&msgHuff.compressor, (value&0xff), msg->data, &msg->bit);
 				value = (value>>8);
 			}
@@ -246,9 +213,6 @@ int MSG_ReadBits( msg_t *msg, int bits ) {
 		if (bits) {
 			for(i=0;i<bits;i+=8) {
 				Huff_offsetReceive (msgHuff.decompressor.tree, &get, msg->data, &msg->bit);
-#ifdef _NEWHUFFTABLE_
-				fwrite(&get, 1, 1, fp);
-#endif // _NEWHUFFTABLE_
 				value |= (get<<(i+nbits));
 			}
 		}
@@ -464,12 +428,6 @@ char *MSG_ReadString( msg_t *msg ) {
 		if ( c == '%' ) {
 			c = '.';
 		}
-// eurofix: remove this so we can chat in european languages...	-ste
-//
-//		// don't allow higher ascii values
-//		if ( c > 127 ) {
-//			c = '.';
-//		}
 
 		string[l] = c;
 		l++;
@@ -667,9 +625,6 @@ usercmd_t communication
 #define	CM_UP		(1<<5)
 #define	CM_BUTTONS	(1<<6)
 #define CM_WEAPON	(1<<7)
-//rww - these are new
-#define CM_FORCE	(1<<8)
-#define CM_INVEN	(1<<9)
 
 /*
 =====================
@@ -800,17 +755,11 @@ typedef struct {
 	char	*name;
 	int		offset;
 	int		bits;		// 0 = float
-#ifndef FINAL_BUILD
-	unsigned	mCount;
-#endif
 
 } netField_t;
 
 // using the stringizing operator to save typing...
 #define	NETF(x) #x,(int)&((entityState_t*)0)->x
-
-//rww - Remember to update ext_data/MP/netf_overrides.txt if you change any of this!
-//(for the sake of being consistent)
 
 netField_t	entityStateFields[] = 
 {
@@ -925,9 +874,6 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 		toF = (int *)( (byte *)to + field->offset );
 		if ( *fromF != *toF ) {
 			lc = i+1;
-#ifndef FINAL_BUILD
-			field->mCount++;
-#endif
 		}
 	}
 
@@ -1022,7 +968,11 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 		Com_Error( ERR_DROP, "Bad delta entity number: %i", number );
 	}
 
-	startBit = msg->bit;
+	if ( msg->bit == 0 ) {
+		startBit = msg->readcount * 8 - GENTITYNUM_BITS;
+	} else {
+		startBit = ( msg->readcount - 1 ) * 8 + msg->bit - GENTITYNUM_BITS;
+	}
 
 	// check for a remove
 	if ( MSG_ReadBits( msg, 1 ) == 1 ) {
@@ -1062,17 +1012,10 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 
 	to->number = number;
 
-#ifdef _DONETPROFILE_
-	int startBytes,endBytes;
-#endif
-
 	for ( i = 0, field = entityStateFields ; i < lc ; i++, field++ ) {
 		fromF = (int *)( (byte *)from + field->offset );
 		toF = (int *)( (byte *)to + field->offset );
 
-#ifdef _DONETPROFILE_
-		startBytes=msg->readcount;
-#endif
 		if ( ! MSG_ReadBits( msg, 1 ) ) {
 			// no change
 			*toF = *fromF;
@@ -1111,10 +1054,6 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 				}
 			}
 		}
-#ifdef _DONETPROFILE_
-		endBytes=msg->readcount;
-		ClReadProf().AddField(field->name,endBytes-startBytes);
-#endif
 	}
 	for ( i = lc, field = &entityStateFields[lc] ; i < numFields ; i++, field++ ) {
 		fromF = (int *)( (byte *)from + field->offset );
@@ -1124,7 +1063,11 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 	}
 
 	if ( print ) {
-		endBit = msg->bit;
+		if ( msg->bit == 0 ) {
+			endBit = msg->readcount * 8 - GENTITYNUM_BITS;
+		} else {
+			endBit = ( msg->readcount - 1 ) * 8 + msg->bit - GENTITYNUM_BITS;
+		}
 		Com_Printf( " (%i bits)\n", endBit - startBit  );
 	}
 }
@@ -1139,9 +1082,6 @@ plyer_state_t communication
 
 // using the stringizing operator to save typing...
 #define	PSF(x) #x,(int)&((playerState_t*)0)->x
-
-//rww - Remember to update ext_data/MP/psf_overrides.txt if you change any of this!
-//(for the sake of being consistent)
 
 netField_t	playerStateFields[] = 
 {
@@ -1210,231 +1150,21 @@ netField_t	playerStateFields[] =
 { PSF(respawnTimer), 32 },
 };
 
-typedef struct bitStorage_s bitStorage_t;
-
-struct bitStorage_s
-{
-	bitStorage_t	*next;
-	int				bits;
-};
-
-static bitStorage_t		*g_netfBitStorage = NULL;
-static bitStorage_t		*g_psfBitStorage = NULL;
-
-//rww - Check the overrides files to see if the mod wants anything changed
-void MSG_CheckNETFPSFOverrides(qboolean psfOverrides)
-{
-	char overrideFile[4096];
-	char entryName[4096];
-	char bits[4096];
-	char *fileName;
-	int ibits;
-	int i = 0;
-	int j;
-	int len;
-	int numFields;
-	fileHandle_t f;
-	bitStorage_t **bitStorage;
-
-	if (psfOverrides)
-	{ //do PSF overrides instead of NETF
-		fileName = "psf_overrides.txt";
-		bitStorage = &g_psfBitStorage;
-		numFields = sizeof(playerStateFields)/sizeof(playerStateFields[0]);
-	}
-	else
-	{
-		fileName = "netf_overrides.txt";
-		bitStorage = &g_netfBitStorage;
-		numFields = sizeof(entityStateFields)/sizeof(entityStateFields[0]);
-	}
-
-	if (*bitStorage)
-	{ //if we have saved off the defaults before we want to stuff them all back in now
-		bitStorage_t *restore = *bitStorage;
-
-		while (i < numFields)
-		{
-			assert(restore);
-
-			if (psfOverrides)
-			{
-				playerStateFields[i].bits = restore->bits;
-			}
-			else
-			{
-				entityStateFields[i].bits = restore->bits;
-			}
-
-			i++;
-			restore = restore->next;
-		}
-	}
-
-	len = FS_FOpenFileRead(va("ext_data/MP/%s", fileName), &f, qfalse);
-
-	if (!f)
-	{ //silently exit since this file is not needed to proceed.
-		return;
-	}
-
-	if (len >= 4096)
-	{
-		Com_Printf("WARNING: %s is >= 4096 bytes and is being ignored\n", fileName);
-		FS_FCloseFile(f);
-		return;
-	}
-
-	//Get contents of the file
-	FS_Read(overrideFile, len, f);
-	FS_FCloseFile(f);
-
-	//because FS_Read does not do this for us.
-	overrideFile[len] = 0;
-
-	//If we haven't saved off the initial stuff yet then stuff it all into
-	//a list.
-	if (!*bitStorage)
-	{
-		i = 0;
-
-		while (i < numFields)
-		{
-			//Alloc memory for this new ptr
-			*bitStorage = (bitStorage_t *)Z_Malloc(sizeof(bitStorage_t), TAG_GENERAL, qtrue);
-
-			if (psfOverrides)
-			{
-				(*bitStorage)->bits = playerStateFields[i].bits;
-			}
-			else
-			{
-				(*bitStorage)->bits = entityStateFields[i].bits;
-			}
-
-			//Point to the ->next of the existing current ptr
-			bitStorage = &(*bitStorage)->next;
-			i++;
-		}
-	}
-
-	i = 0;
-	//Now parse through. Lines beginning with ; are disabled.
-	while (overrideFile[i])
-	{
-		if (overrideFile[i] == ';')
-		{ //parse to end of the line
-			while (overrideFile[i] != '\n')
-			{
-				i++;
-			}
-		}
-
-		if (overrideFile[i] != ';' &&
-			overrideFile[i] != '\n' &&
-			overrideFile[i] != '\r')
-		{ //on a valid char I guess, parse it
-			j = 0;
-
-			while (overrideFile[i] && overrideFile[i] != ',')
-			{
-				entryName[j] = overrideFile[i];
-				j++;
-				i++;
-			}
-			entryName[j] = 0;
-
-			if (!overrideFile[i])
-			{ //just give up, this shouldn't happen
-				Com_Printf("WARNING: Parsing error for %s\n", fileName);
-				return;
-			}
-
-			while (overrideFile[i] == ',' || overrideFile[i] == ' ')
-			{ //parse to the start of the value
-				i++;
-			}
-
-			j = 0;
-			while (overrideFile[i] != '\n' && overrideFile[i] != '\r')
-			{ //now read the value in
-				bits[j] = overrideFile[i];
-				j++;
-				i++;
-			}
-			bits[j] = 0;
-
-			if (bits[0])
-			{
-				if (!strcmp(bits, "GENTITYNUM_BITS"))
-				{ //special case
-					ibits = GENTITYNUM_BITS;
-				}
-				else
-				{
-	                ibits = atoi(bits);
-				}
-
-				j = 0;
-
-				//Now go through all the fields and see if we can find a match
-				while (j < numFields)
-				{
-					if (psfOverrides)
-					{ //check psf fields
-						if (!strcmp(playerStateFields[j].name, entryName))
-						{ //found it, set the bits
-							playerStateFields[j].bits = ibits;
-							break;
-						}
-					}
-					else
-					{ //otherwise check netf fields
-						if (!strcmp(entityStateFields[j].name, entryName))
-						{ //found it, set the bits
-							entityStateFields[j].bits = ibits;
-							break;
-						}
-					}
-					j++;
-				}
-
-				if (j == numFields)
-				{ //failed to find the value
-					Com_Printf("WARNING: Value '%s' from %s is not valid\n", entryName, fileName);
-				}
-			}
-			else
-			{ //also should not happen
-				Com_Printf("WARNING: Parsing error for %s\n", fileName);
-				return;
-			}
-		}
-
-		i++;
-	}
-}
-
-//MAKE SURE THIS MATCHES THE ENUM IN BG_PUBLIC.H!!!
-//This is in caps, because it is important.
-#define STAT_WEAPONS 4
-
 /*
 =============
 MSG_WriteDeltaPlayerstate
 
 =============
 */
-#ifdef _ONEBIT_COMBO
-void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to, int *bitComboDelta, int *bitNumDelta, qboolean isVehiclePS ) {
-#else
 void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to, qboolean isVehiclePS ) {
-#endif
 	int				i;
 	playerState_t	dummy;
 	int				statsbits;
 	int				persistantbits;
 	int				ammobits;
+	int				clipbits;
+	int				altclipbits;
+	int				firemodebits;
 	int				numFields;
 	int				c;
 	netField_t		*field;
@@ -1442,10 +1172,6 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 	int				*fromF, *toF;
 	float			fullFloat;
 	int				trunc, lc;
-#ifdef _ONEBIT_COMBO
-	int				bitComboMask = 0;
-	int				numBitsInMask = 0;
-#endif
 
 	if (!from) {
 		from = &dummy;
@@ -1462,33 +1188,16 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 		toF = (int *)( (byte *)to + field->offset );
 		if ( *fromF != *toF ) {
 			lc = i+1;
-#ifndef FINAL_BUILD
-			field->mCount++;
-#endif
 		}
 	}
 
 	MSG_WriteByte( msg, lc );	// # of changes
-
-#ifndef FINAL_BUILD
-	gLastBitIndex = lc;
-#endif
 
 	oldsize += numFields - lc;
 
 	for ( i = 0, field = PSFields ; i < lc ; i++, field++ ) {
 		fromF = (int *)( (byte *)from + field->offset );
 		toF = (int *)( (byte *)to + field->offset );
-
-#ifdef _ONEBIT_COMBO
-		if (numBitsInMask < 32 &&
-			field->bits == 1)
-		{
-			bitComboMask |= (*toF)<<numBitsInMask;
-			numBitsInMask++;
-			continue;
-		}
-#endif
 
 		if ( *fromF == *toF ) {
 			MSG_WriteBits( msg, 0, 1 );	// no change
@@ -1524,51 +1233,57 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 	// send the arrays
 	//
 	statsbits = 0;
-	for (i=0 ; i<16 ; i++) {
+	for (i=0 ; i<MAX_STATS ; i++) {
 		if (to->stats[i] != from->stats[i]) {
 			statsbits |= 1<<i;
 		}
 	}
 	persistantbits = 0;
-	for (i=0 ; i<16 ; i++) {
+	for (i=0 ; i<MAX_PERSISTANT ; i++) {
 		if (to->persistant[i] != from->persistant[i]) {
 			persistantbits |= 1<<i;
 		}
 	}
 	ammobits = 0;
-	for (i=0 ; i<16 ; i++) {
+	for (i=0 ; i<MAX_AMMO ; i++) {
 		if (to->ammo[i] != from->ammo[i]) {
 			ammobits |= 1<<i;
 		}
 	}
+	clipbits = 0;
+	for (i=0 ; i<MAX_WEAPONS ; i++) {
+		if (to->clip[ATTACK_NORMAL][i] != from->clip[ATTACK_NORMAL][i]) {
+			clipbits |= 1<<i;
+		}
+	}
+	altclipbits = 0;
+	for (i=0 ; i<MAX_WEAPONS ; i++) {
+		if (to->clip[ATTACK_ALTERNATE][i] != from->clip[ATTACK_ALTERNATE][i]) {
+			altclipbits |= 1<<i;
+		}
+	}
+	firemodebits = 0;
+	for (i=0 ; i<MAX_WEAPONS ; i++) {
+		if (to->firemode[i] != from->firemode[i]) {
+			firemodebits |= 1<<i;
+		}
+	}
 
-	if (!statsbits && !persistantbits && !ammobits) {
+	if (!statsbits && !persistantbits && !ammobits && !clipbits && !altclipbits && !firemodebits) {
 		MSG_WriteBits( msg, 0, 1 );	// no change
 		oldsize += 4;
-#ifdef _ONEBIT_COMBO
-		goto sendBitMask;
-#else
 		return;
-#endif
 	}
 	MSG_WriteBits( msg, 1, 1 );	// changed
 
 	if ( statsbits ) {
 		MSG_WriteBits( msg, 1, 1 );	// changed
 		MSG_WriteShort( msg, statsbits );
-		for (i=0 ; i<16 ; i++)
+		for (i=0 ; i<MAX_STATS ; i++)
 		{
 			if (statsbits & (1<<i) )
 			{
-				if (i == STAT_WEAPONS)
-				{ //ugly.. but we're gonna need it anyway -rww
-					//(just send this one in MAX_WEAPONS bits, so that we can add up to MAX_WEAPONS weaps without hassle)
-					MSG_WriteBits(msg, to->stats[i], MAX_WEAPONS);
-				}
-				else
-				{
-					MSG_WriteShort (msg, to->stats[i]);
-				}
+				MSG_WriteLong (msg, to->stats[i]);
 			}
 		}
 	} else {
@@ -1579,7 +1294,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 	if ( persistantbits ) {
 		MSG_WriteBits( msg, 1, 1 );	// changed
 		MSG_WriteShort( msg, persistantbits );
-		for (i=0 ; i<16 ; i++)
+		for (i=0 ; i<MAX_PERSISTANT ; i++)
 			if (persistantbits & (1<<i) )
 				MSG_WriteShort (msg, to->persistant[i]);
 	} else {
@@ -1590,46 +1305,43 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 	if ( ammobits ) {
 		MSG_WriteBits( msg, 1, 1 );	// changed
 		MSG_WriteShort( msg, ammobits );
-		for (i=0 ; i<16 ; i++)
+		for (i=0 ; i<MAX_AMMO ; i++)
 			if (ammobits & (1<<i) )
 				MSG_WriteShort (msg, to->ammo[i]);
 	} else {
 		MSG_WriteBits( msg, 0, 1 );	// no change
 	}
 
-
-	/*if ( powerupbits ) {
+	if ( clipbits ) {
 		MSG_WriteBits( msg, 1, 1 );	// changed
-		MSG_WriteShort( msg, powerupbits );
-		for (i=0 ; i<16 ; i++)
-			if (powerupbits & (1<<i) )
-				MSG_WriteLong( msg, to->powerups[i] );
+		MSG_WriteShort( msg, clipbits );
+		for (i=0 ; i<MAX_WEAPONS ; i++)
+			if (clipbits & (1<<i) )
+				MSG_WriteByte (msg, to->clip[ATTACK_NORMAL][i]);
 	} else {
 		MSG_WriteBits( msg, 0, 1 );	// no change
-	}*/
-
-#ifdef _ONEBIT_COMBO
-sendBitMask:
-	if (numBitsInMask)
-	{ //don't need to send at all if we didn't pass any 1bit values
-		if (!bitComboDelta ||
-			bitComboMask != *bitComboDelta ||
-			numBitsInMask != *bitNumDelta)
-		{ //send the mask, it changed
-			MSG_WriteBits(msg, 1, 1);
-			MSG_WriteBits(msg, bitComboMask, numBitsInMask);
-			if (bitComboDelta)
-			{
-				*bitComboDelta = bitComboMask;
-				*bitNumDelta = numBitsInMask;
-			}
-		}
-		else
-		{ //send 1 bit 0 to indicate no change
-			MSG_WriteBits(msg, 0, 1);
-		}
 	}
-#endif
+
+	if ( altclipbits ) {
+		MSG_WriteBits( msg, 1, 1 );	// changed
+		MSG_WriteShort( msg, altclipbits );
+		for (i=0 ; i<MAX_WEAPONS ; i++)
+			if (altclipbits & (1<<i) )
+				MSG_WriteByte (msg, to->clip[ATTACK_ALTERNATE][i]);
+	} else {
+		MSG_WriteBits( msg, 0, 1 );	// no change
+	}
+
+	if ( firemodebits ) {
+		MSG_WriteBits( msg, 1, 1 );	// changed
+		MSG_WriteShort( msg, firemodebits );
+		for (i=0 ; i<MAX_WEAPONS ; i++)
+			if (firemodebits & (1<<i) )
+				MSG_WriteBits (msg, to->firemode[i], WP_FIREMODE_MAX);
+	} else {
+		MSG_WriteBits( msg, 0, 1 );	// no change
+	}
+
 }
 
 
@@ -1642,15 +1354,11 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 	int			i, lc;
 	int			bits;
 	netField_t	*field;
-	netField_t  *PSFields = playerStateFields;
 	int			numFields;
 	int			startBit, endBit;
 	int			print;
 	int			*fromF, *toF;
 	int			trunc;
-#ifdef _ONEBIT_COMBO
-	int			numBitsInMask = 0;
-#endif
 	playerState_t	dummy;
 
 	if ( !from ) {
@@ -1678,27 +1386,10 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 
 	lc = MSG_ReadByte(msg);
 
-#ifdef _DONETPROFILE_
-	int startBytes,endBytes;
-#endif
-
-	for ( i = 0, field = PSFields ; i < lc ; i++, field++ ) {
+	for ( i = 0, field = playerStateFields ; i < lc ; i++, field++ ) {
 		fromF = (int *)( (byte *)from + field->offset );
 		toF = (int *)( (byte *)to + field->offset );
 
-#ifdef _ONEBIT_COMBO
-		if (numBitsInMask < 32 &&
-			field->bits == 1)
-		{
-			*toF = *fromF;
-			numBitsInMask++;
-			continue;
-		}
-#endif
-
-#ifdef _DONETPROFILE_
-		startBytes=msg->readcount;
-#endif
 		if ( ! MSG_ReadBits( msg, 1 ) ) {
 			// no change
 			*toF = *fromF;
@@ -1729,12 +1420,8 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 				}
 			}
 		}
-#ifdef _DONETPROFILE_
-		endBytes=msg->readcount;
-		ClReadProf().AddField(field->name,endBytes-startBytes);
-#endif
 	}
-	for ( i=lc,field = &PSFields[lc];i<numFields; i++, field++) {
+	for ( i=lc,field = &playerStateFields[lc];i<numFields; i++, field++) {
 		fromF = (int *)( (byte *)from + field->offset );
 		toF = (int *)( (byte *)to + field->offset );
 		// no change
@@ -1742,87 +1429,73 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 	}
 
 	// read the arrays
-#ifdef _DONETPROFILE_
-		startBytes=msg->readcount;
-#endif
 	if (MSG_ReadBits( msg, 1 ) ) {
 		// parse stats
 		if ( MSG_ReadBits( msg, 1 ) ) {
 			LOG("PS_STATS");
-			bits = MSG_ReadShort (msg);
-			for (i=0 ; i<16 ; i++) {
-				if (bits & (1<<i) )
-				{
-					if (i == STAT_WEAPONS)
-					{ //ugly.. but we're gonna need it anyway -rww
-						to->stats[i] = MSG_ReadBits(msg, MAX_WEAPONS);
-					}
-					else
-					{
-						to->stats[i] = MSG_ReadShort(msg);
-					}
+			bits = MSG_ReadBits (msg, MAX_STATS);
+			for (i=0 ; i<MAX_STATS ; i++) {
+				if (bits & (1<<i) )	{
+					to->stats[i] = MSG_ReadLong(msg);
 				}
 			}
 		}
-#ifdef _DONETPROFILE_
-		endBytes=msg->readcount;
-		ClReadProf().AddField("PS_STATS",endBytes-startBytes);
-#endif
 
 		// parse persistant stats
-#ifdef _DONETPROFILE_
-		startBytes=msg->readcount;
-#endif
 		if ( MSG_ReadBits( msg, 1 ) ) {
 			LOG("PS_PERSISTANT");
-			bits = MSG_ReadShort (msg);
-			for (i=0 ; i<16 ; i++) {
+			bits = MSG_ReadBits (msg, MAX_PERSISTANT);
+			for (i=0 ; i<MAX_PERSISTANT ; i++) {
 				if (bits & (1<<i) ) {
 					to->persistant[i] = MSG_ReadShort(msg);
 				}
 			}
 		}
-#ifdef _DONETPROFILE_
-		endBytes=msg->readcount;
-		ClReadProf().AddField("PS_PERSISTANT",endBytes-startBytes);
-#endif
 
 		// parse ammo
-#ifdef _DONETPROFILE_
-		startBytes=msg->readcount;
-#endif
 		if ( MSG_ReadBits( msg, 1 ) ) {
 			LOG("PS_AMMO");
-			bits = MSG_ReadShort (msg);
-			for (i=0 ; i<16 ; i++) {
+			bits = MSG_ReadBits (msg, MAX_AMMO);
+			for (i=0 ; i<MAX_AMMO ; i++) {
 				if (bits & (1<<i) ) {
 					to->ammo[i] = MSG_ReadShort(msg);
 				}
 			}
 		}
-#ifdef _DONETPROFILE_
-		endBytes=msg->readcount;
-		ClReadProf().AddField("PS_AMMO",endBytes-startBytes);
-#endif
 
-		// parse powerups
-#ifdef _DONETPROFILE_
-		startBytes=msg->readcount;
-#endif
-		/*if ( MSG_ReadBits( msg, 1 ) ) {
-			LOG("PS_POWERUPS");
-			bits = MSG_ReadShort (msg);
-			for (i=0 ; i<16 ; i++) {
+		// parse clips
+		if ( MSG_ReadBits( msg, 1 ) ) {
+			LOG("PS_CLIP");
+			bits = MSG_ReadBits (msg, MAX_WEAPONS);
+			for (i=0 ; i<MAX_WEAPONS ; i++) {
 				if (bits & (1<<i) ) {
-					to->powerups[i] = MSG_ReadLong(msg);
+					to->clip[ATTACK_NORMAL][i] = MSG_ReadByte(msg);
 				}
 			}
-		}*/
+		}
+
+		// parse alt clip
+		if ( MSG_ReadBits( msg, 1 ) ) {
+			LOG("PS_ALTCLIP");
+			bits = MSG_ReadBits (msg, MAX_WEAPONS);
+			for (i=0 ; i<MAX_WEAPONS ; i++) {
+				if (bits & (1<<i) ) {
+					to->clip[ATTACK_ALTERNATE][i] = MSG_ReadByte(msg);
+				}
+			}
+		}
+
+		// pase firemodes
+		if ( MSG_ReadBits( msg, 1 ) ) {
+			LOG("PS_FIREMODE");
+			bits = MSG_ReadBits (msg, MAX_WEAPONS);
+			for (i=0 ; i<MAX_WEAPONS ; i++) {
+				if (bits & (1<<i) ) {
+					to->firemode[i] = MSG_ReadBits(msg, WP_FIREMODE_MAX);
+				}
+			}
+		}
 	}
-#ifdef _DONETPROFILE_
-		endBytes=msg->readcount;
-		ClReadProf().AddField("PS_POWERUPS",endBytes-startBytes);
-#endif
 
 	if ( print ) {
 		if ( msg->bit == 0 ) {
@@ -1832,290 +1505,7 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 		}
 		Com_Printf( " (%i bits)\n", endBit - startBit  );
 	}
-
-#ifdef _ONEBIT_COMBO
-	if (numBitsInMask &&
-		MSG_ReadBits( msg, 1 ))
-	{ //mask changed...
-		int newBitMask = MSG_ReadBits(msg, numBitsInMask);
-		int nOneBit = 0;
-
-		//we have to go through all the fields again now to match the values
-		for ( i = 0, field = PSFields ; i < lc ; i++, field++ )
-		{
-			if (field->bits == 1)
-			{ //a 1 bit value, get the sent value from the mask
-				toF = (int *)( (byte *)to + field->offset );
-                *toF = (newBitMask>>nOneBit)&1;
-				nOneBit++;
-			}
-		}
-	}
-#endif
 }
-
-/*
-// New data gathered to tune Q3 to JK2MP. Takes longer to crunch and gain was minimal.
-int msg_hData[256] = 
-{
-	3163878,		// 0
-	473992,			// 1
-	564019,			// 2
-	136497,			// 3
-	129559,			// 4
-	283019,			// 5
-	75812,			// 6
-	179836,			// 7
-	85958,			// 8
-	168542,			// 9
-	78898,			// 10
-	82007,			// 11
-	48613,			// 12
-	138741,			// 13
-	35482,			// 14
-	47433,			// 15
-	65214,			// 16
-	51636,			// 17
-	63741,			// 18
-	52823,			// 19
-	42464,			// 20
-	44495,			// 21
-	45347,			// 22
-	40260,			// 23
-	59168,			// 24
-	44990,			// 25
-	52957,			// 26
-	42700,			// 27
-	42414,			// 28
-	36451,			// 29
-	45653,			// 30
-	44667,			// 31
-	125336,			// 32
-	38435,			// 33
-	53658,			// 34
-	42621,			// 35
-	40932,			// 36
-	33409,			// 37
-	35470,			// 38
-	40769,			// 39
-	33813,			// 40
-	32480,			// 41
-	33664,			// 42
-	32303,			// 43
-	32394,			// 44
-	34822,			// 45
-	37724,			// 46
-	48016,			// 47
-	94212,			// 48
-	53774,			// 49
-	54522,			// 50
-	44044,			// 51
-	42800,			// 52
-	47597,			// 53
-	29742,			// 54
-	30237,			// 55
-	34291,			// 56
-	106496,			// 57
-	20963,			// 58
-	19342,			// 59
-	20603,			// 60
-	19568,			// 61
-	23013,			// 62
-	23939,			// 63
-	44995,			// 64
-	37128,			// 65
-	44264,			// 66
-	46636,			// 67
-	56400,			// 68
-	32746,			// 69
-	23458,			// 70
-	29702,			// 71
-	25305,			// 72
-	20159,			// 73
-	19645,			// 74
-	20593,			// 75
-	21729,			// 76
-	19362,			// 77
-	24760,			// 78
-	22788,			// 79
-	25085,			// 80
-	21074,			// 81
-	97271,			// 82
-	22048,			// 83
-	24131,			// 84
-	19287,			// 85
-	20296,			// 86
-	20131,			// 87
-	86477,			// 88
-	25352,			// 89
-	20872,			// 90
-	21382,			// 91
-	38744,			// 92
-	137256,			// 93
-	26025,			// 94
-	22243,			// 95
-	23974,			// 96
-	43305,			// 97
-	28191,			// 98
-	34638,			// 99
-	37613,			// 100
-	46003,			// 101
-	31415,			// 102
-	25746,			// 103
-	28338,			// 104
-	34689,			// 105
-	24948,			// 106
-	27110,			// 107
-	39950,			// 108
-	32793,			// 109
-	42639,			// 110
-	47883,			// 111
-	37439,			// 112
-	23875,			// 113
-	36092,			// 114
-	46471,			// 115
-	37392,			// 116
-	33063,			// 117
-	29604,			// 118
-	42140,			// 119
-	61745,			// 120
-	45618,			// 121
-	51779,			// 122
-	49684,			// 123
-	57644,			// 124
-	65021,			// 125
-	67318,			// 126
-	88197,			// 127
-	258378,			// 128
-	76806,			// 129
-	72430,			// 130
-	64936,			// 131
-	62196,			// 132
-	56461,			// 133
-	166474,			// 134
-	70036,			// 135
-	40735,			// 136
-	29598,			// 137
-	26966,			// 138
-	26093,			// 139
-	25853,			// 140
-	26065,			// 141
-	26176,			// 142
-	26777,			// 143
-	26684,			// 144
-	23880,			// 145
-	22932,			// 146
-	24566,			// 147
-	24305,			// 148
-	26399,			// 149
-	23487,			// 150
-	24485,			// 151
-	25956,			// 152
-	26065,			// 153
-	26151,			// 154
-	23111,			// 155
-	23900,			// 156
-	22128,			// 157
-	24096,			// 158
-	20863,			// 159
-	24298,			// 160
-	22572,			// 161
-	22364,			// 162
-	20813,			// 163
-	21414,			// 164
-	21570,			// 165
-	20799,			// 166
-	20971,			// 167
-	22485,			// 168
-	20397,			// 169
-	88096,			// 170
-	17802,			// 171
-	20091,			// 172
-	84250,			// 173
-	21953,			// 174
-	21406,			// 175
-	23401,			// 176
-	19546,			// 177
-	19180,			// 178
-	18843,			// 179
-	20673,			// 180
-	19918,			// 181
-	20640,			// 182
-	20326,			// 183
-	21174,			// 184
-	21736,			// 185
-	22511,			// 186
-	20290,			// 187
-	23303,			// 188
-	19800,			// 189
-	25465,			// 190
-	22801,			// 191
-	28831,			// 192
-	26663,			// 193
-	36485,			// 194
-	45768,			// 195
-	49795,			// 196
-	36026,			// 197
-	24119,			// 198
-	18543,			// 199
-	19261,			// 200
-	17137,			// 201
-	19435,			// 202
-	23672,			// 203
-	22988,			// 204
-	18107,			// 205
-	18734,			// 206
-	19847,			// 207
-	101897,			// 208
-	18405,			// 209
-	21260,			// 210
-	17818,			// 211
-	18971,			// 212
-	19317,			// 213
-	19112,			// 214
-	19395,			// 215
-	20688,			// 216
-	18438,			// 217
-	18945,			// 218
-	29309,			// 219
-	19666,			// 220
-	18735,			// 221
-	87691,			// 222
-	18478,			// 223
-	22634,			// 224
-	20984,			// 225
-	20079,			// 226
-	18624,			// 227
-	20045,			// 228
-	18369,			// 229
-	19014,			// 230
-	83179,			// 231
-	20899,			// 232
-	17854,			// 233
-	19332,			// 234
-	17875,			// 235
-	28647,			// 236
-	17465,			// 237
-	20277,			// 238
-	18994,			// 239
-	22192,			// 240
-	17443,			// 241
-	20243,			// 242
-	28174,			// 243
-	134871,			// 244
-	17753,			// 245
-	18924,			// 246
-	18281,			// 247
-	18937,			// 248
-	17419,			// 249
-	20679,			// 250
-	17865,			// 251
-	17984,			// 252
-	58615,			// 253
-	35506,			// 254
-	123499,			// 255
-};
-*/
 
 // Q3 TA freq. table.
 int msg_hData[256] = {
@@ -2377,15 +1767,9 @@ int msg_hData[256] = {
 13504,			// 255
 };
 
-#ifndef _USINGNEWHUFFTABLE_
-
 void MSG_initHuffman() {
 	int i,j;
 
-#ifdef _NEWHUFFTABLE_
-	fp=fopen("c:\\netchan.bin", "a");
-#endif // _NEWHUFFTABLE_
-	
 	msgInit = qtrue;
 	Huff_Init(&msgHuff);
 	for(i=0;i<256;i++) {
@@ -2395,55 +1779,6 @@ void MSG_initHuffman() {
 		}
 	}
 }
-
-#else
-
-void MSG_initHuffman() {
-
-	byte	*data;
-	int		size, i, ch;
-	int		array[256];
-
-	msgInit = qtrue;
-
-	Huff_Init(&msgHuff);
-	// load it in
-	size = FS_ReadFile( "netchan\\netchan.bin", (void **)&data );
-
-	for(i=0;i<256;i++) {
-		array[i] = 0;
-	}
-	for(i=0;i<size;i++) {
-		ch = data[i];
-		Huff_addRef(&msgHuff.compressor,	ch);			// Do update
-		Huff_addRef(&msgHuff.decompressor,	ch);			// Do update
-		array[ch]++;
-	}
-	Com_Printf("msg_hData {\n");
-	for(i=0;i<256;i++) {
-		if (array[i] == 0) {
-			Huff_addRef(&msgHuff.compressor,	i);			// Do update
-			Huff_addRef(&msgHuff.decompressor,	i);			// Do update
-		}
-		Com_Printf("%d,			// %d\n", array[i], i);
-	}
-	Com_Printf("};\n");
-	FS_FreeFile( data );
-	Cbuf_AddText( "condump dump.txt\n" );
-}
-
-#endif _USINGNEWHUFFTABLE_
-
-void MSG_shutdownHuffman()
-{
-#ifdef _NEWHUFFTABLE_
-	if(fp)
-	{
-		fclose(fp);
-	}
-#endif // _NEWHUFFTABLE_
-}
-
 /*
 =================
 MSG_ReportChangeVectors_f
@@ -2452,28 +1787,6 @@ Prints out a table from the current statistics for copying to code
 =================
 */
 void MSG_ReportChangeVectors_f( void ) {
-#ifndef FINAL_BUILD
-	int			numFields, i;
-	netField_t	*field;
-
-	numFields = sizeof(entityStateFields)/sizeof(entityStateFields[0]);
-
-	Com_Printf("Entity State Fields:\n");
-	for ( i = 0, field = entityStateFields ; i < numFields ; i++, field++ ) 
-	{
-		Com_Printf("%s\t\t%d\n", field->name, field->mCount);
-		field->mCount = 0;
-	}
-
-	Com_Printf("\nPlayer State Fields:\n");
-	numFields = sizeof( playerStateFields ) / sizeof( playerStateFields[0] );
-	for ( i = 0, field = playerStateFields ; i < numFields ; i++, field++ )
-	{
-		Com_Printf("%s\t\t%d\n", field->name, field->mCount);
-		field->mCount = 0;
-	}
-
-#endif	// FINAL_BUILD
 }
 
 //===========================================================================

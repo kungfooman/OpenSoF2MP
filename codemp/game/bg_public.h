@@ -673,18 +673,6 @@ typedef enum {
 // How many players on the overlay
 #define TEAM_MAXOVERLAY		32
 
-//team task
-typedef enum {
-	TEAMTASK_NONE,
-	TEAMTASK_OFFENSE, 
-	TEAMTASK_DEFENSE,
-	TEAMTASK_PATROL,
-	TEAMTASK_FOLLOW,
-	TEAMTASK_RETRIEVE,
-	TEAMTASK_ESCORT,
-	TEAMTASK_CAMP
-} teamtask_t;
-
 
 //---------------------------------------------------------
 

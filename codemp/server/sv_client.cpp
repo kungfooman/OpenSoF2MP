@@ -643,6 +643,8 @@ void SV_SendClientGameState( client_t *client ) {
 	else
 	{
 		MSG_WriteShort ( &msg, 0 );
+		//SOF2 TODO
+		MSG_WriteLong ( &msg, 0 );
 	}
 
 	// deliver this to the client

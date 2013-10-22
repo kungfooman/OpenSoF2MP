@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>engine</ProjectName>
+    <ProjectName>SoF2MP</ProjectName>
     <ProjectGuid>{940CECBC-C6E6-DBE5-B493-0A64D54AFDF6}</ProjectGuid>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

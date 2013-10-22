@@ -1562,8 +1562,10 @@ if pos is NULL, the sound will be dynamically sourced from the entity
 Entchannel 0 will never override a playing sound
 ====================
 */
-void S_StartSound(const vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfxHandle ) 
+void S_StartSound(const vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfxHandle, int volume=-1, int radius=-1 ) 
 {
+	//SOF2 TODO
+	//implement radius
 	int i;
 	channel_t	*ch;
 	/*const*/ sfx_t *sfx;
@@ -1643,7 +1645,7 @@ void S_StartSound(const vec3_t origin, int entityNum, int entchannel, sfxHandle_
 		ch->fixed_origin = qfalse;
 	}
 
-	ch->master_vol = SOUND_MAXVOL;	//FIXME: Um.. control?
+	ch->master_vol = volume;
 	ch->entnum = entityNum;
 	ch->entchannel = entchannel;
 	ch->thesfx = sfx;
@@ -1706,7 +1708,7 @@ void S_StartLocalLoopingSound( sfxHandle_t sfxHandle) {
 		Com_Error( ERR_DROP, "S_StartLocalLoopingSound: handle %i out of range", sfxHandle );
 	}
 
-	S_AddLoopingSound( listener_number, nullVec, nullVec, sfxHandle );
+	S_AddLoopingSound( listener_number, nullVec, nullVec, 0, sfxHandle );
 
 }
 
@@ -1826,7 +1828,7 @@ void S_StopSounds(void)
 	}
 
 	// stop looping sounds
-	S_ClearLoopingSounds();
+	S_ClearLoopingSounds(qtrue);
 
 #ifdef _WIN32
 	// clear all the s_channels
@@ -1889,14 +1891,17 @@ S_ClearLoopingSounds
 
 ==================
 */
-void S_ClearLoopingSounds( void )
+void S_ClearLoopingSounds( qboolean killall )
 {
 	int i;
 
 	if (s_UseOpenAL)
 	{
-		for (i = 0; i < MAX_LOOP_SOUNDS; i++)
-			loopSounds[i].bProcessed = false;
+		for (i = 0; i < MAX_LOOP_SOUNDS; i++) {
+			if (killall || loopSounds[i].bProcessed == true || (loopSounds[i].sfx && loopSounds[i].sfx->iSoundLengthInSamples == 0)) {
+				loopSounds[i].bProcessed = false;
+			}
+		}
 	}
 	numLoopSounds = 0;
 
@@ -1938,7 +1943,9 @@ Called during entity generation for a frame
 Include velocity in case I get around to doing doppler...
 ==================
 */
-void S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfxHandle ) {
+void S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, float radius, sfxHandle_t sfxHandle ) {
+	//SOF2 TODO
+	//implement radius
 	/*const*/ sfx_t *sfx;
 
   	if ( !s_soundStarted || s_soundMuted ) {

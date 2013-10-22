@@ -765,20 +765,20 @@ int CL_CgameSystemCalls( int *args ) {
 	case CG_CM_MARKFRAGMENTS:
 		return re.MarkFragments( args[1], (const vec3_t *)VMA(2), (const float *)VMA(3), args[4], (float *)VMA(5), args[6], (markFragment_t *)VMA(7) );
 	case CG_S_STARTSOUND:
-		S_StartSound( (float *)VMA(1), args[2], args[3], args[4] );
+		S_StartSound( (float *)VMA(1), args[2], args[3], args[4], args[5], args[6] );
 		return 0;
 	case CG_S_STARTLOCALSOUND:
 		S_StartLocalSound( args[1], args[2] );
 		return 0;
 	case CG_S_CLEARLOOPINGSOUNDS:
-		S_ClearLoopingSounds();
+		S_ClearLoopingSounds( args[1]?qtrue:qfalse );
 		return 0;
 	case CG_S_ADDLOOPINGSOUND:
-		S_AddLoopingSound( args[1], (const float *)VMA(2), (const float *)VMA(3), args[4] );
+		S_AddLoopingSound( args[1], (const float *)VMA(2), (const float *)VMA(3), VMF(4), args[5] );
 		return 0;
 	case CG_S_ADDREALLOOPINGSOUND:
 		//S_AddRealLoopingSound( args[1], (const float *)VMA(2), (const float *)VMA(3), args[4] );
-		S_AddLoopingSound( args[1], (const float *)VMA(2), (const float *)VMA(3), args[4] );
+		S_AddLoopingSound( args[1], (const float *)VMA(2), (const float *)VMA(3), VMF(4), args[5] );
 		return 0;
 	case CG_S_STOPLOOPINGSOUND:
 		S_StopLoopingSound( args[1] );
@@ -1427,6 +1427,10 @@ Ghoul2 Insert End
 			CGhoul2Info_v &ghoul2 = *((CGhoul2Info_v *)args[1]);
 			return re.G2API_GetGhoul2ModelFlags(&ghoul2[args[2]]);
 		}
+
+	case CG_S_STOPALLSOUNDS:
+		S_StopAllSounds();
+		return 0;
 
 	default:
 		Com_Printf("Bad UI system trap: %i", args[0] );

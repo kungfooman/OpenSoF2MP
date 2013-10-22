@@ -7,12 +7,6 @@
 unsigned	frame_msec;
 int			old_com_frameTime;
 
-float cl_mPitchOverride = 0.0f;
-float cl_mYawOverride = 0.0f;
-float cl_mSensitivityOverride = 0.0f;
-qboolean cl_bUseFighterPitch = qfalse;
-qboolean cl_crazyShipControls = qfalse;
-
 #ifdef VEH_CONTROL_SCHEME_4
 #define	OVERRIDE_MOUSE_SENSITIVITY 5.0f//20.0f = 180 degree turn in one mouse swipe across keyboard
 #else// VEH_CONTROL_SCHEME_4
@@ -567,44 +561,12 @@ void CL_AdjustAngles( void ) {
 	}
 
 	if ( !in_strafe.active ) {
-		if ( cl_mYawOverride )
-		{
-			if ( cl_mSensitivityOverride )
-			{
-				cl.viewangles[YAW] -= cl_mYawOverride*cl_mSensitivityOverride*speed*cl_yawspeed->value*CL_KeyState (&in_right);
-				cl.viewangles[YAW] += cl_mYawOverride*cl_mSensitivityOverride*speed*cl_yawspeed->value*CL_KeyState (&in_left);
-			}
-			else
-			{
-				cl.viewangles[YAW] -= cl_mYawOverride*OVERRIDE_MOUSE_SENSITIVITY*speed*cl_yawspeed->value*CL_KeyState (&in_right);
-				cl.viewangles[YAW] += cl_mYawOverride*OVERRIDE_MOUSE_SENSITIVITY*speed*cl_yawspeed->value*CL_KeyState (&in_left);
-			}
-		}
-		else
-		{
-			cl.viewangles[YAW] -= speed*cl_yawspeed->value*CL_KeyState (&in_right);
-			cl.viewangles[YAW] += speed*cl_yawspeed->value*CL_KeyState (&in_left);
-		}
+		cl.viewangles[YAW] -= speed*cl_yawspeed->value*CL_KeyState (&in_right);
+		cl.viewangles[YAW] += speed*cl_yawspeed->value*CL_KeyState (&in_left);
 	}
 
-	if ( cl_mPitchOverride )
-	{
-		if ( cl_mSensitivityOverride )
-		{
-			cl.viewangles[PITCH] -= cl_mPitchOverride*cl_mSensitivityOverride*speed*cl_pitchspeed->value * CL_KeyState (&in_lookup);
-			cl.viewangles[PITCH] += cl_mPitchOverride*cl_mSensitivityOverride*speed*cl_pitchspeed->value * CL_KeyState (&in_lookdown);
-		}
-		else
-		{
-			cl.viewangles[PITCH] -= cl_mPitchOverride*OVERRIDE_MOUSE_SENSITIVITY*speed*cl_pitchspeed->value * CL_KeyState (&in_lookup);
-			cl.viewangles[PITCH] += cl_mPitchOverride*OVERRIDE_MOUSE_SENSITIVITY*speed*cl_pitchspeed->value * CL_KeyState (&in_lookdown);
-		}
-	}
-	else
-	{
-		cl.viewangles[PITCH] -= speed*cl_pitchspeed->value * CL_KeyState (&in_lookup);
-		cl.viewangles[PITCH] += speed*cl_pitchspeed->value * CL_KeyState (&in_lookdown);
-	}
+	cl.viewangles[PITCH] -= speed*cl_pitchspeed->value * CL_KeyState (&in_lookup);
+	cl.viewangles[PITCH] += speed*cl_pitchspeed->value * CL_KeyState (&in_lookdown);
 }
 
 /*
@@ -725,42 +687,14 @@ void CL_JoystickMove( usercmd_t *cmd ) {
 	}
 
 	if ( !in_strafe.active ) {
-		if ( cl_mYawOverride )
-		{
-			if ( cl_mSensitivityOverride )
-			{
-				cl.viewangles[YAW] += cl_mYawOverride * cl_mSensitivityOverride * cl.joystickAxis[AXIS_SIDE]/2.0f;
-			}
-			else
-			{
-				cl.viewangles[YAW] += cl_mYawOverride * OVERRIDE_MOUSE_SENSITIVITY * cl.joystickAxis[AXIS_SIDE]/2.0f;
-			}
-		}
-		else
-		{
-			cl.viewangles[YAW] += anglespeed * (cl_yawspeed->value / 100.0f) * cl.joystickAxis[AXIS_SIDE];
-		}
+		cl.viewangles[YAW] += anglespeed * (cl_yawspeed->value / 100.0f) * cl.joystickAxis[AXIS_SIDE];
 	} else
 	{
 		cmd->rightmove = ClampChar( cmd->rightmove + cl.joystickAxis[AXIS_SIDE] );
 	}
 
 	if ( in_mlooking || cl_freelook->integer ) {
-		if ( cl_mPitchOverride )
-		{
-			if ( cl_mSensitivityOverride )
-			{
-				cl.viewangles[PITCH] += cl_mPitchOverride * cl_mSensitivityOverride * cl.joystickAxis[AXIS_FORWARD]/2.0f;
-			}
-			else
-			{
-				cl.viewangles[PITCH] += cl_mPitchOverride * OVERRIDE_MOUSE_SENSITIVITY * cl.joystickAxis[AXIS_FORWARD]/2.0f;
-			}
-		}
-		else
-		{
-			cl.viewangles[PITCH] += anglespeed * (cl_pitchspeed->value / 100.0f) * cl.joystickAxis[AXIS_FORWARD];
-		}
+		cl.viewangles[PITCH] += anglespeed * (cl_pitchspeed->value / 100.0f) * cl.joystickAxis[AXIS_FORWARD];
 	} else
 	{
 		cmd->forwardmove = ClampChar( cmd->forwardmove + cl.joystickAxis[AXIS_FORWARD] );
@@ -779,7 +713,6 @@ void CL_MouseMove( usercmd_t *cmd ) {
 	float	accelSensitivity;
 	float	rate;
 	const float	speed = static_cast<float>(frame_msec);
-	const float pitch = cl_bUseFighterPitch?m_pitchVeh->value:m_pitch->value;
 
 	// allow mouse smoothing
 	if ( m_filter->integer ) {
@@ -795,27 +728,9 @@ void CL_MouseMove( usercmd_t *cmd ) {
 	cl.mouseDy[cl.mouseIndex] = 0;
 
 	rate = SQRTFAST( mx * mx + my * my ) / speed;
-	if ( cl_mYawOverride || cl_mPitchOverride )
-	{//FIXME: different people have different speed mouses,
-		if ( cl_mSensitivityOverride )
-		{
-			//this will fuck things up for them, need to clamp 
-			//max input?
-			accelSensitivity = cl_mSensitivityOverride;
-		}
-		else
-		{
-			accelSensitivity = cl_sensitivity->value + rate * cl_mouseAccel->value;
-			// scale by FOV
-			accelSensitivity *= cl.cgameSensitivity;
-		}
-	}
-	else
-	{
-		accelSensitivity = cl_sensitivity->value + rate * cl_mouseAccel->value;
-		// scale by FOV
-		accelSensitivity *= cl.cgameSensitivity;
-	}
+	accelSensitivity = cl_sensitivity->value + rate * cl_mouseAccel->value;
+	// scale by FOV
+	accelSensitivity *= cl.cgameSensitivity;
 
 	if ( rate && cl_showMouseRate->integer ) {
 		Com_Printf( "%f : %f\n", rate, accelSensitivity );
@@ -832,34 +747,13 @@ void CL_MouseMove( usercmd_t *cmd ) {
 	if ( in_strafe.active ) {
 		cmd->rightmove = ClampChar( cmd->rightmove + m_side->value * mx );
 	} else {
-		if ( cl_mYawOverride )
-		{
-			cl.viewangles[YAW] -= cl_mYawOverride * mx;
-		}
-		else
-		{
-			cl.viewangles[YAW] -= m_yaw->value * mx;
-		}
+		cl.viewangles[YAW] -= m_yaw->value * mx;
 	}
 
 	if ( (in_mlooking || cl_freelook->integer) && !in_strafe.active ) {
 		// VVFIXME - This is supposed to be a CVAR
 		const float cl_pitchSensitivity = 1.0f;
-		if ( cl_mPitchOverride )
-		{
-			if ( pitch > 0 )
-			{
-				cl.viewangles[PITCH] += cl_mPitchOverride * my * cl_pitchSensitivity;
-			}
-			else
-			{
-				cl.viewangles[PITCH] -= cl_mPitchOverride * my * cl_pitchSensitivity;
-			}
-		}
-		else
-		{
-			cl.viewangles[PITCH] += pitch * my * cl_pitchSensitivity;
-		}
+		cl.viewangles[PITCH] += m_pitch->value * my * cl_pitchSensitivity;
 	} else {
 		cmd->forwardmove = ClampChar( cmd->forwardmove - m_forward->value * my );
 	}
@@ -947,56 +841,11 @@ void CL_FinishMove( usercmd_t *cmd ) {
 		cl.cgameViewAngleForceTime = 0;
 	}
 
-	if ( cl_crazyShipControls )
-	{
-		float pitchSubtract, pitchDelta, yawDelta;
-
-		yawDelta = AngleSubtract(cl.viewangles[YAW],cl_lastViewAngles[YAW]);
-		//yawDelta *= (4.0f*pVeh->m_fTimeModifier);
-		cl_sendAngles[ROLL] -= yawDelta;
-
-		float nRoll = fabs(cl_sendAngles[ROLL]);
-
-		pitchDelta = AngleSubtract(cl.viewangles[PITCH],cl_lastViewAngles[PITCH]);
-		//pitchDelta *= (2.0f*pVeh->m_fTimeModifier);
-		pitchSubtract = pitchDelta * (nRoll/90.0f);
-		cl_sendAngles[PITCH] += pitchDelta-pitchSubtract;
-
-		//yaw-roll calc should be different
-		if (nRoll > 90.0f)
-		{
-			nRoll -= 180.0f;
-		}
-		if (nRoll < 0.0f)
-		{
-			nRoll = -nRoll;
-		}
-		pitchSubtract = pitchDelta * (nRoll/90.0f);
-		if ( cl_sendAngles[ROLL] > 0.0f )
-		{
-			cl_sendAngles[YAW] += pitchSubtract;
-		}
-		else
-		{
-			cl_sendAngles[YAW] -= pitchSubtract;
-		}
-		
-		cl_sendAngles[PITCH] = AngleNormalize180( cl_sendAngles[PITCH] );
-		cl_sendAngles[YAW] = AngleNormalize360( cl_sendAngles[YAW] );
-		cl_sendAngles[ROLL] = AngleNormalize180( cl_sendAngles[ROLL] );
-
-		for (i=0 ; i<3 ; i++) {
-			cmd->angles[i] = ANGLE2SHORT(cl_sendAngles[i]);
-		}
+	for (i=0 ; i<3 ; i++) {
+		cmd->angles[i] = ANGLE2SHORT(cl.viewangles[i]);
 	}
-	else
-	{
-		for (i=0 ; i<3 ; i++) {
-			cmd->angles[i] = ANGLE2SHORT(cl.viewangles[i]);
-		}
-		//in case we switch to the cl_crazyShipControls
-		VectorCopy( cl.viewangles, cl_sendAngles );
-	}
+	//in case we switch to the cl_crazyShipControls
+	VectorCopy( cl.viewangles, cl_sendAngles );
 	//always needed in for the cl_crazyShipControls
 	VectorCopy( cl.viewangles, cl_lastViewAngles );
 }

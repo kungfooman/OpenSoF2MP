@@ -55,7 +55,6 @@ cvar_t	*cl_sensitivity;
 cvar_t	*cl_mouseAccel;
 cvar_t	*cl_showMouseRate;
 
-cvar_t	*m_pitchVeh;
 cvar_t	*m_pitch;
 cvar_t	*m_yaw;
 cvar_t	*m_forward;
@@ -2566,7 +2565,6 @@ void CL_Init( void ) {
 	// if the cgame hasn't been started
 	Cvar_Get ("cg_autoswitch", "1", CVAR_ARCHIVE);
 
-	m_pitchVeh = Cvar_Get ("m_pitchVeh", "0.022", CVAR_ARCHIVE);
 	m_pitch = Cvar_Get ("m_pitch", "0.022", CVAR_ARCHIVE);
 	m_yaw = Cvar_Get ("m_yaw", "0.022", CVAR_ARCHIVE);
 	m_forward = Cvar_Get ("m_forward", "0.25", CVAR_ARCHIVE);

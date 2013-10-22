@@ -94,9 +94,6 @@ typedef struct {
 	int			cgameViewAngleForceTime;
 	float		cgameSensitivity;
 
-	int			cgameForceSelection;
-	int			cgameInvenSelection;
-
 	qboolean	gcmdSendValue;
 	qboolean	gcmdSentValue;
 	byte		gcmdValue;
@@ -374,7 +371,6 @@ extern	cvar_t	*cl_freelook;
 extern	cvar_t	*cl_mouseAccel;
 extern	cvar_t	*cl_showMouseRate;
 
-extern	cvar_t	*m_pitchVeh;
 extern	cvar_t	*m_pitch;
 extern	cvar_t	*m_yaw;
 extern	cvar_t	*m_forward;

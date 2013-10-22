@@ -228,17 +228,9 @@ qboolean CL_GetDefaultState(int index, entityState_t *state)
 CL_SetUserCmdValue
 =====================
 */
-extern float cl_mPitchOverride;
-extern float cl_mYawOverride;
-extern float cl_mSensitivityOverride;
-void CL_SetUserCmdValue( int userCmdValue, float sensitivityScale, float mPitchOverride, float mYawOverride, float mSensitivityOverride, int fpSel, int invenSel ) {
+void CL_SetUserCmdValue( int userCmdValue, float sensitivityScale ) {
 	cl.cgameUserCmdValue = userCmdValue;
 	cl.cgameSensitivity = sensitivityScale;
-	cl_mPitchOverride = mPitchOverride;
-	cl_mYawOverride = mYawOverride;
-	cl_mSensitivityOverride = mSensitivityOverride;
-	cl.cgameForceSelection = fpSel;
-	cl.cgameInvenSelection = invenSel;
 }
 
 /*
@@ -901,8 +893,7 @@ int CL_CgameSystemCalls( int *args ) {
 	case CG_GETUSERCMD:
 		return CL_GetUserCmd( args[1], (struct usercmd_s *)VMA(2) );
 	case CG_SETUSERCMDVALUE:
-		cl_bUseFighterPitch = (qboolean)args[8];
-		CL_SetUserCmdValue( args[1], VMF(2), VMF(3), VMF(4), VMF(5), args[6], args[7] );
+		CL_SetUserCmdValue( args[1], VMF(2) );
 		return 0;
 
 	case CG_MEMORY_REMAINING:

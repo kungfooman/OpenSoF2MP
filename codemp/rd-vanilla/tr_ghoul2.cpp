@@ -4255,6 +4255,9 @@ qboolean R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, qboolean 
 		
 	// first up, go load in the animation file we need that has the skeletal animation info for this model
 	mdxm->animIndex = RE_RegisterModel(va ("%s_mp.gla",mdxm->animName));
+	if (!mdxm->animIndex) {
+		mdxm->animIndex = RE_RegisterModel(va ("%s.gla",mdxm->animName));
+	}
 
 	if (!mdxm->animIndex) 
 	{

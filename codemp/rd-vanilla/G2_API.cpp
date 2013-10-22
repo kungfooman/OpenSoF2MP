@@ -2289,7 +2289,8 @@ void G2API_CopySpecificG2Model(CGhoul2Info_v &ghoul2From, int modelFrom, CGhoul2
 			// if we don't have enough models on the to side, resize us so we do
 			if (ghoul2To.size() <= modelTo)
 			{
-				assert (modelTo < 5);
+				//SOF2 TODO
+				//assert (modelTo < 5);
 				ghoul2To.resize(modelTo + 1);
 #if 0
 				forceReconstruct = qtrue;

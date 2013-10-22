@@ -1423,6 +1423,20 @@ Ghoul2 Insert End
 		VM_Call( uivm, UI_SET_ACTIVE_MENU, args[1] );
 		return 0;
 
+
+	case CG_G2_SETGHOUL2MODELFLAGSBYINDEX:
+		{
+			CGhoul2Info_v &ghoul2 = *((CGhoul2Info_v *)args[1]);
+			re.G2API_SetGhoul2ModelFlags(&ghoul2[args[2]], args[3]);
+			return 0;
+		}
+
+	case CG_G2_GETGHOUL2MODELFLAGSBYINDEX:
+		{
+			CGhoul2Info_v &ghoul2 = *((CGhoul2Info_v *)args[1]);
+			return re.G2API_GetGhoul2ModelFlags(&ghoul2[args[2]]);
+		}
+
 	default:
 		Com_Printf("Bad UI system trap: %i", args[0] );
 		//Com_Error( ERR_DROP, "Bad cgame system trap: %i", args[0] );

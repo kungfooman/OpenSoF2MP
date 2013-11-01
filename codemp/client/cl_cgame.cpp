@@ -119,27 +119,6 @@ int CL_GetCurrentCmdNumber( void ) {
 
 /*
 ====================
-CL_GetParseEntityState
-====================
-*/
-qboolean	CL_GetParseEntityState( int parseEntityNumber, entityState_t *state ) {
-	// can't return anything that hasn't been parsed yet
-	if ( parseEntityNumber >= cl.parseEntitiesNum ) {
-		Com_Error( ERR_DROP, "CL_GetParseEntityState: %i >= %i",
-			parseEntityNumber, cl.parseEntitiesNum );
-	}
-
-	// can't return anything that has been overwritten in the circular buffer
-	if ( parseEntityNumber <= cl.parseEntitiesNum - MAX_PARSE_ENTITIES ) {
-		return qfalse;
-	}
-
-	*state = cl.parseEntities[ parseEntityNumber & ( MAX_PARSE_ENTITIES - 1 ) ];
-	return qtrue;
-}
-
-/*
-====================
 CL_GetCurrentSnapshotNumber
 ====================
 */
@@ -185,7 +164,6 @@ qboolean	CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 	snapshot->serverTime = clSnap->serverTime;
 	Com_Memcpy( snapshot->areamask, clSnap->areamask, sizeof( snapshot->areamask ) );
 	snapshot->ps = clSnap->ps;
-	snapshot->vps = clSnap->vps; //get the vehicle ps
 	count = clSnap->numEntities;
 	if ( count > MAX_ENTITIES_IN_SNAPSHOT ) {
 		Com_DPrintf( "CL_GetSnapshot: truncated %i entities to %i\n", count, MAX_ENTITIES_IN_SNAPSHOT );
@@ -265,8 +243,6 @@ void CL_CgameError( const char *string ) {
 
 int gCLTotalClientNum = 0;
 //keep track of the total number of clients
-extern cvar_t	*cl_autolodscale;
-//if we want to do autolodscaling
 
 void CL_DoAutoLODScale(void)
 {
@@ -333,36 +309,6 @@ void CL_ConfigstringModified( void ) {
 		cl.gameState.stringOffsets[ i ] = cl.gameState.dataCount;
 		Com_Memcpy( cl.gameState.stringData + cl.gameState.dataCount, dup, len + 1 );
 		cl.gameState.dataCount += len + 1;
-	}
-
-	if (cl_autolodscale && cl_autolodscale->integer)
-	{
-		if (index >= CS_PLAYERS &&
-			index < CS_G2BONES)
-		{ //this means that a client was updated in some way. Go through and count the clients.
-			int clientCount = 0;
-			i = CS_PLAYERS;
-
-			while (i < CS_G2BONES)
-			{
-				s = cl.gameState.stringData + cl.gameState.stringOffsets[ i ];
-
-				if (s && s[0])
-				{
-					clientCount++;
-				}
-
-				i++;
-			}
-
-			gCLTotalClientNum = clientCount;
-
-#ifdef _DEBUG
-			Com_DPrintf("%i clients\n", gCLTotalClientNum);
-#endif
-
-			CL_DoAutoLODScale();
-		}
 	}
 
 	if ( index == CS_SYSTEMINFO ) {
@@ -898,14 +844,14 @@ int CL_CgameSystemCalls( int *args ) {
 
 	case CG_MEMORY_REMAINING:
 		return Hunk_MemoryRemaining();
-  case CG_KEY_ISDOWN:
+	case CG_KEY_ISDOWN:
 		return Key_IsDown( args[1] );
-  case CG_KEY_GETCATCHER:
+	case CG_KEY_GETCATCHER:
 		return Key_GetCatcher();
-  case CG_KEY_SETCATCHER:
+	case CG_KEY_SETCATCHER:
 		Key_SetCatcher( args[1] );
-    return 0;
-  case CG_KEY_GETKEY:
+		return 0;
+	case CG_KEY_GETKEY:
 		return Key_GetKey( (const char *)VMA(1) );
 
 	case CG_PC_ADD_GLOBAL_DEFINE:
@@ -966,7 +912,8 @@ int CL_CgameSystemCalls( int *args ) {
 	case CG_GET_ENTITY_TOKEN:
 		return re.GetEntityToken( (char *)VMA(1), args[2] );
 	case CG_R_INPVS:
-		return re.inPVS( (const float *)VMA(1), (const float *)VMA(2), (byte *)VMA(3) );
+		//SOF2 TODO
+		return re.inPVS( (const float *)VMA(1), (const float *)VMA(2), 0 );
 
 #ifndef DEBUG_DISABLEFXCALLS
 	case CG_FX_ADDLINE:
@@ -997,15 +944,17 @@ int CL_CgameSystemCalls( int *args ) {
 
 	case CG_FX_PLAY_BOLTED_EFFECT_ID:
 		{
-		//( int id, vec3_t org, void *pGhoul2, const int boltNum, const int entNum, const int modelNum, int iLooptime, qboolean isRelative );
-		CGhoul2Info_v &g2 = *((CGhoul2Info_v *)args[3]);
-		int boltInfo=0;
-		if ( re.G2API_AttachEnt( &boltInfo, &g2[args[6]], args[4], args[5], args[6] ) )
-		{
-			FX_PlayBoltedEffectID(args[1], (float *)VMA(2), boltInfo, g2.mItem, args[7], (qboolean)args[8] );
-			return 1;
-		}
-		return 0;
+			//(int id,CFxBoltInterface *obj, int vol, int rad)
+			//SOF2 TODO (some guesses here to make it work)
+			CFxBoltInterface * obj = (CFxBoltInterface *) args[2];
+			CGhoul2Info_v &ghoul2 = *(CGhoul2Info_v *) obj->ghoul2;
+			int boltInfo=0;
+			if ( re.G2API_AttachEnt( &boltInfo, &ghoul2[obj->modelNum], obj->boltNum, -1, obj->modelNum ) )
+			{
+				FX_PlayBoltedEffectID(args[1], obj->origin, boltInfo, (int) &ghoul2, -1, qfalse );
+				return 1;
+			}
+			return 0;
 		}
 	case CG_FX_ADD_SCHEDULED_EFFECTS:
 		FX_AddScheduledEffects((qboolean)args[1]);
@@ -1075,9 +1024,6 @@ Ghoul2 Insert Start
 		return re.G2API_GetBoltMatrix(*((CGhoul2Info_v *)args[1]), args[2], args[3], (mdxaBone_t *)VMA(4), (const float *)VMA(5),(const float *)VMA(6), args[7], (qhandle_t *)VMA(8), (float *)VMA(9));
 
 	case CG_G2_INITGHOUL2MODEL:
-#ifdef _FULL_G2_LEAK_CHECKING
-		g_G2AllocServer = 0;
-#endif
 		return	re.G2API_InitGhoul2Model((CGhoul2Info_v **)VMA(1), (const char *)VMA(2), args[3], (qhandle_t) args[4],
 									  (qhandle_t) args[5], args[6], args[7]);
 
@@ -1085,8 +1031,7 @@ Ghoul2 Insert Start
 		{
 			CGhoul2Info_v &g2 = *((CGhoul2Info_v *)args[1]);
 			int modelIndex = args[2];
-			
-			return re.G2API_SetSkin(&g2[modelIndex], args[3], args[4]);
+			return re.G2API_SetSkin(&g2[modelIndex], args[3], 0);
 		}
 
 	case CG_G2_COLLISIONDETECT:
@@ -1101,7 +1046,7 @@ Ghoul2 Insert Start
 								   G2VertSpaceClient,
 								   args[10],
 								   args[11],
-								   VMF(12) );
+								   -1 );
 		return 0;
 
 	case CG_G2_ANGLEOVERRIDE:
@@ -1110,12 +1055,8 @@ Ghoul2 Insert Start
 							 (qhandle_t *)VMA(9), args[10], args[11] );
 	
 	case CG_G2_CLEANMODELS:
-#ifdef _FULL_G2_LEAK_CHECKING
-		g_G2AllocServer = 0;
-#endif
 		if ( re.G2API_CleanGhoul2Models )
 			re.G2API_CleanGhoul2Models((CGhoul2Info_v **)VMA(1));
-	//	G2API_CleanGhoul2Models((CGhoul2Info_v **)args[1]);
 		return 0;
 
 	case CG_G2_PLAYANIM:
@@ -1123,7 +1064,6 @@ Ghoul2 Insert Start
 								args[6], VMF(7), args[8], VMF(9), args[10]);
 
 	case CG_G2_GETGLANAME:
-		//	return (int)G2API_GetGLAName(*((CGhoul2Info_v *)VMA(1)), args[2]);
 		{
 			char *point = ((char *)VMA(3));
 			char *local;
@@ -1139,20 +1079,13 @@ Ghoul2 Insert Start
 		return re.G2API_CopyGhoul2Instance(*((CGhoul2Info_v *)args[1]), *((CGhoul2Info_v *)args[2]), args[3]);
 
 	case CG_G2_COPYSPECIFICGHOUL2MODEL:
-		re.G2API_CopySpecificG2Model(*((CGhoul2Info_v *)args[1]), args[2], *((CGhoul2Info_v *)args[3]), args[4]);
-		return 0;
+		return re.G2API_CopySpecificG2Model(*((CGhoul2Info_v *)args[1]), args[2], *((CGhoul2Info_v *)args[3]), args[4]);
 
 	case CG_G2_DUPLICATEGHOUL2INSTANCE:
-#ifdef _FULL_G2_LEAK_CHECKING
-		g_G2AllocServer = 0;
-#endif
 		re.G2API_DuplicateGhoul2Instance(*((CGhoul2Info_v *)args[1]), (CGhoul2Info_v **)VMA(2));
 		return 0;
 
 	case CG_G2_REMOVEGHOUL2MODEL:
-#ifdef _FULL_G2_LEAK_CHECKING
-		g_G2AllocServer = 0;
-#endif
 		return (int)re.G2API_RemoveGhoul2Model((CGhoul2Info_v **)VMA(1), args[2]);
 		//return (int)G2API_RemoveGhoul2Model((CGhoul2Info_v **)args[1], args[2]);
 
@@ -1187,12 +1120,10 @@ Ghoul2 Insert End
 		return re.G2API_SetRootSurface(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3));
 
 	case CG_G2_SETSURFACEONOFF:
-		//SOF2 TODO
-		//int modelIndex = args[2];
-		return re.G2API_SetSurfaceOnOff(*((CGhoul2Info_v *)args[1]), (const char *)VMA(3), args[4]);
+		return re.G2API_SetSurfaceOnOff(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3), args[4]);
 
 	case CG_G2_SETNEWORIGIN:
-		return re.G2API_SetNewOrigin(*((CGhoul2Info_v *)args[1]), /*(const int)VMA(2)*/args[2]);
+		return re.G2API_SetNewOrigin(*((CGhoul2Info_v *)args[1]), args[2], args[3]);
 
 	case CG_SP_GETSTRINGTEXTSTRING:
 //	case CG_SP_GETSTRINGTEXT:
@@ -1347,7 +1278,6 @@ Ghoul2 Insert End
 	case CG_G2_REGISTERSKIN:
 		return re.RegisterSkin((const char *)VMA(1), args[2], (char *)VMA(3) );
 	case CG_G2_GETANIMFILENAMEINDEX:
-
 		{
 			CGhoul2Info_v &ghoul2 = *((CGhoul2Info_v *)args[1]);
 			qhandle_t modelIndex = (qhandle_t) args[2];
@@ -1397,6 +1327,11 @@ Ghoul2 Insert End
 			
 			return re.G2API_AttachG2Model(*g2From, args[2], *g2To, args[4], args[5]);
 		}
+	case CG_G2_DETACHG2MODEL:
+		{
+			CGhoul2Info_v &ghoul2 = *((CGhoul2Info_v *)args[1]);
+			return re.G2API_DetachG2Model(&ghoul2[args[2]]);
+		}
 
 
 	case CG_RESETAUTORUN:
@@ -1408,7 +1343,11 @@ Ghoul2 Insert End
 		return 0;
 
 	case CG_G2_GETBOLTINDEX:
-		return re.G2API_GetBoltIndex((CGhoul2Info *) args[1], args[2]);
+		{
+			CGhoul2Info_v &ghoul2 = *((CGhoul2Info_v *)args[1]);
+			//SOF2 TODO
+			return re.G2API_GetBoltIndex(&ghoul2[args[2]], args[2]);
+		}
 
 	case CG_UI_SETACTIVEMENU:
 		VM_Call( uivm, UI_SET_ACTIVE_MENU, args[1] );

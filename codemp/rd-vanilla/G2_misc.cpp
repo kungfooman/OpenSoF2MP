@@ -175,7 +175,7 @@ CGoreSet::~CGoreSet()
 		DeleteGoreRecord((*i).second.mGoreTag);
 	}
 };
-#endif // _SOF2
+#endif // _G2_GORE
 
 const mdxaBone_t &EvalBoneCache(int index,CBoneCache *boneCache);
 
@@ -966,7 +966,6 @@ void G2_GorePolys( const mdxmSurface_t *surface, CTraceSurface &TS, const mdxmSu
 			add.mDeleteTime=G2API_GetTime(0) + TS.gore->lifeTime;
 		}
 		add.mFadeTime = TS.gore->fadeOutTime;
-		add.mFadeRGB = !!(TS.gore->fadeRGB);
 		add.mGoreTag = newTag;
 
 		add.mGoreGrowStartTime=G2API_GetTime(0);

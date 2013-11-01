@@ -73,8 +73,6 @@ cvar_t	*cl_inGameVideo;
 cvar_t	*cl_serverStatusResendTime;
 cvar_t	*cl_framerate;
 
-cvar_t	*cl_autolodscale;
-
 vec3_t cl_windVec;
 
 
@@ -2548,8 +2546,6 @@ void CL_Init( void ) {
 	cl_framerate	= Cvar_Get ("cl_framerate", "0", CVAR_TEMP);
 	cl_allowDownload = Cvar_Get ("cl_allowDownload", "0", CVAR_ARCHIVE);
 	cl_allowAltEnter = Cvar_Get ("cl_allowAltEnter", "0", CVAR_ARCHIVE);
-
-	cl_autolodscale = Cvar_Get( "cl_autolodscale", "1", CVAR_ARCHIVE );
 
 	cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", 0);
 #ifdef MACOS_X

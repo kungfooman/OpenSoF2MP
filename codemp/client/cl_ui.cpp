@@ -1284,9 +1284,7 @@ Ghoul2 Insert Start
 	case UI_G2_SETSURFACEONOFF:
 		{
 			CGhoul2Info_v &g2 = *((CGhoul2Info_v *)args[1]);
-			//SOF2 TODO
-			//int modelIndex = args[2];
-			return re.G2API_SetSurfaceOnOff(g2, (const char *)VMA(3), args[4]);
+			return re.G2API_SetSurfaceOnOff(g2, args[2], (const char *)VMA(3), args[4]);
 		}
 
 		return 0;

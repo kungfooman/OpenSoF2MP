@@ -2552,15 +2552,6 @@ void RenderSurfaces(CRenderSurface &RS) //also ended up just ripping right from 
 							if ((*kcur).second.mDeleteTime - curTime < (*kcur).second.mFadeTime)
 							{
 								newSurf2->fade=(float)((*kcur).second.mDeleteTime - curTime)/(*kcur).second.mFadeTime;
-								if ((*kcur).second.mFadeRGB)
-								{ //RGB fades are scaled from 2.0f to 3.0f (simply to differentiate)
-									newSurf2->fade += 2.0f;
-
-									if (newSurf2->fade < 2.01f)
-									{
-										newSurf2->fade = 2.01f;
-									}
-								}
 							}
 						}
 
@@ -4254,9 +4245,10 @@ qboolean R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, qboolean 
 	}
 		
 	// first up, go load in the animation file we need that has the skeletal animation info for this model
-	mdxm->animIndex = RE_RegisterModel(va ("%s_mp.gla",mdxm->animName));
-	if (!mdxm->animIndex) {
+	if (strstr(mdxm->animName, "/weapons/") != 0) {
 		mdxm->animIndex = RE_RegisterModel(va ("%s.gla",mdxm->animName));
+	} else {
+		mdxm->animIndex = RE_RegisterModel(va ("%s_mp.gla",mdxm->animName));
 	}
 
 	if (!mdxm->animIndex) 

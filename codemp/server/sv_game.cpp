@@ -437,8 +437,6 @@ sharedEntity_t *ConvertedEntity(sharedEntity_t *ent)
 	return &gLocalModifier;
 }
 
-siegePers_t sv_siegePersData = {qfalse, 0, 0};
-
 extern float g_svCullDist;
 int SV_GameSystemCalls( int *args ) {
 	switch( args[0] ) {

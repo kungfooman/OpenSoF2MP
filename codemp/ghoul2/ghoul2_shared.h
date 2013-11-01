@@ -185,43 +185,6 @@ struct boltInfo_t{
 	{}
 };
 
-#ifdef _SOF2
-typedef enum
-{
-	PGORE_NONE,
-	PGORE_ARMOR,
-	PGORE_BULLETSMALL,
-	PGORE_BULLETMED,
-	PGORE_BULLETBIG,
-	PGORE_HEGRENADE,
-	PGORE_COUNT
-} goreEnum_t;
-
-struct goreEnumShader_t
-{
-	goreEnum_t		shaderEnum;
-	char			shaderName[MAX_QPATH];
-};
-
-struct SSkinGoreData
-{
-	vec3_t			angles;
-	vec3_t			position;
-	int				currentTime;
-	int				entNum;
-	vec3_t			rayDirection;	// in world space
-	vec3_t			hitLocation;	// in world space
-	vec3_t			scale;
-	float			SSize;			// size of splotch in the S texture direction in world units
-	float			TSize;			// size of splotch in the T texture direction in world units
-	float			theta;			// angle to rotate the splotch
-
-//	qhandle_t		shader;			// handle to shader for gore, this better be rendered after the shader of the underlying surface					
-									// this shader should also have "clamp" mode, not tiled.
-	goreEnum_t		shaderEnum;		// enum that'll get switched over to the shader's actual handle
-};
-#endif // _SOF2
-
 #define MAX_GHOUL_COUNT_BITS 8 // bits required to send across the MAX_G2_MODELS inside of the networking - this is the only restriction on ghoul models possible per entity
 
 typedef vector <surfaceInfo_t> surfaceInfo_v;

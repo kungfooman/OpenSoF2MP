@@ -690,13 +690,13 @@ qboolean G2API_SetShader(CGhoul2Info *ghlInfo, qhandle_t customShader)
 	return qfalse;
 }
 
-qboolean G2API_SetSurfaceOnOff(CGhoul2Info_v &ghoul2, const char *surfaceName, const int flags)
+qboolean G2API_SetSurfaceOnOff(CGhoul2Info_v &ghoul2, int modelIndex, const char *surfaceName, const int flags)
 {
 	CGhoul2Info *ghlInfo = NULL;
 
 	if ((int)&ghoul2 && ghoul2.size()>0)
 	{
-		ghlInfo = &ghoul2[0];
+		ghlInfo = &ghoul2[modelIndex];
 	}
 
 	if (G2_SetupModelPointers(ghlInfo))
@@ -2266,7 +2266,7 @@ int G2API_CopyGhoul2Instance(CGhoul2Info_v &g2From, CGhoul2Info_v &g2To, int mod
 	return -1;
 }
 
-void G2API_CopySpecificG2Model(CGhoul2Info_v &ghoul2From, int modelFrom, CGhoul2Info_v &ghoul2To, int modelTo)
+int G2API_CopySpecificG2Model(CGhoul2Info_v &ghoul2From, int modelFrom, CGhoul2Info_v &ghoul2To, int modelTo)
 {
 #if 0
 	qboolean forceReconstruct = qtrue;
@@ -2318,6 +2318,7 @@ void G2API_CopySpecificG2Model(CGhoul2Info_v &ghoul2From, int modelFrom, CGhoul2
 #endif
 		}
 	}
+	return modelTo;
 }
 
 // This version will automatically copy everything about this model, and make a new one if necessary.
@@ -2419,13 +2420,13 @@ char *G2API_GetGLAName(CGhoul2Info_v &ghoul2, int modelIndex)
 	return NULL;
 }
 
-qboolean G2API_SetNewOrigin(CGhoul2Info_v &ghoul2, const int boltIndex)
+qboolean G2API_SetNewOrigin(CGhoul2Info_v &ghoul2, const int modelIndex, const int boltIndex)
 {
 	CGhoul2Info *ghlInfo = NULL;
 
 	if ((int)&ghoul2 && ghoul2.size()>0)
 	{
-		ghlInfo = &ghoul2[0];
+		ghlInfo = &ghoul2[modelIndex];
 	}
 
 	if (G2_SetupModelPointers(ghlInfo))
@@ -2601,7 +2602,7 @@ void G2API_AddSkinGore(CGhoul2Info_v &ghoul2,SSkinGoreData &gore)
 		G2_TransformModel(ghoul2, gore.currentTime, gore.scale,ri.GetG2VertSpaceServer(),lod,true);
 
 		// now walk each model and compute new texture coordinates
-		G2_TraceModels(ghoul2, transHitLocation, transRayDirection, 0, gore.entNum, 0,lod,0.0f,gore.SSize,gore.TSize,gore.theta,gore.shader,&gore,qtrue);
+		G2_TraceModels(ghoul2, transHitLocation, transRayDirection, 0, gore.entNum, 0,lod,0.0f,gore.SSize,gore.TSize,gore.theta,gore.shaderEnum,&gore,qtrue);
 	}
 }
 #endif

@@ -1639,23 +1639,14 @@ typedef enum {
 
 
 // these are also in be_aas_def.h - argh (rjr)
-#define	MAX_MODELS				256		// these are sent over the net as -12 bits
+#define	MAX_MODELS				256		// these are sent over the net as 8 bits
 #define	MAX_SOUNDS				256		// so they cannot be blindly increased
 #define MAX_AMBIENT_SOUNDSETS	64
-#define MAX_ICONS			64		// max registered icons you can have per map 
-#define MAX_FX				64		// max effects strings, I'm hoping that 64 will be plenty
-
-#define MAX_SUB_BSP			32 //rwwRMG - added
-
-/*
-Ghoul2 Insert Start
-*/
-#define	MAX_G2BONES		64		//rww - changed from MAX_CHARSKINS to MAX_G2BONES. value still equal.
-/*
-Ghoul2 Insert End
-*/
-
-#define MAX_AMBIENT_SETS		256 //rww - ambient soundsets must be sent over in config strings.
+#define MAX_FX					64		// max effects strings, I'm hoping that 64 will be plenty
+#define MAX_SUB_BSP				32
+#define MAX_ICONS				32
+#define	MAX_CHARSKINS			64		// character skins
+#define	MAX_HUDICONS			16		// icons on hud
 
 #define	MAX_CONFIGSTRINGS	1400 //this is getting pretty high. Try not to raise it anymore than it already is.
 
@@ -1663,6 +1654,8 @@ Ghoul2 Insert End
 // other ones are strictly for servergame to clientgame communication
 #define	CS_SERVERINFO		0		// an info string with all the serverinfo cvars
 #define	CS_SYSTEMINFO		1		// an info string for server system to client system configuration (timescale, etc)
+#define CS_PLAYERS			2		// info string for player user info
+#define CS_CUSTOM			(CS_PLAYERS + MAX_CLIENTS )
 
 #define	RESERVED_CONFIGSTRINGS	2	// game can't modify below this, only the system can
 
@@ -1802,12 +1795,17 @@ typedef struct playerState_s {
 	int			respawnTimer;
 } playerState_t;
 
-typedef struct siegePers_s
+
+typedef enum 
 {
-	qboolean	beatingTime;
-	int			lastTeam;
-	int			lastTime;
-} siegePers_t;
+	TEAM_FREE,
+	TEAM_RED,
+	TEAM_BLUE,
+	TEAM_SPECTATOR,
+
+	TEAM_NUM_TEAMS
+
+} team_t;
 
 //====================================================================
 
@@ -2129,8 +2127,75 @@ typedef enum {
 } memtag;
 typedef char memtag_t;
 
+typedef struct 
+{
+	int		isValid;	
+	void	*ghoul2;
+	int		modelNum;
+	int		boltNum;
+	vec3_t	angles;
+	vec3_t	origin;
+	vec3_t	scale;
+	vec3_t	dir;
+	vec3_t	forward;
+
+} CFxBoltInterface;
+
 //rww - conveniently toggle "gore" code, for model decals and stuff.
 #define _G2_GORE
+
+// these are the actual shaders
+typedef enum {
+	PGORE_NONE,
+	PGORE_ARMOR,
+	PGORE_BULLETBIG,
+	PGORE_KNIFESLASH,
+	PGORE_PUNCTURE,
+	PGORE_SHOTGUN,
+	PGORE_SHOTGUNBIG,
+	PGORE_IMMOLATE,
+	PGORE_BURN,
+	PGORE_SPURT,
+	PGORE_SPLATTER,
+	PGORE_BLOODY_GLASS,
+	PGORE_BLOODY_GLASS_B,
+	PGORE_BLOODY_ICK,
+	PGORE_BLOODY_DROOP,
+	PGORE_BLOODY_MAUL,
+	PGORE_BLOODY_DROPS,
+	PGORE_BULLET_E,
+	PGORE_BULLET_F,
+	PGORE_BULLET_G,
+	PGORE_BULLET_H,
+	PGORE_BULLET_I,
+	PGORE_BULLET_J,
+	PGORE_BULLET_K,
+	PGORE_BLOODY_HAND,
+	PGORE_POWDER_BURN_DENSE,
+	PGORE_POWDER_BURN_CHUNKY,
+	PGORE_KNIFESLASH2,
+	PGORE_KNIFESLASH3,
+	PGORE_CHUNKY_SPLAT,
+	PGORE_BIG_SPLATTER,
+	PGORE_BLOODY_SPLOTCH,
+	PGORE_BLEEDER,
+	PGORE_PELLETS,
+	PGORE_KNIFE_SOAK,
+	PGORE_BLEEDER_DENSE,
+	PGORE_BLOODY_SPLOTCH2,
+	PGORE_BLOODY_DRIPS,
+	PGORE_DRIPPING_DOWN,
+	PGORE_GUTSHOT,
+	PGORE_SHRAPNEL,
+	PGORE_COUNT
+} goreEnum_t;
+
+struct goreEnumShader_t
+{
+	int				maxLODBias;   //if r_lodBias (and the other 3 convars) =x then shaders with this larger than x will not be used
+	goreEnum_t		shaderEnum;  // why is this even in here?
+	char			shaderName[MAX_QPATH];
+};
 
 typedef struct SSkinGoreData_s
 {
@@ -2159,11 +2224,9 @@ typedef struct SSkinGoreData_s
 	vec3_t			tint;					// unimplemented
 	float			impactStrength;			// unimplemented
 
-	int				shader; // shader handle 
+	goreEnum_t		shaderEnum; // enum that'll get switched over to the shader's actual handle 
 
 	int				myIndex; // used internally
-
-	qboolean		fadeRGB; //specify fade method to modify RGB (by default, the alpha is set instead)
 } SSkinGoreData;
 
 /*

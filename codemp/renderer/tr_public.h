@@ -142,7 +142,7 @@ typedef struct {
 	void				(*G2API_CollisionDetect)				( CollisionRecord_t *collRecMap, CGhoul2Info_v &ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, CMiniHeap *G2VertSpace, int traceFlags, int useLod, float fRadius );
 	void				(*G2API_CollisionDetectCache)			( CollisionRecord_t *collRecMap, CGhoul2Info_v &ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, CMiniHeap *G2VertSpace, int traceFlags, int useLod, float fRadius );
 	int					(*G2API_CopyGhoul2Instance)				( CGhoul2Info_v &g2From, CGhoul2Info_v &g2To, int modelIndex );
-	void				(*G2API_CopySpecificG2Model)			( CGhoul2Info_v &ghoul2From, int modelFrom, CGhoul2Info_v &ghoul2To, int modelTo );
+	int					(*G2API_CopySpecificG2Model)			( CGhoul2Info_v &ghoul2From, int modelFrom, CGhoul2Info_v &ghoul2To, int modelTo );
 	qboolean			(*G2API_DetachG2Model)					( CGhoul2Info *ghlInfo );
 	qboolean			(*G2API_DoesBoneExist)					( CGhoul2Info *ghlInfo, const char *boneName );
 	void				(*G2API_DuplicateGhoul2Instance)		( CGhoul2Info_v &g2From, CGhoul2Info_v **g2To );
@@ -199,12 +199,12 @@ typedef struct {
 	void				(*G2API_SetGhoul2ModelIndexes)			( CGhoul2Info_v &ghoul2, qhandle_t *modelList, qhandle_t *skinList );
 	qboolean			(*G2API_SetGhoul2ModelFlags)			( CGhoul2Info *ghlInfo, const int flags );
 	qboolean			(*G2API_SetLodBias)						( CGhoul2Info *ghlInfo, int lodBias );
-	qboolean			(*G2API_SetNewOrigin)					( CGhoul2Info_v &ghoul2, const int boltIndex );
+	qboolean			(*G2API_SetNewOrigin)					( CGhoul2Info_v &ghoul2, const int modelIndex, const int boltIndex );
 	void				(*G2API_SetRagDoll)						( CGhoul2Info_v &ghoul2, CRagDollParams *parms );
 	qboolean			(*G2API_SetRootSurface)					( CGhoul2Info_v &ghoul2, const int modelIndex, const char *surfaceName );
 	qboolean			(*G2API_SetShader)						( CGhoul2Info *ghlInfo, qhandle_t customShader );
 	qboolean			(*G2API_SetSkin)						( CGhoul2Info *ghlInfo, qhandle_t customSkin, qhandle_t renderSkin );
-	qboolean			(*G2API_SetSurfaceOnOff)				( CGhoul2Info_v &ghoul2, const char *surfaceName, const int flags );
+	qboolean			(*G2API_SetSurfaceOnOff)				( CGhoul2Info_v &ghoul2, const int modelIndex, const char *surfaceName, const int flags );
 	void				(*G2API_SetTime)						( int currentTime, int clock );
 	qboolean			(*G2API_SkinlessModel)					( CGhoul2Info *g2 );
 	qboolean			(*G2API_StopBoneAngles)					( CGhoul2Info *ghlInfo, const char *boneName );
@@ -217,7 +217,7 @@ typedef struct {
 	int					(*G2API_GetNumGoreMarks)				( CGhoul2Info *g2 );
 	void				(*G2API_AddSkinGore)					( CGhoul2Info_v &ghoul2, SSkinGoreData &gore );
 	void				(*G2API_ClearSkinGore)					( CGhoul2Info_v &ghoul2 );
-	#endif // _SOF2
+	#endif // _G2_GORE
 
 	// RMG / Terrain stuff
 	void				(*LoadDataImage)						( const char *name, byte **pic, int *width, int *height );

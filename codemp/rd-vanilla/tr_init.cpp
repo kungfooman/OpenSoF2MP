@@ -1734,7 +1734,7 @@ Q_EXPORT refexport_t* QDECL GetRefAPI( int apiVersion, refimport_t *rimp ) {
 	re.G2API_GetNumGoreMarks				= G2API_GetNumGoreMarks;
 	re.G2API_AddSkinGore					= G2API_AddSkinGore;
 	re.G2API_ClearSkinGore					= G2API_ClearSkinGore;
-	#endif // _SOF2
+	#endif // _G2_GORE
 
 	// RMG / Terrain stuff
 	re.LoadDataImage						= R_LoadDataImage;

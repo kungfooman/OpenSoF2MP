@@ -47,7 +47,6 @@ struct SGoreSurface
 	int			mGoreTag;
 	int			mDeleteTime;
 	int			mFadeTime;
-	bool		mFadeRGB;
 
 	int			mGoreGrowStartTime;
 	int			mGoreGrowEndTime;    // set this to -1 to disable growing

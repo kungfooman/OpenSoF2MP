@@ -3515,6 +3515,8 @@ static bool G2_RagDollSettlePositionNumeroTrois(CGhoul2Info_v &ghoul2V, const ve
 
 		if (bone.RagFlags & RAG_PCJ_PELVIS)
 		{
+//SOF2 TODO
+#define DEFAULT_MINS_2 -24
 			VectorSet(goalSpot, params->position[0], params->position[1], (params->position[2]+DEFAULT_MINS_2)+((bone.radius*entScale[2])+2));
 
 			VectorSubtract(goalSpot, e.currentOrigin, desiredPelvisOffset);

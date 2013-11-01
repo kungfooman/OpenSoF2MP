@@ -10,23 +10,24 @@
 
 #include "bg_weapons.h"
 #include "anims.h"
-#include "bg_vehicles.h"
 
 //these two defs are shared now because we do clientside ent parsing
 #define	MAX_SPAWN_VARS			64
 #define	MAX_SPAWN_VARS_CHARS	4096
 
 
-#define	GAME_VERSION		"sof2mp-1.02"
-
-#define	STEPSIZE		18
+#define	GAME_VERSION		"sof2mp-1.03"
 
 #define	DEFAULT_GRAVITY		800
-#define ARMOR_PROTECTION		0.55
-
-#define	JUMP_VELOCITY		270
+#define	ARMOR_PROTECTION	0.55
 
 #define	MAX_ITEMS			256
+#define MAX_HEALTH			100
+#define MAX_ARMOR			100
+
+#define	BULLET_SPACING		95
+
+#define DISMEMBER_HEALTH	-20
 
 #define	RANK_TIED_FLAG		0x4000
 
@@ -34,18 +35,26 @@
 
 #define	SCORE_NOT_PRESENT	-9999	// for the CS_SCORES[12] when only one player is present
 
-#define DEFAULT_MINS_2		-24
-#define DEFAULT_MAXS_2		40
-#define CROUCH_MAXS_2		16
-#define	STANDARD_VIEWHEIGHT_OFFSET -4
+#define DEFAULT_PLAYER_Z_MAX	43
+#define CROUCH_PLAYER_Z_MAX		18
+#define PRONE_PLAYER_Z_MAX		-12
+#define DEAD_PLAYER_Z_MAX		-30
+
+#define DUCK_ACCURACY_MODIFIER	0.75f
+#define JUMP_ACCURACY_MODIFIER	2.0f
 
 #define	MINS_Z				-46
-#define	DEFAULT_VIEWHEIGHT	(DEFAULT_MAXS_2+STANDARD_VIEWHEIGHT_OFFSET)//26
-#define CROUCH_VIEWHEIGHT	(CROUCH_MAXS_2+STANDARD_VIEWHEIGHT_OFFSET)//12
+
+#define	DEFAULT_VIEWHEIGHT	37
+#define CROUCH_VIEWHEIGHT	8
 #define PRONE_VIEWHEIGHT	-22
 #define	DEAD_VIEWHEIGHT		-38
 
-#define MAX_CLIENT_SCORE_SEND 20
+#define BODY_SINK_DELAY		10000
+#define BODY_SINK_TIME		1500
+
+#define LEAN_TIME			250
+#define LEAN_OFFSET			30
 
 //
 // config strings are a general means of communicating variable length strings
@@ -53,73 +62,105 @@
 //
 
 // CS_SERVERINFO and CS_SYSTEMINFO are defined in q_shared.h
-#define	CS_MUSIC				2
-#define	CS_MESSAGE				3		// from the map worldspawn's message field
+
+#define	CS_PLAYERS				2
+
+enum
+{
+//	CS_SERVERINFO,
+//	CS_SYSTEMINFO,
+//  CS_PLAYERS,
+
+	CS_MUSIC = CS_CUSTOM,
+
+	CS_MESSAGE,
+	CS_MOTD,
+	CS_WARMUP,
+
+	CS_VOTE_TIME,
+	CS_VOTE_STRING,
+	CS_VOTE_YES,
+	CS_VOTE_NO,
+	CS_VOTE_NEEDED,
+
+	CS_GAME_VERSION,
+	CS_GAME_ID,
+	CS_LEVEL_START_TIME,
+	CS_INTERMISSION,
+	CS_SHADERSTATE,
+	CS_BOTINFO,
+	
+	CS_GAMETYPE_TIMER,
+	CS_GAMETYPE_MESSAGE,
+	CS_GAMETYPE_REDTEAM,
+	CS_GAMETYPE_BLUETEAM,
+
+	CS_ITEMS,
+
+	CS_PICKUPSDISABLED,
+
+	// Config string ranges
+	CS_MODELS,
+	CS_SOUNDS				= CS_MODELS + MAX_MODELS,
+	CS_LOCATIONS			= CS_SOUNDS + MAX_SOUNDS,
+	CS_LADDERS				= CS_LOCATIONS + MAX_LOCATIONS,
+	CS_BSP_MODELS			= CS_LADDERS + MAX_LADDERS,
+	CS_TERRAINS				= CS_BSP_MODELS + MAX_SUB_BSP,
+	CS_EFFECTS				= CS_TERRAINS + MAX_TERRAINS,
+	CS_LIGHT_STYLES			= CS_EFFECTS + MAX_FX,
+	CS_ICONS				= CS_LIGHT_STYLES + (MAX_LIGHT_STYLES*3),
+	CS_TEAM_INFO			= CS_ICONS + MAX_ICONS,
+	CS_AMBIENT_SOUNDSETS	= CS_TEAM_INFO + TEAM_NUM_TEAMS,
+
+	CS_HUDICONS				= CS_AMBIENT_SOUNDSETS + MAX_AMBIENT_SOUNDSETS,
+
+	CS_MAX					= CS_HUDICONS + MAX_HUDICONS,
+};
+	
+/*
+#define	CS_MUSIC				68
+#define	CS_MESSAGE				69		// from the map worldspawn's message field
 #define	CS_MOTD					4		// g_motd string for server message of the day
 #define	CS_WARMUP				5		// server time when the match will be restarted
-#define	CS_SCORES1				6
-#define	CS_SCORES2				7
 #define CS_VOTE_TIME			8
 #define CS_VOTE_STRING			9
 #define	CS_VOTE_YES				10
 #define	CS_VOTE_NO				11
+#define	CS_VOTE_NEEDED			12
 
-#define CS_TEAMVOTE_TIME		12
-#define CS_TEAMVOTE_STRING		14
-#define	CS_TEAMVOTE_YES			16
-#define	CS_TEAMVOTE_NO			18
+#define	CS_GAME_VERSION			16
+#define	CS_LEVEL_START_TIME		17		// so the timer only shows the current level
+#define	CS_INTERMISSION			18		// when 1, scorelimit/timelimit has been hit and intermission will start in a second or two
+#define CS_SHADERSTATE			19
+#define CS_BOTINFO				20
 
-#define	CS_GAME_VERSION			20
-#define	CS_LEVEL_START_TIME		21		// so the timer only shows the current level
-#define	CS_INTERMISSION			22		// when 1, fraglimit/timelimit has been hit and intermission will start in a second or two
-#define CS_FLAGSTATUS			23		// string indicating flag status in CTF
-#define CS_SHADERSTATE			24
-#define CS_BOTINFO				25
+#define	CS_GAMETYPE_TIMER		21		// currently visible timer
+#define CS_GAMETYPE_MESSAGE		22		// Last gametype message
+#define CS_GAMETYPE_REDTEAM		23		// red team group name
+#define CS_GAMETYPE_BLUETEAM	24		// blue team group name
 
-#define	CS_ITEMS				27		// string of 0's and 1's that tell which items are present
+#define	CS_ITEMS				28		// string of 0's and 1's that tell which items are present
 
-#define CS_CLIENT_JEDIMASTER	28		// current jedi master
-#define CS_CLIENT_DUELWINNER	29		// current duel round winner - needed for printing at top of scoreboard
-#define CS_CLIENT_DUELISTS		30		// client numbers for both current duelists. Needed for a number of client-side things.
-#define CS_CLIENT_DUELHEALTHS	31		// nmckenzie: DUEL_HEALTH.  Hopefully adding this cs is safe and good?
-#define CS_GLOBAL_AMBIENT_SET	32
-
-#define CS_AMBIENT_SET			37
-
-#define CS_SIEGE_STATE			(CS_AMBIENT_SET+MAX_AMBIENT_SETS)
-#define CS_SIEGE_OBJECTIVES		(CS_SIEGE_STATE+1)
-#define CS_SIEGE_TIMEOVERRIDE	(CS_SIEGE_OBJECTIVES+1)
-#define CS_SIEGE_WINTEAM		(CS_SIEGE_TIMEOVERRIDE+1)
-#define CS_SIEGE_ICONS			(CS_SIEGE_WINTEAM+1)
-
-#define	CS_MODELS				(CS_SIEGE_ICONS+1)
-#define	CS_SKYBOXORG			(CS_MODELS+MAX_MODELS)		//rww - skybox info
-#define	CS_SOUNDS				(CS_SKYBOXORG+1)
-#define CS_ICONS				(CS_SOUNDS+MAX_SOUNDS)
-#define	CS_PLAYERS				(CS_ICONS+MAX_ICONS)
-/*
-Ghoul2 Insert Start
-*/
-#define CS_G2BONES				(CS_PLAYERS+MAX_CLIENTS)
-//rww - used to be CS_CHARSKINS, but I have eliminated the need for that.
-/*
-Ghoul2 Insert End
-*/
-#define CS_LOCATIONS			(CS_G2BONES+MAX_G2BONES)
-#define CS_PARTICLES			(CS_LOCATIONS+MAX_LOCATIONS) 
+// these are also in be_aas_def.h - argh (rjr)
+#define	CS_MODELS				32
+#define	CS_SOUNDS				(CS_MODELS+MAX_MODELS)
+#define CS_CHARSKINS 			(CS_PLAYERS+MAX_CLIENTS)
+#define CS_LOCATIONS			(CS_CHARSKINS+MAX_CHARSKINS)
+#define CS_LADDERS				(CS_LOCATIONS + MAX_LOCATIONS)
+#define CS_BSP_MODELS			(CS_LADDERS + MAX_LADDERS)
+#define CS_TERRAINS				(CS_BSP_MODELS + MAX_SUB_BSP)
 #define CS_EFFECTS				(CS_PARTICLES+MAX_LOCATIONS)
 #define	CS_LIGHT_STYLES			(CS_EFFECTS + MAX_FX)
+#define CS_ICONS				(CS_LIGHT_STYLES + (MAX_LIGHT_STYLES*3))
+#define CS_TEAM_INFO			(CS_ICONS+MAX_ICONS)
+#define CS_AMBIENT_SOUNDSETS	(CS_TEAM_INFO+TEAM_NUM_TEAMS)
 
-//rwwRMG - added:
-#define CS_TERRAINS				(CS_LIGHT_STYLES + (MAX_LIGHT_STYLES*3))
-#define CS_BSP_MODELS			(CS_TERRAINS + MAX_TERRAINS)
+#define CS_MAX					(CS_AMBIENT_SOUNDSETS+MAX_AMBIENT_SOUNDSETS)
+*/
 
-#define CS_MAX					(CS_BSP_MODELS + MAX_SUB_BSP)
-
-//SOF2 TODO
-//#if (CS_MAX) > MAX_CONFIGSTRINGS
-//#error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
-//#endif
+#if (CS_MAX) > MAX_CONFIGSTRINGS
+#error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
+#endif
 
 typedef enum {
 	G2_MODELPART_HEAD = 10,
@@ -251,7 +292,6 @@ typedef struct bgEntity_s
 {
 	entityState_t	s;
 	playerState_t	*playerState;
-	Vehicle_t		*m_pVehicle; //vehicle data
 	void			*ghoul2; //g2 instance
 	int				localAnimIndex; //index locally (game/cgame) to anim data for this skel
 	vec3_t			modelScale; //needed for g2 collision
@@ -640,6 +680,19 @@ typedef enum {
 	
 } entity_event_t;			// There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
 
+typedef enum
+{
+	VEV_TALKSTART,
+	VEV_TALKSTOP,
+
+} voice_event_t;
+
+typedef enum 
+{
+	GAME_OVER_TIMELIMIT,
+	GAME_OVER_SCORELIMIT,
+
+} game_over_t;
 
 typedef enum {
 	GTS_RED_CAPTURE,
@@ -654,17 +707,6 @@ typedef enum {
 	GTS_BLUETEAM_TOOK_LEAD,
 	GTS_TEAMS_ARE_TIED
 } global_team_sound_t;
-
-
-
-typedef enum {
-	TEAM_FREE,
-	TEAM_RED,
-	TEAM_BLUE,
-	TEAM_SPECTATOR,
-
-	TEAM_NUM_TEAMS
-} team_t;
 
 
 // Time between location updates

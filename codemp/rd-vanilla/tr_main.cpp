@@ -1224,15 +1224,6 @@ void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader,
 				   int fogIndex, int dlightMap ) {
 	int			index;
 
-	/*if (tr.refdef.rdflags & RDF_NOFOG)
-	{
-		fogIndex = 0;
-	}
-	else
-	{*/
-		fogIndex = fogIndex;
-	//}
-
 	// instead of checking for overflow, we just mask the index
 	// so it wraps around
 	index = tr.refdef.numDrawSurfs & DRAWSURF_MASK;
@@ -1253,7 +1244,7 @@ void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader,
 					 int *fogNum, int *dlightMap ) {
 	*fogNum = ( sort >> QSORT_FOGNUM_SHIFT ) & 31;
 	*shader = tr.sortedShaders[ ( sort >> QSORT_SHADERNUM_SHIFT ) & (MAX_SHADERS-1) ];
-	*entityNum = ( sort >> QSORT_ENTITYNUM_SHIFT ) & (MAX_ENTITIES-1);
+	*entityNum = ( sort >> QSORT_ENTITYNUM_SHIFT ) & (MAX_GENTITIES-1);
 	*dlightMap = sort & 3;
 }
 

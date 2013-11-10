@@ -21,7 +21,8 @@ inline long myftol( float f );
 
 // 14 bits
 // see QSORT_SHADERNUM_SHIFT
-#define	MAX_SHADERS				16384
+#define SHADERNUM_BITS        14
+#define MAX_SHADERS                (1<<SHADERNUM_BITS)
 // can't be increased without changing bit packing for drawsurfs
 
 #define MAX_SHADER_STATES 2048
@@ -941,14 +942,17 @@ compared quickly during the qsorting process
 
 the bits are allocated as follows:
 
-18-31 : sorted shader index
-7-17  : entity index
+17-31 : sorted shader index
+7-16  : entity index
 2-6   : fog index
 0-1   : dlightmap index
 */
-#define	QSORT_SHADERNUM_SHIFT	18
-#define	QSORT_ENTITYNUM_SHIFT	7
 #define	QSORT_FOGNUM_SHIFT		2
+#define	QSORT_ENTITYNUM_SHIFT	7
+#define	QSORT_SHADERNUM_SHIFT	(QSORT_ENTITYNUM_SHIFT+GENTITYNUM_BITS)
+#if (QSORT_SHADERNUM_SHIFT+SHADERNUM_BITS) > 32
+        #error "Need to update sorting, too many bits."
+#endif
 
 extern	int			gl_filter_min, gl_filter_max;
 

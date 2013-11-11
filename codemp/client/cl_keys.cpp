@@ -634,12 +634,7 @@ void Console_Key (int key) {
 
 				strcpy(icc->conCommand, buf);
 				
-				if (VM_Call(cgvm, CG_INCOMING_CONSOLE_COMMAND))
-				{ //rww - let mod authors filter client console messages so they can cut them off if they want.
-					Cbuf_AddText( kg.g_consoleField.buffer+1 );	// valid command
-					Cbuf_AddText ("\n");
-				}
-				else if (icc->conCommand[0])
+				if (icc->conCommand[0])
 				{ //the vm call says to execute this command in place
 					Cbuf_AddText( icc->conCommand );
 					Cbuf_AddText ("\n");
@@ -1371,12 +1366,7 @@ void CL_KeyEvent (int key, qboolean down, unsigned time) {
 
 					strcpy(icc->conCommand, kb);
 					
-					if (VM_Call(cgvm, CG_INCOMING_CONSOLE_COMMAND))
-					{ //rww - let mod authors filter client console messages so they can cut them off if they want.
-						Cbuf_AddText (kb);
-						Cbuf_AddText ("\n");
-					}
-					else if (icc->conCommand[0])
+					if (icc->conCommand[0])
 					{ //the vm call says to execute this command in place
 						Cbuf_AddText( icc->conCommand );
 						Cbuf_AddText ("\n");

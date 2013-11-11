@@ -61,43 +61,6 @@ void IN_MLookUp( void ) {
 	}
 }
 
-//toggle automap view mode
-static bool g_clAutoMapMode = false;
-void IN_AutoMapButton(void)
-{
-	g_clAutoMapMode = !g_clAutoMapMode;
-}
-
-//toggle between automap, radar, nothing
-extern cvar_t *r_autoMap;
-void IN_AutoMapToggle(void)
-{
-
-	if (Cvar_VariableIntegerValue("cg_drawRadar"))
-	{
-		Cvar_Set("cg_drawRadar", "0");
-	}
-	else
-	{
-		Cvar_Set("cg_drawRadar", "1");
-	}
-	/*
-	if (r_autoMap && r_autoMap->integer)
-	{ //automap off, radar on
-		Cvar_Set("r_autoMap", "0");
-		Cvar_Set("cg_drawRadar", "1");
-	}
-	else if (Cvar_VariableIntegerValue("cg_drawRadar"))
-	{ //radar off, automap should be off too
-		Cvar_Set("cg_drawRadar", "0");
-	}
-	else
-	{ //turn automap on
-		Cvar_Set("r_autoMap", "1");
-	}
-	*/
-}
-
 void IN_VoiceChatButton(void)
 {
 	if (!uivm)
@@ -226,143 +189,21 @@ float CL_KeyState( kbutton_t *key ) {
 	return val;
 }
 
-#define		AUTOMAP_KEY_FORWARD			1
-#define		AUTOMAP_KEY_BACK			2
-#define		AUTOMAP_KEY_YAWLEFT			3
-#define		AUTOMAP_KEY_YAWRIGHT		4
-#define		AUTOMAP_KEY_PITCHUP			5
-#define		AUTOMAP_KEY_PITCHDOWN		6
-#define		AUTOMAP_KEY_DEFAULTVIEW		7
-static autoMapInput_t			g_clAutoMapInput;
-//intercept certain keys during automap mode
-static void CL_AutoMapKey(int autoMapKey, qboolean up)
-{
-	autoMapInput_t *data = (autoMapInput_t *)cl.mSharedMemory;
-
-	switch (autoMapKey)
-	{
-	case AUTOMAP_KEY_FORWARD:
-        if (up)
-		{
-			g_clAutoMapInput.up = 0.0f;
-		}
-		else
-		{
-			g_clAutoMapInput.up = 16.0f;
-		}
-		break;
-	case AUTOMAP_KEY_BACK:
-        if (up)
-		{
-			g_clAutoMapInput.down = 0.0f;
-		}
-		else
-		{
-			g_clAutoMapInput.down = 16.0f;
-		}
-		break;
-	case AUTOMAP_KEY_YAWLEFT:
-		if (up)
-		{
-			g_clAutoMapInput.yaw = 0.0f;
-		}
-		else
-		{
-			g_clAutoMapInput.yaw = -4.0f;
-		}
-		break;
-	case AUTOMAP_KEY_YAWRIGHT:
-		if (up)
-		{
-			g_clAutoMapInput.yaw = 0.0f;
-		}
-		else
-		{
-			g_clAutoMapInput.yaw = 4.0f;
-		}
-		break;
-	case AUTOMAP_KEY_PITCHUP:
-		if (up)
-		{
-			g_clAutoMapInput.pitch = 0.0f;
-		}
-		else
-		{
-			g_clAutoMapInput.pitch = -4.0f;
-		}
-		break;
-	case AUTOMAP_KEY_PITCHDOWN:
-		if (up)
-		{
-			g_clAutoMapInput.pitch = 0.0f;
-		}
-		else
-		{
-			g_clAutoMapInput.pitch = 4.0f;
-		}
-		break;
-	case AUTOMAP_KEY_DEFAULTVIEW:
-		memset(&g_clAutoMapInput, 0, sizeof(autoMapInput_t));
-		g_clAutoMapInput.goToDefaults = qtrue;
-		break;
-	default:
-		break;
-	}
-
-	memcpy(data, &g_clAutoMapInput, sizeof(autoMapInput_t));
-
-	if (cgvm)
-	{
-		VM_Call(cgvm, CG_AUTOMAP_INPUT, 0);
-	}
-
-	g_clAutoMapInput.goToDefaults = qfalse;
-}
-
-
 void IN_UpDown(void)
 {
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_PITCHUP, qfalse);
-	}
-	else
-	{
-		IN_KeyDown(&in_up);
-	}
+	IN_KeyDown(&in_up);
 }
 void IN_UpUp(void) 
 {
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_PITCHUP, qtrue);
-	}
-	else
-	{
-		IN_KeyUp(&in_up);
-	}
+	IN_KeyUp(&in_up);
 }
 void IN_DownDown(void)
 {
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_PITCHDOWN, qfalse);
-	}
-	else
-	{
-		IN_KeyDown(&in_down);
-	}
+	IN_KeyDown(&in_down);
 }
 void IN_DownUp(void)
 {
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_PITCHDOWN, qtrue);
-	}
-	else
-	{
-		IN_KeyUp(&in_down);
-	}
+	IN_KeyUp(&in_down);
 }
 void IN_LeftDown(void) {IN_KeyDown(&in_left);}
 void IN_LeftUp(void) {IN_KeyUp(&in_left);}
@@ -370,47 +211,19 @@ void IN_RightDown(void) {IN_KeyDown(&in_right);}
 void IN_RightUp(void) {IN_KeyUp(&in_right);}
 void IN_ForwardDown(void)
 {
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_FORWARD, qfalse);
-	}
-	else
-	{
-		IN_KeyDown(&in_forward);
-	}
+	IN_KeyDown(&in_forward);
 }
 void IN_ForwardUp(void)
 {
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_FORWARD, qtrue);
-	}
-	else
-	{
-		IN_KeyUp(&in_forward);
-	}
+	IN_KeyUp(&in_forward);
 }
 void IN_BackDown(void)
 {
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_BACK, qfalse);
-	}
-	else
-	{
-		IN_KeyDown(&in_back);
-	}
+	IN_KeyDown(&in_back);
 }
 void IN_BackUp(void)
 {
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_BACK, qtrue);
-	}
-	else
-	{
-		IN_KeyUp(&in_back);
-	}
+	IN_KeyUp(&in_back);
 }
 void IN_LookupDown(void) {IN_KeyDown(&in_lookup);}
 void IN_LookupUp(void) {IN_KeyUp(&in_lookup);}
@@ -418,47 +231,19 @@ void IN_LookdownDown(void) {IN_KeyDown(&in_lookdown);}
 void IN_LookdownUp(void) {IN_KeyUp(&in_lookdown);}
 void IN_MoveleftDown(void)
 {
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_YAWLEFT, qfalse);
-	}
-	else
-	{
-		IN_KeyDown(&in_moveleft);
-	}
+	IN_KeyDown(&in_moveleft);
 }
 void IN_MoveleftUp(void)
 {
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_YAWLEFT, qtrue);
-	}
-	else
-	{
-		IN_KeyUp(&in_moveleft);
-	}
+	IN_KeyUp(&in_moveleft);
 }
 void IN_MoverightDown(void)
 {
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_YAWRIGHT, qfalse);
-	}
-	else
-	{
-		IN_KeyDown(&in_moveright);
-	}
+	IN_KeyDown(&in_moveright);
 }
 void IN_MoverightUp(void)
 {
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_YAWRIGHT, qtrue);
-	}
-	else
-	{
-		IN_KeyUp(&in_moveright);
-	}
+	IN_KeyUp(&in_moveright);
 }
 
 void IN_SpeedDown(void) {IN_KeyDown(&in_speed);}
@@ -481,14 +266,7 @@ void IN_Button4Down(void) {IN_KeyDown(&in_buttons[4]);}
 void IN_Button4Up(void) {IN_KeyUp(&in_buttons[4]);}
 void IN_Button5Down(void) //use key
 {
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_DEFAULTVIEW, qfalse);
-	}
-	else
-	{
-		IN_KeyDown(&in_buttons[5]);
-	}
+	IN_KeyDown(&in_buttons[5]);
 }
 void IN_Button5Up(void) {IN_KeyUp(&in_buttons[5]);}
 void IN_Button6Down(void) {IN_KeyDown(&in_buttons[6]);}
@@ -622,19 +400,7 @@ CL_MouseEvent
 =================
 */
 void CL_MouseEvent( int dx, int dy, int time ) {
-	if (g_clAutoMapMode && cgvm)
-	{ //automap input
-		autoMapInput_t *data = (autoMapInput_t *)cl.mSharedMemory;
-
-		g_clAutoMapInput.yaw = dx;
-		g_clAutoMapInput.pitch = dy;
-		memcpy(data, &g_clAutoMapInput, sizeof(autoMapInput_t));
-		VM_Call(cgvm, CG_AUTOMAP_INPUT, 1);
-
-		g_clAutoMapInput.yaw = 0.0f;
-		g_clAutoMapInput.pitch = 0.0f;
-	}
-	else if ( cls.keyCatchers & KEYCATCH_UI ) {
+	if ( cls.keyCatchers & KEYCATCH_UI ) {
 		VM_Call( uivm, UI_MOUSE_EVENT, dx, dy );
 	} else if (cls.keyCatchers & KEYCATCH_CGAME) {
 		VM_Call (cgvm, CG_MOUSE_EVENT, dx, dy);
@@ -757,16 +523,6 @@ void CL_MouseMove( usercmd_t *cmd ) {
 	} else {
 		cmd->forwardmove = ClampChar( cmd->forwardmove - m_forward->value * my );
 	}
-}
-
-qboolean CL_NoUseableForce(void)
-{
-	if (!cgvm)
-	{ //ahh, no cgame loaded
-		return qfalse;
-	}
-
-	return (qboolean)VM_Call(cgvm, CG_GET_USEABLE_FORCE);
 }
 
 /*
@@ -1250,8 +1006,6 @@ void CL_InitInput( void ) {
 	Cmd_AddCommand ("+mlook", IN_MLookDown);
 	Cmd_AddCommand ("-mlook", IN_MLookUp);
 
-	Cmd_AddCommand("automap_button", IN_AutoMapButton);
-	Cmd_AddCommand("automap_toggle", IN_AutoMapToggle);
 	Cmd_AddCommand("voicechat", IN_VoiceChatButton);
 
 	cl_nodelta = Cvar_Get ("cl_nodelta", "0", 0);

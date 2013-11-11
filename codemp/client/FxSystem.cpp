@@ -101,7 +101,7 @@ qboolean SFxHelper::GetOriginAxisFromBolt(CGhoul2Info_v *pGhoul2, int mEntNum, i
 	mdxaBone_t 		boltMatrix;
 	TCGGetBoltData	*data = (TCGGetBoltData*)cl.mSharedMemory;
 	data->mEntityNum = mEntNum;
-	VM_Call( cgvm, CG_GET_LERP_DATA );//this func will zero out pitch and roll for players, and ridable vehicles
+	//VM_Call( cgvm, CG_GET_LERP_DATA );//this func will zero out pitch and roll for players, and ridable vehicles
 
 	//Fixme: optimize these VM calls away by storing 
 

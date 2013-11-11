@@ -1372,7 +1372,7 @@ Ghoul2 Insert End
 		return 0;
 
 	default:
-		Com_Printf("Bad UI system trap: %i", args[0] );
+		Com_Printf("Bad cgame system trap: %i", args[0] );
 		//Com_Error( ERR_DROP, "Bad cgame system trap: %i", args[0] );
 	}
 	return 0;

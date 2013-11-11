@@ -130,45 +130,6 @@ public:
 		tr = td->mResult;
 	}
 
-	inline	void	G2Trace( trace_t &tr, vec3_t start, vec3_t min, vec3_t max, vec3_t end, int skipEntNum, int flags )
-	{
-		TCGTrace		*td = (TCGTrace *)cl.mSharedMemory;
-
-		if ( !min )
-		{
-			min = vec3_origin;
-		}
-
-		if ( !max )
-		{
-			max = vec3_origin;
-		}
-
-		memset(td, sizeof(*td), 0);
-		VectorCopy(start, td->mStart);
-		VectorCopy(min, td->mMins);
-		VectorCopy(max, td->mMaxs);
-		VectorCopy(end, td->mEnd);
-		td->mSkipNumber = skipEntNum;
-		td->mMask = flags;
-
-		VM_Call( cgvm, CG_G2TRACE );
-
-		tr = td->mResult;
-	}
-
-	inline	void	AddGhoul2Decal(int shader, vec3_t start, vec3_t dir, float size)
-	{
-		TCGG2Mark		*td = (TCGG2Mark *)cl.mSharedMemory;
-
-		td->size = size;
-		td->shader = shader;
-		VectorCopy(start, td->start);
-		VectorCopy(dir, td->dir);
-
-		VM_Call(cgvm, CG_G2MARK);
-	}
-
 	inline	void	AddFxToScene( refEntity_t *ent )
 	{
 #ifdef _DEBUG

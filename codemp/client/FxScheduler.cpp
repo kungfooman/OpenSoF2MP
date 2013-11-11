@@ -1649,10 +1649,10 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 
 		theFxHelper.AddDecalToScene ( fx->mMediaHandles.GetHandle(), org, ax[0], fx->mRotation.GetVal(), sRGB[0], sRGB[1], sRGB[2], fx->mAlphaStart.GetVal(), qtrue, fx->mSizeStart.GetVal(), qfalse );
 
-		if (fx->mFlags & FX_GHOUL2_DECALS)
+		/*if (fx->mFlags & FX_GHOUL2_DECALS)
 		{
 			theFxHelper.AddGhoul2Decal(fx->mMediaHandles.GetHandle(), org, ax[0], fx->mSizeStart.GetVal());
-		}
+		}*/
 
 		break;
 

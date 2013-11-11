@@ -361,7 +361,7 @@ typedef enum {
 	CG_GET_LERP_ORIGIN,
 //	void CG_LerpOrigin(int num, vec3_t result);
 
-	CG_GET_LERP_DATA,
+	CG_GET_LERP_ANGLES,
 	CG_GET_GHOUL2,
 	CG_GET_MODEL_LIST,
 
@@ -369,17 +369,6 @@ typedef enum {
 //	void CG_CalcEntityLerpPositions(int num);
 
 	CG_TRACE,
-	CG_G2TRACE,
-//void CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, 
-//					 int skipNumber, int mask );
-
-	CG_G2MARK,
-
-	CG_RAG_CALLBACK,
-
-	CG_INCOMING_CONSOLE_COMMAND,
-
-	CG_GET_USEABLE_FORCE,
 
 	CG_GET_ORIGIN,		// int entnum, vec3_t origin
 	CG_GET_ANGLES,		// int entnum, vec3_t angle
@@ -387,22 +376,16 @@ typedef enum {
 	CG_GET_ORIGIN_TRAJECTORY,		// int entnum
 	CG_GET_ANGLE_TRAJECTORY,		// int entnum
 
-	CG_ROFF_NOTETRACK_CALLBACK,		// int entnum, char *notetrack
-
-	CG_IMPACT_MARK,
-//void CG_ImpactMark( qhandle_t markShader, const vec3_t origin, const vec3_t dir, 
-//				   float orientation, float red, float green, float blue, float alpha,
-//				   qboolean alphaFade, float radius, qboolean temporary )
-
-	CG_MAP_CHANGE,
-
-	CG_AUTOMAP_INPUT,
+	CG_FX_CAMERASHAKE,
 
 	CG_MISC_ENT, //rwwRMG - added
 
-	CG_GET_SORTED_FORCE_POWER,
+	CG_MAP_CHANGE,
 
-	CG_FX_CAMERASHAKE,//mcg post-gold added
+	CG_VOICE_EVENT,
+
+	CG_GET_TEAM_COUNT,
+	CG_GET_TEAM_SCORE,
 } cgameExport_t;
 
 typedef struct

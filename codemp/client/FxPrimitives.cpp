@@ -252,25 +252,25 @@ bool CParticle::UpdateOrigin(void)
 
 			if ( mFlags & FX_USE_BBOX )
 			{
-				if (mFlags & FX_GHOUL2_TRACE)
+				/*if (mFlags & FX_GHOUL2_TRACE)
 				{
 					theFxHelper.G2Trace( trace, mOrigin1, mMin, mMax, new_origin, -1, MASK_SOLID );
 				}
 				else
-				{
+				{*/
 					theFxHelper.Trace( trace, mOrigin1, mMin, mMax, new_origin, -1, MASK_SOLID );
-				}
+				//}
 			}
 			else
 			{
-				if (mFlags & FX_GHOUL2_TRACE)
+				/*if (mFlags & FX_GHOUL2_TRACE)
 				{
 					theFxHelper.G2Trace( trace, mOrigin1, NULL, NULL, new_origin, -1, MASK_PLAYERSOLID );
 				}
 				else
-				{
+				{*/
 					theFxHelper.Trace( trace, mOrigin1, NULL, NULL, new_origin, -1, MASK_SOLID );
-				}
+				//}
 			}
 
 			// Hit something

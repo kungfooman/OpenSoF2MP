@@ -946,14 +946,14 @@ int CL_CgameSystemCalls( int *args ) {
 		{
 			//(int id,CFxBoltInterface *obj, int vol, int rad)
 			//SOF2 TODO (some guesses here to make it work)
-			/*CFxBoltInterface * obj = (CFxBoltInterface *) args[2];
-			CGhoul2Info_v &ghoul2 = *(CGhoul2Info_v *) obj->ghoul2;
+			CFxBoltInterface * obj = (CFxBoltInterface *) args[2];
+			CGhoul2Info_v& ghoul2 = *(CGhoul2Info_v *) obj->ghoul2;
 			int boltInfo=0;
-			if ( re.G2API_AttachEnt( &boltInfo, &ghoul2[obj->modelNum], obj->boltNum, -1, obj->modelNum ) )
+			if ( re.G2API_AttachEnt( &boltInfo, &ghoul2[1], obj->boltNum, 1, obj->modelNum ) )
 			{
 				FX_PlayBoltedEffectID(args[1], obj->origin, boltInfo, (int) &ghoul2, -1, qfalse );
 				return 1;
-			}*/
+			}
 			return 0;
 		}
 	case CG_FX_ADD_SCHEDULED_EFFECTS:
@@ -1371,8 +1371,12 @@ Ghoul2 Insert End
 		S_StopAllSounds();
 		return 0;
 
+	case CG_AS_ADDLOCALSET:
+		//SOF2 TODO
+		return 0;
+
 	default:
-		Com_Printf("Bad cgame system trap: %i", args[0] );
+		Com_Printf("Bad cgame system trap: %i\n", args[0] );
 		//Com_Error( ERR_DROP, "Bad cgame system trap: %i", args[0] );
 	}
 	return 0;

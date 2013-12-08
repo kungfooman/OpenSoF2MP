@@ -958,24 +958,24 @@ void CL_InitInput( void ) {
 	Cmd_AddCommand ("-speed", IN_SpeedUp);
 	Cmd_AddCommand ("+attack", IN_Button0Down);
 	Cmd_AddCommand ("-attack", IN_Button0Up);
-	//Cmd_AddCommand ("+force_jump", IN_Button1Down);//force jump
-	//Cmd_AddCommand ("-force_jump", IN_Button1Up);
+	Cmd_AddCommand ("+reload", IN_Button1Down);//reload
+	Cmd_AddCommand ("-reload", IN_Button1Up);
 	Cmd_AddCommand ("+use", IN_Button5Down);
 	Cmd_AddCommand ("-use", IN_Button5Up);
-	Cmd_AddCommand ("+force_grip", IN_Button6Down);//force grip
-	Cmd_AddCommand ("-force_grip", IN_Button6Up);
+	Cmd_AddCommand ("+firemode", IN_Button6Down);//firemode
+	Cmd_AddCommand ("-firemode", IN_Button6Up);
 	Cmd_AddCommand ("+altattack", IN_Button7Down);//altattack
 	Cmd_AddCommand ("-altattack", IN_Button7Up);
-	Cmd_AddCommand ("+useforce", IN_Button9Down);//active force power
-	Cmd_AddCommand ("-useforce", IN_Button9Up);
-	Cmd_AddCommand ("+force_lightning", IN_Button10Down);//active force power
-	Cmd_AddCommand ("-force_lightning", IN_Button10Up);
+	/*Cmd_AddCommand ("+leanleft", IN_Button9Down);//lean left
+	Cmd_AddCommand ("-leanleft", IN_Button9Up);
+	Cmd_AddCommand ("+leanright", IN_Button10Down);//lean right
+	Cmd_AddCommand ("-leanright", IN_Button10Up);
 	Cmd_AddCommand ("+force_drain", IN_Button11Down);//active force power
-	Cmd_AddCommand ("-force_drain", IN_Button11Up);
+	Cmd_AddCommand ("-force_drain", IN_Button11Up);*/
 	//buttons
 	Cmd_AddCommand ("+button0", IN_Button0Down);//attack
 	Cmd_AddCommand ("-button0", IN_Button0Up);
-	Cmd_AddCommand ("+button1", IN_Button1Down);//force jump
+	Cmd_AddCommand ("+button1", IN_Button1Down);//reload
 	Cmd_AddCommand ("-button1", IN_Button1Up);
 	Cmd_AddCommand ("+button2", IN_Button2Down);//use holdable (not used - change to use jedi power?)
 	Cmd_AddCommand ("-button2", IN_Button2Up);
@@ -985,15 +985,15 @@ void CL_InitInput( void ) {
 	Cmd_AddCommand ("-button4", IN_Button4Up);
 	Cmd_AddCommand ("+button5", IN_Button5Down);//use object
 	Cmd_AddCommand ("-button5", IN_Button5Up);
-	Cmd_AddCommand ("+button6", IN_Button6Down);//force grip
+	Cmd_AddCommand ("+button6", IN_Button6Down);//firemode
 	Cmd_AddCommand ("-button6", IN_Button6Up);
 	Cmd_AddCommand ("+button7", IN_Button7Down);//altattack
 	Cmd_AddCommand ("-button7", IN_Button7Up);
 	Cmd_AddCommand ("+button8", IN_Button8Down);
 	Cmd_AddCommand ("-button8", IN_Button8Up);
-	Cmd_AddCommand ("+button9", IN_Button9Down);//active force power
+	Cmd_AddCommand ("+button9", IN_Button9Down);//lean left
 	Cmd_AddCommand ("-button9", IN_Button9Up);
-	Cmd_AddCommand ("+button10", IN_Button10Down);//force lightning
+	Cmd_AddCommand ("+button10", IN_Button10Down);//lean right
 	Cmd_AddCommand ("-button10", IN_Button10Up);
 	Cmd_AddCommand ("+button11", IN_Button11Down);//force drain
 	Cmd_AddCommand ("-button11", IN_Button11Up);

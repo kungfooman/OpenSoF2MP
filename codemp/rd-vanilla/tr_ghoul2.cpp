@@ -1200,7 +1200,7 @@ void G2_TimingModel(boneInfo_t &bone,int currentTime,int numFramesInFile,int &cu
 			}
 			else
 			{
-				if (((bone.flags & (BONE_ANIM_OVERRIDE_FREEZE)) == (BONE_ANIM_OVERRIDE_FREEZE)))
+				if (bone.flags & BONE_ANIM_OVERRIDE_DEFAULT || ((bone.flags & (BONE_ANIM_OVERRIDE_FREEZE)) == (BONE_ANIM_OVERRIDE_FREEZE)))
 				{
 					// if we are supposed to reset the default anim, then do so
 					if (animSpeed > 0.0f)
@@ -3273,7 +3273,7 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 	for (j=0; j<modelCount; j++)
 	{
 		i = modelList[j];
-		if (ghoul2[i].mValid&&!(ghoul2[i].mFlags & GHOUL2_NOMODEL)&&!(ghoul2[i].mFlags & GHOUL2_NORENDER))
+		if (ghoul2[i].mValid&&!(ghoul2[i].mFlags & GHOUL2_NOMODEL))
 		{
 			//
 			// figure out whether we should be using a custom shader for this model
@@ -3327,15 +3327,18 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 				}
 			}
 
-			CRenderSurface RS(ghoul2[i].mSurfaceRoot, ghoul2[i].mSlist, cust_shader, fogNum, personalModel, ghoul2[i].mBoneCache, ent->e.renderfx, skin, (model_t *)ghoul2[i].currentModel, whichLod, ghoul2[i].mBltlist, gore_shader, gore);
+			if (!(ghoul2[i].mFlags & GHOUL2_NORENDER)) {
+				CRenderSurface RS(ghoul2[i].mSurfaceRoot, ghoul2[i].mSlist, cust_shader, fogNum, personalModel, ghoul2[i].mBoneCache, ent->e.renderfx, skin, (model_t *)ghoul2[i].currentModel, whichLod, ghoul2[i].mBltlist, gore_shader, gore);
 #else
-			CRenderSurface RS(ghoul2[i].mSurfaceRoot, ghoul2[i].mSlist, cust_shader, fogNum, personalModel, ghoul2[i].mBoneCache, ent->e.renderfx, skin, (model_t *)ghoul2[i].currentModel, whichLod, ghoul2[i].mBltlist);
+			if (!(ghoul2[i].mFlags & GHOUL2_NORENDER)) {
+				CRenderSurface RS(ghoul2[i].mSurfaceRoot, ghoul2[i].mSlist, cust_shader, fogNum, personalModel, ghoul2[i].mBoneCache, ent->e.renderfx, skin, (model_t *)ghoul2[i].currentModel, whichLod, ghoul2[i].mBltlist);
 #endif
-			if (!personalModel && (RS.renderfx & RF_SHADOW_PLANE) && !bInShadowRange(ent->e.origin))
-			{
-				RS.renderfx |= RF_NOSHADOW;
+				if (!personalModel && (RS.renderfx & RF_SHADOW_PLANE) && !bInShadowRange(ent->e.origin))
+				{
+					RS.renderfx |= RF_NOSHADOW;
+				}
+				RenderSurfaces(RS);
 			}
-			RenderSurfaces(RS);
 		}
 	}
 	HackadelicOnClient=false;

@@ -957,7 +957,7 @@ int CL_CgameSystemCalls( int *args ) {
 			return 0;
 		}
 	case CG_FX_ADD_SCHEDULED_EFFECTS:
-		FX_AddScheduledEffects((qboolean)args[1]);
+		FX_AddScheduledEffects(qfalse);
 		return 0;
 
 	case CG_FX_DRAW_2D_EFFECTS:

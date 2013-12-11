@@ -362,6 +362,7 @@ typedef enum {
 //	void CG_LerpOrigin(int num, vec3_t result);
 
 	CG_GET_LERP_ANGLES,
+	CG_GET_MODEL_SCALE,
 	CG_GET_GHOUL2,
 	CG_GET_MODEL_LIST,
 

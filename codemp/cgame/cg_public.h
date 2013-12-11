@@ -389,15 +389,6 @@ typedef enum {
 	CG_GET_TEAM_SCORE,
 } cgameExport_t;
 
-typedef struct
-{
-	float		up;
-	float		down;
-	float		yaw;
-	float		pitch;
-	qboolean	goToDefaults;
-} autoMapInput_t;
-
 // CG_POINT_CONTENTS
 typedef struct
 {

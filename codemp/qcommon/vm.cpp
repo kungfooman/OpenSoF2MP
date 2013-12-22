@@ -597,6 +597,10 @@ VM_Free
 */
 void VM_Free( vm_t *vm ) {
 
+#ifdef _WIN32
+	VirtualFree(vm->codeBase, vm->codeLength, MEM_RELEASE);
+#endif
+
 	if ( vm->dllHandle ) {
 		Sys_UnloadDll( vm->dllHandle );
 		Com_Memset( vm, 0, sizeof( *vm ) );

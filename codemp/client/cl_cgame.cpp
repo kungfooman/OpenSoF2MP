@@ -946,7 +946,7 @@ int CL_CgameSystemCalls( int *args ) {
 		{
 			//(int id,CFxBoltInterface *obj, int vol, int rad)
 			//SOF2 TODO (some guesses here to make it work)
-			CFxBoltInterface * obj = (CFxBoltInterface *) args[2];
+			CFxBoltInterface * obj = (CFxBoltInterface *) VMA(2);
 			CGhoul2Info_v& ghoul2 = *(CGhoul2Info_v *) obj->ghoul2;
 			int boltInfo=0;
 			if ( re.G2API_AttachEnt( &boltInfo, &ghoul2[1], obj->boltNum, 1, obj->modelNum ) )
@@ -1190,14 +1190,14 @@ Ghoul2 Insert End
 	case GP_PARSE_FILE:
 		{
 			char * data;
-			FS_ReadFile((char *) args[1], (void **) &data);
+			FS_ReadFile((char *) VMA(1), (void **) &data);
 			return (int)GP_Parse(&data, (bool) args[2], (bool) args[3]);
 		}
 	case GP_CLEAN:
 		GP_Clean((TGenericParser2) args[1]);
 		return 0;
 	case GP_DELETE:
-		GP_Delete((TGenericParser2 *) args[1]);
+		GP_Delete((TGenericParser2 *) VMA(1));
 		return 0;
 	case GP_GET_BASE_PARSE_GROUP:
 		return (int)GP_GetBaseParseGroup((TGenericParser2) args[1]);
@@ -1251,16 +1251,16 @@ Ghoul2 Insert End
 
 
 	case CG_VM_LOCALALLOC:
-		return (int)BG_Alloc((int) args[1]);
+		return (int)VM_Local_Alloc(args[1]);
 	case CG_VM_LOCALALLOCUNALIGNED:
-		return (int)BG_AllocUnaligned((int) args[1]);
+		return (int)VM_Local_AllocUnaligned(args[1]);
 	case CG_VM_LOCALTEMPALLOC:
-		return (int)BG_TempAlloc((int) args[1]);
+		return (int)VM_Local_TempAlloc(args[1]);
 	case CG_VM_LOCALTEMPFREE:
-		BG_TempFree((int) args[1]);
+		VM_Local_TempFree(args[1]);
 		return 0;
 	case CG_VM_LOCALSTRINGALLOC:
-		return (int)BG_StringAlloc((char *) VMA(1));
+		return (int)VM_Local_StringAlloc((char *) VMA(1));
 
 
 	case CG_R_DRAWTEXT:

@@ -1635,30 +1635,30 @@ int SV_GameSystemCalls( int *args ) {
 
 
 	case G_VM_LOCALALLOC:
-		return (int)BG_Alloc((int) args[1]);
+		return (int)VM_Local_Alloc(args[1]);
 	case G_VM_LOCALALLOCUNALIGNED:
-		return (int)BG_AllocUnaligned((int) args[1]);
+		return (int)VM_Local_AllocUnaligned(args[1]);
 	case G_VM_LOCALTEMPALLOC:
-		return (int)BG_TempAlloc((int) args[1]);
+		return (int)VM_Local_TempAlloc(args[1]);
 	case G_VM_LOCALTEMPFREE:
-		BG_TempFree((int) args[1]);
+		VM_Local_TempFree(args[1]);
 		return 0;
 	case G_VM_LOCALSTRINGALLOC:
-		return (int)BG_StringAlloc((char *) VMA(1));
+		return (int)VM_Local_StringAlloc((char *) VMA(1));
 
 	case G_GP_PARSE:
 		return (int)GP_Parse((char **) VMA(1), (bool) args[2], (bool) args[3]);
 	case G_GP_PARSE_FILE:
 		{
 			char * data;
-			FS_ReadFile((char *) args[1], (void **) &data);
+			FS_ReadFile((char *) VMA(1), (void **) &data);
 			return (int)GP_Parse(&data, (bool) args[2], (bool) args[3]);
 		}
 	case G_GP_CLEAN:
 		GP_Clean((TGenericParser2) args[1]);
 		return 0;
 	case G_GP_DELETE:
-		GP_Delete((TGenericParser2 *) args[1]);
+		GP_Delete((TGenericParser2 *) VMA(1));
 		return 0;
 	case G_GP_GET_BASE_PARSE_GROUP:
 		return (int)GP_GetBaseParseGroup((TGenericParser2) args[1]);

@@ -289,9 +289,15 @@ int		QDECL VM_Call( vm_t *vm, int callNum, ... );
 
 void	VM_Debug( int level );
 
+void	*VM_Shift(void * mem);
+void	*VM_Local_Alloc(int size);
+void	*VM_Local_AllocUnaligned(int size);
+void	*VM_Local_TempAlloc(int size);
+void	VM_Local_TempFree(int size);
+char	*VM_Local_StringAlloc(const char *source);
+
 void	VM_Shifted_Alloc(void **ptr, int size);
 void	VM_Shifted_Free(void **ptr);
-
 void	*VM_ArgPtr( int intValue );
 void	*VM_ExplicitArgPtr( vm_t *vm, int intValue );
 

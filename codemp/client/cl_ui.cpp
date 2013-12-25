@@ -31,84 +31,6 @@ void SP_Register(const char *Package);
 
 vm_t *uivm;
 
-#define MAX_POOL_SIZE	2048000
-
-//I am using this for all the stuff like NPC client structures on server/client and
-//non-humanoid animations as well until/if I can get dynamic memory working properly
-//with casted datatypes, which is why it is so large.
-
-
-static char		bg_pool[MAX_POOL_SIZE];
-static int		bg_poolSize = 0;
-static int		bg_poolTail = MAX_POOL_SIZE;
-
-void *BG_Alloc ( int size )
-{
-	bg_poolSize = ((bg_poolSize + 0x00000003) & 0xfffffffc);
-
-	if (bg_poolSize + size > bg_poolTail)
-	{
-		Com_Error( ERR_DROP, "BG_Alloc: buffer exceeded tail (%d > %d)", bg_poolSize + size, bg_poolTail);
-		return 0;
-	}
-
-	bg_poolSize += size;
-
-	return &bg_pool[bg_poolSize-size];
-}
-
-void *BG_AllocUnaligned ( int size )
-{
-	if (bg_poolSize + size > bg_poolTail)
-	{
-		Com_Error( ERR_DROP, "BG_AllocUnaligned: buffer exceeded tail (%d > %d)", bg_poolSize + size, bg_poolTail);
-		return 0;
-	}
-
-	bg_poolSize += size;
-
-	return &bg_pool[bg_poolSize-size];
-}
-
-void *BG_TempAlloc( int size )
-{
-	size = ((size + 0x00000003) & 0xfffffffc);
-
-	if (bg_poolTail - size < bg_poolSize)
-	{
-		Com_Error( ERR_DROP, "BG_TempAlloc: buffer exceeded head (%d > %d)", bg_poolTail - size, bg_poolSize);
-		return 0;
-	}
-
-	bg_poolTail -= size;
-
-	return &bg_pool[bg_poolTail];
-}
-
-void BG_TempFree( int size )
-{
-	size = ((size + 0x00000003) & 0xfffffffc);
-
-	if (bg_poolTail+size > MAX_POOL_SIZE)
-	{
-		Com_Error( ERR_DROP, "BG_TempFree: tail greater than size (%d > %d)", bg_poolTail+size, MAX_POOL_SIZE );
-	}
-
-	bg_poolTail += size;
-}
-
-char *BG_StringAlloc ( const char *source )
-{
-	char *dest = (char*)BG_Alloc( strlen ( source ) + 1 );
-	strcpy( dest, source );
-	return dest;
-}
-
-qboolean BG_OutOfMemory ( void )
-{
-	return (qboolean) (bg_poolSize >= MAX_POOL_SIZE);
-}
-
 
 /*
 ====================
@@ -781,6 +703,7 @@ CL_UISystemCalls
 The ui module is making a system call
 ====================
 */
+void VM_Shift2(void ** mem);
 int CL_UISystemCalls( int *args ) {
 	switch( args[0] ) {
 	//rww - alright, DO NOT EVER add a GAME/CGAME/UI generic call without adding a trap to match, and
@@ -943,7 +866,7 @@ int CL_UISystemCalls( int *args ) {
 		re.DrawStretchPic( VMF(1), VMF(2), VMF(3), VMF(4), VMF(5), VMF(6), VMF(7), VMF(8), args[10] );
 		return 0;
 
-  case UI_R_MODELBOUNDS:
+	case UI_R_MODELBOUNDS:
 		re.ModelBounds( args[1], (float *)VMA(2), (float *)VMA(3) );
 		return 0;
 
@@ -1323,29 +1246,29 @@ Ghoul2 Insert End
 	case UI_GP_PARSE_FILE:
 		{
 			char * data;
-			FS_ReadFile((char *) args[1], (void **) &data);
+			FS_ReadFile((char *) VMA(1), (void **) &data);
 			return (int)GP_Parse(&data, (bool) args[2], (bool) args[3]);
 		}
 	case UI_GP_CLEAN:
 		GP_Clean((TGenericParser2) args[1]);
 		return 0;
 	case UI_GP_DELETE:
-		GP_Delete((TGenericParser2 *) args[1]);
+		GP_Delete((TGenericParser2 *) VMA(1));
 		return 0;
 	case UI_GP_GET_BASE_PARSE_GROUP:
 		return (int)GP_GetBaseParseGroup((TGenericParser2) args[1]);
 
 	case UI_VM_LOCALALLOC:
-		return (int)BG_Alloc((int) args[1]);
+		return (int)VM_Local_Alloc(args[1]);
 	case UI_VM_LOCALALLOCUNALIGNED:
-		return (int)BG_AllocUnaligned((int) args[1]);
+		return (int)VM_Local_AllocUnaligned(args[1]);
 	case UI_VM_LOCALTEMPALLOC:
-		return (int)BG_TempAlloc((int) args[1]);
+		return (int)VM_Local_TempAlloc(args[1]);
 	case UI_VM_LOCALTEMPFREE:
-		BG_TempFree((int) args[1]);
+		VM_Local_TempFree(args[1]);
 		return 0;
 	case UI_VM_LOCALSTRINGALLOC:
-		return (int)BG_StringAlloc((char *) VMA(1));
+		return (int)VM_Local_StringAlloc((char *) VMA(1));
 
 	case UI_GET_CDKEY:
 		return 0;

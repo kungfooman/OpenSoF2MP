@@ -858,13 +858,6 @@ qboolean BG_IsItemSelectable(playerState_t *ps, int item);
 qboolean BG_HasYsalamiri(int gametype, playerState_t *ps);
 qboolean BG_CanUseFPNow(int gametype, playerState_t *ps, int time);
 
-void *BG_Alloc ( int size );
-void *BG_AllocUnaligned ( int size );
-void *BG_TempAlloc( int size );
-void BG_TempFree( int size );
-char *BG_StringAlloc ( const char *source );
-qboolean BG_OutOfMemory ( void );
-
 extern void BG_AttachToRancor( void *ghoul2,float rancYaw,vec3_t rancOrigin,int time,qhandle_t *modelList,vec3_t modelScale,qboolean inMouth,vec3_t out_origin,vec3_t out_angles,vec3_t out_axis[3] );
 void BG_ClearRocketLock( playerState_t *ps );
 

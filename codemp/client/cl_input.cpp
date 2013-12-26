@@ -545,15 +545,6 @@ void CL_CmdButtons( usercmd_t *cmd ) {
 		in_buttons[i].wasPressed = qfalse;
 	}
 
-	/*if (cmd->buttons & BUTTON_FORCEPOWER)
-	{ //check for transferring a use force to a use inventory...
-		if ((cmd->buttons & BUTTON_USE) || CL_NoUseableForce())
-		{ //it's pushed, remap it!
-			cmd->buttons &= ~BUTTON_FORCEPOWER;
-			cmd->buttons |= BUTTON_USE_HOLDABLE;
-		}
-	}*/
-
 	if ( cls.keyCatchers ) {
 		cmd->buttons |= BUTTON_TALK;
 	}
@@ -930,8 +921,7 @@ CL_InitInput
 void CL_InitInput( void ) {
 	Cmd_AddCommand ("centerview",IN_CenterView);
 
-	//Cmd_AddCommand ("+taunt", IN_Button3Down);//gesture
-	//Cmd_AddCommand ("-taunt", IN_Button3Up);
+	//The button numbers are mapped to BUTTON_ defines
 	Cmd_AddCommand ("+moveup",IN_UpDown);
 	Cmd_AddCommand ("-moveup",IN_UpUp);
 	Cmd_AddCommand ("+movedown",IN_DownDown);
@@ -942,6 +932,7 @@ void CL_InitInput( void ) {
 	Cmd_AddCommand ("-right",IN_RightUp);
 	Cmd_AddCommand ("+forward",IN_ForwardDown);
 	Cmd_AddCommand ("-forward",IN_ForwardUp);
+	//Cmd_AddCommand ("+autorun",IN_AutoRun);
 	Cmd_AddCommand ("+back",IN_BackDown);
 	Cmd_AddCommand ("-back",IN_BackUp);
 	Cmd_AddCommand ("+lookup", IN_LookupDown);
@@ -956,57 +947,61 @@ void CL_InitInput( void ) {
 	Cmd_AddCommand ("-moveright", IN_MoverightUp);
 	Cmd_AddCommand ("+speed", IN_SpeedDown);
 	Cmd_AddCommand ("-speed", IN_SpeedUp);
-	Cmd_AddCommand ("+attack", IN_Button0Down);
+	Cmd_AddCommand ("+attack", IN_Button0Down);//attack
 	Cmd_AddCommand ("-attack", IN_Button0Up);
-	Cmd_AddCommand ("+reload", IN_Button1Down);//reload
-	Cmd_AddCommand ("-reload", IN_Button1Up);
-	Cmd_AddCommand ("+use", IN_Button5Down);
+	Cmd_AddCommand ("+lean", IN_Button3Down);//lean
+	Cmd_AddCommand ("-lean", IN_Button3Up);
+	Cmd_AddCommand ("+use", IN_Button5Down);//use object
 	Cmd_AddCommand ("-use", IN_Button5Up);
-	Cmd_AddCommand ("+firemode", IN_Button6Down);//firemode
-	Cmd_AddCommand ("-firemode", IN_Button6Up);
 	Cmd_AddCommand ("+altattack", IN_Button7Down);//altattack
 	Cmd_AddCommand ("-altattack", IN_Button7Up);
-	/*Cmd_AddCommand ("+leanleft", IN_Button9Down);//lean left
-	Cmd_AddCommand ("-leanleft", IN_Button9Up);
-	Cmd_AddCommand ("+leanright", IN_Button10Down);//lean right
-	Cmd_AddCommand ("-leanright", IN_Button10Up);
-	Cmd_AddCommand ("+force_drain", IN_Button11Down);//active force power
-	Cmd_AddCommand ("-force_drain", IN_Button11Up);*/
+	Cmd_AddCommand ("+leanleft", IN_Button13Down);//lean left
+	Cmd_AddCommand ("-leanleft", IN_Button13Up);
+	Cmd_AddCommand ("+leanright", IN_Button12Down);//lean right
+	Cmd_AddCommand ("-leanright", IN_Button12Up);
+	Cmd_AddCommand ("+reload", IN_Button6Down);//reload
+	Cmd_AddCommand ("-reload", IN_Button6Up);
+	Cmd_AddCommand ("+zoomin", IN_Button9Down);//zoom in
+	Cmd_AddCommand ("-zoomin", IN_Button9Up);
+	Cmd_AddCommand ("+zoomout", IN_Button10Down);//zoom out
+	Cmd_AddCommand ("-zoomout", IN_Button10Up);
+	Cmd_AddCommand ("+firemode", IN_Button11Down);//firemode
+	Cmd_AddCommand ("-firemode", IN_Button11Up);
+	Cmd_AddCommand ("+goggles", IN_Button2Down);//goggles
+	Cmd_AddCommand ("-goggles", IN_Button2Up);
 	//buttons
 	Cmd_AddCommand ("+button0", IN_Button0Down);//attack
 	Cmd_AddCommand ("-button0", IN_Button0Up);
-	Cmd_AddCommand ("+button1", IN_Button1Down);//reload
+	Cmd_AddCommand ("+button1", IN_Button1Down);//talk
 	Cmd_AddCommand ("-button1", IN_Button1Up);
-	Cmd_AddCommand ("+button2", IN_Button2Down);//use holdable (not used - change to use jedi power?)
+	Cmd_AddCommand ("+button2", IN_Button2Down);//goggles
 	Cmd_AddCommand ("-button2", IN_Button2Up);
-	Cmd_AddCommand ("+button3", IN_Button3Down);//gesture
+	Cmd_AddCommand ("+button3", IN_Button3Down);//lean
 	Cmd_AddCommand ("-button3", IN_Button3Up);
 	Cmd_AddCommand ("+button4", IN_Button4Down);//walking
 	Cmd_AddCommand ("-button4", IN_Button4Up);
 	Cmd_AddCommand ("+button5", IN_Button5Down);//use object
 	Cmd_AddCommand ("-button5", IN_Button5Up);
-	Cmd_AddCommand ("+button6", IN_Button6Down);//firemode
+	Cmd_AddCommand ("+button6", IN_Button6Down);//reload
 	Cmd_AddCommand ("-button6", IN_Button6Up);
 	Cmd_AddCommand ("+button7", IN_Button7Down);//altattack
 	Cmd_AddCommand ("-button7", IN_Button7Up);
 	Cmd_AddCommand ("+button8", IN_Button8Down);
 	Cmd_AddCommand ("-button8", IN_Button8Up);
-	Cmd_AddCommand ("+button9", IN_Button9Down);//lean left
+	Cmd_AddCommand ("+button9", IN_Button9Down);//zoom in
 	Cmd_AddCommand ("-button9", IN_Button9Up);
-	Cmd_AddCommand ("+button10", IN_Button10Down);//lean right
+	Cmd_AddCommand ("+button10", IN_Button10Down);//zoom out
 	Cmd_AddCommand ("-button10", IN_Button10Up);
-	Cmd_AddCommand ("+button11", IN_Button11Down);//force drain
+	Cmd_AddCommand ("+button11", IN_Button11Down);//firemode
 	Cmd_AddCommand ("-button11", IN_Button11Up);
-	Cmd_AddCommand ("+button12", IN_Button12Down);
+	Cmd_AddCommand ("+button12", IN_Button12Down);//lean right
 	Cmd_AddCommand ("-button12", IN_Button12Up);
-	Cmd_AddCommand ("+button13", IN_Button13Down);
+	Cmd_AddCommand ("+button13", IN_Button13Down);//lean left
 	Cmd_AddCommand ("-button13", IN_Button13Up);
 	Cmd_AddCommand ("+button14", IN_Button14Down);
 	Cmd_AddCommand ("-button14", IN_Button14Up);
 	Cmd_AddCommand ("+mlook", IN_MLookDown);
 	Cmd_AddCommand ("-mlook", IN_MLookUp);
-
-	Cmd_AddCommand("voicechat", IN_VoiceChatButton);
 
 	cl_nodelta = Cvar_Get ("cl_nodelta", "0", 0);
 	cl_debugMove = Cvar_Get ("cl_debugMove", "0", 0);

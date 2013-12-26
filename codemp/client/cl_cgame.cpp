@@ -431,8 +431,6 @@ qboolean CL_GetServerCommand( int serverCommandNumber ) {
 	s = clc.serverCommands[ serverCommandNumber & ( MAX_RELIABLE_COMMANDS - 1 ) ];
 	clc.lastExecutedServerCommand = serverCommandNumber;
 
-	Com_DPrintf( "serverCommand: %i : %s\n", serverCommandNumber, s );
-
 rescan:
 	Cmd_TokenizeString( s );
 	cmd = Cmd_Argv(0);

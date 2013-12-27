@@ -732,7 +732,7 @@ void IN_Frame (void) {
 		//}
 	}
 
-	if( !Cvar_VariableIntegerValue("r_fullscreen") && loading ) {
+	if( !Cvar_VariableIntegerValue("r_fullscreen") && loading && !(cls.keyCatchers & KEYCATCH_UI)) {
 		IN_DeactivateMouse ();
 		return;
 	}

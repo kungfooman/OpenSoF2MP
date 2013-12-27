@@ -468,6 +468,7 @@ it will attempt to load as a system dll
 
 #define	STACK_SIZE	0x20000
 #define LOCAL_POOL_SIZE 2048000
+static byte * dllLocalPool = 0;
 
 vm_t *VM_Create( const char *module, int (*systemCalls)(int *), 
 				vmInterpret_t interpret ) {
@@ -511,6 +512,11 @@ vm_t *VM_Create( const char *module, int (*systemCalls)(int *),
 		Com_Printf( "Loading dll file %s.\n", vm->name );
 		vm->dllHandle = Sys_LoadGameDll( module, &vm->entryPoint, VM_DllSyscall );
 		if ( vm->dllHandle ) {
+			// allocate memory for local allocs
+			vm->localPoolStart = 0;
+			vm->localPoolSize = 0;
+			vm->localPoolTail = LOCAL_POOL_SIZE;
+			dllLocalPool = (unsigned char *)VM_Alloc( LOCAL_POOL_SIZE );
 			return vm;
 		}
 
@@ -702,8 +708,12 @@ void *VM_Local_Alloc ( int size )
 	}
 
 	currentVM->localPoolSize += size;
-
-	return VM_Shift(&currentVM->dataBase[currentVM->localPoolStart + currentVM->localPoolSize - size]);
+	
+	byte * pool = currentVM->dataBase;
+	if (!currentVM->dataBase) {
+		pool = dllLocalPool;
+	}
+	return VM_Shift(&pool[currentVM->localPoolStart + currentVM->localPoolSize - size]);
 }
 
 void *VM_Local_AllocUnaligned ( int size )
@@ -722,7 +732,11 @@ void *VM_Local_AllocUnaligned ( int size )
 
 	currentVM->localPoolSize += size;
 
-	return VM_Shift(&currentVM->dataBase[currentVM->localPoolStart + currentVM->localPoolSize-size]);
+	byte * pool = currentVM->dataBase;
+	if (!currentVM->dataBase) {
+		pool = dllLocalPool;
+	}
+	return VM_Shift(&pool[currentVM->localPoolStart + currentVM->localPoolSize-size]);
 }
 
 void *VM_Local_TempAlloc( int size )
@@ -743,7 +757,11 @@ void *VM_Local_TempAlloc( int size )
 
 	currentVM->localPoolTail -= size;
 
-	return VM_Shift(&currentVM->dataBase[currentVM->localPoolStart + currentVM->localPoolTail]);
+	byte * pool = currentVM->dataBase;
+	if (!currentVM->dataBase) {
+		pool = dllLocalPool;
+	}
+	return VM_Shift(&pool[currentVM->localPoolStart + currentVM->localPoolTail]);
 }
 
 void VM_Local_TempFree( int size )

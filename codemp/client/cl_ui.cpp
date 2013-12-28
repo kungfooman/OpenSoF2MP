@@ -4,7 +4,6 @@
 #include "client.h"
 
 #include "botlib/botlib.h"
-#include "qcommon/stringed_ingame.h"
 
 /*
 Ghoul2 Insert Start
@@ -609,12 +608,7 @@ Key_KeynumToStringBuf
 void Key_KeynumToStringBuf( int keynum, char *buf, int buflen ) 
 {
 	const char *psKeyName = Key_KeynumToString( keynum/*, qtrue */);
-
-	// see if there's a more friendly (or localised) name...
-	//
-	const char *psKeyNameFriendly = SE_GetString( va("KEYNAMES_KEYNAME_%s",psKeyName) );
-
-	Q_strncpyz( buf, (psKeyNameFriendly && psKeyNameFriendly[0]) ? psKeyNameFriendly : psKeyName, buflen );
+	Q_strncpyz( buf, psKeyName, buflen );
 }
 
 

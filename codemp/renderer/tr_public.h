@@ -262,7 +262,6 @@ typedef struct {
 	float			(*Cvar_VariableValue)				( const char *var_name );
 	int				(*Cvar_VariableIntegerValue)		( const char *var_name );
 	qboolean		(*Sys_LowPhysicalMemory)			( void );
-	const char *	(*SE_GetString)						( const char * psPackageAndStringReference );
 	void			(*FS_FreeFile)						( void *buffer );
 	void			(*FS_FreeFileList)					( char **fileList );
 	int				(*FS_Read)							( void *buffer, int len, fileHandle_t f );

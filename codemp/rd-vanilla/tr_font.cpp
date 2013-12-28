@@ -6,8 +6,6 @@
 #include "tr_local.h"
 #include "tr_font.h"
 
-#include "qcommon/stringed_ingame.h"
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // This file is shared in the single and multiplayer codebases, so be CAREFUL WHAT YOU ADD/CHANGE!!!!!

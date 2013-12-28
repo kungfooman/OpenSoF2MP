@@ -2,7 +2,6 @@
 #include "qcommon/exe_headers.h"
 
 #include "server.h"
-#include "qcommon/stringed_ingame.h"
 
 /*
 ===============================================================================

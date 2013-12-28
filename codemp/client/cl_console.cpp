@@ -4,7 +4,6 @@
 // console.c
 
 #include "client.h"
-#include "qcommon/stringed_ingame.h"
 #include "qcommon/game_version.h"
 
 
@@ -148,7 +147,7 @@ void Con_Dump_f (void)
 
 	if (Cmd_Argc() != 2)
 	{
-		Com_Printf ("%s\n", SE_GetString("CON_TEXT_DUMP_USAGE"));
+		Com_Printf ("usage: condump <filename>\n" );
 		return;
 	}
 
@@ -568,13 +567,13 @@ void Con_DrawNotify (void)
 	{
 		if (chat_team)
 		{
-			chattext = SE_GetString("MP_SVGAME", "SAY_TEAM");
+			chattext = "say_team:";
 			SCR_DrawBigString (8, v, chattext, 1.0f );
 			skip = strlen(chattext)+1;
 		}
 		else
 		{
-			chattext = SE_GetString("MP_SVGAME", "SAY");
+			chattext = "say:";
 			SCR_DrawBigString (8, v, chattext, 1.0f );
 			skip = strlen(chattext)+1;
 		}

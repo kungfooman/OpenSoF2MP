@@ -38,8 +38,6 @@ Ghoul2 Insert Start
 	#include "ghoul2/G2_local.h"
 #endif
 
-#include "qcommon/stringed_ingame.h"
-
 #include "ghoul2/G2_gore.h"
 
 extern CMiniHeap *G2VertSpaceClient;
@@ -317,78 +315,7 @@ void CL_ConfigstringModified( void ) {
 	}
 
 }
-#ifndef MAX_STRINGED_SV_STRING
-	#define MAX_STRINGED_SV_STRING 1024
-#endif
-// just copied it from CG_CheckSVStringEdRef(
-void CL_CheckSVStringEdRef(char *buf, const char *str)
-{ //I don't really like doing this. But it utilizes the system that was already in place.
-	int i = 0;
-	int b = 0;
-	int strLen = 0;
-	qboolean gotStrip = qfalse;
 
-	if (!str || !str[0])
-	{
-		if (str)
-		{
-			strcpy(buf, str);
-		}
-		return;
-	}
-
-	strcpy(buf, str);
-
-	strLen = strlen(str);
-
-	if (strLen >= MAX_STRINGED_SV_STRING)
-	{
-		return;
-	}
-
-	while (i < strLen && str[i])
-	{
-		gotStrip = qfalse;
-
-		if (str[i] == '@' && (i+1) < strLen)
-		{
-			if (str[i+1] == '@' && (i+2) < strLen)
-			{
-				if (str[i+2] == '@' && (i+3) < strLen)
-				{ //@@@ should mean to insert a StringEd reference here, so insert it into buf at the current place
-					char stringRef[MAX_STRINGED_SV_STRING];
-					int r = 0;
-
-					while (i < strLen && str[i] == '@')
-					{
-						i++;
-					}
-
-					while (i < strLen && str[i] && str[i] != ' ' && str[i] != ':' && str[i] != '.' && str[i] != '\n')
-					{
-						stringRef[r] = str[i];
-						r++;
-						i++;
-					}
-					stringRef[r] = 0;
-
-					buf[b] = 0;
-					Q_strcat(buf, MAX_STRINGED_SV_STRING, SE_GetString("MP_SVGAME", stringRef));
-					b = strlen(buf);
-				}
-			}
-		}
-
-		if (!gotStrip)
-		{
-			buf[b] = str[i];
-			b++;
-		}
-		i++;
-	}
-
-	buf[b] = 0;
-}
 /*
 ===================
 CL_GetServerCommand
@@ -436,9 +363,7 @@ rescan:
 	cmd = Cmd_Argv(0);
 
 	if ( !strcmp( cmd, "disconnect" ) ) {
-		char strEd[MAX_STRINGED_SV_STRING];
-		CL_CheckSVStringEdRef(strEd, Cmd_Argv(1));
-		Com_Error (ERR_SERVERDISCONNECT, "%s: %s\n", SE_GetString("MP_SVGAME_SERVER_DISCONNECTED"), strEd );
+		Com_Error (ERR_SERVERDISCONNECT, "Server disconnected: %s\n", Cmd_Argv(1) );
 	}
 
 	if ( !strcmp( cmd, "bcs0" ) ) {
@@ -1135,21 +1060,8 @@ Ghoul2 Insert End
 //			text = SP_GetStringText( args[1] );
 //		}
 //		else
-		{
-			text = SE_GetString( (const char *) VMA(1) );
-		}
-
-		if ( text[0] )
-		{
-			Q_strncpyz( (char *) VMA(2), text, args[3] );
-			return qtrue;
-		}
-		else 
-		{
-			Com_sprintf( (char *) VMA(2), args[3], "??%s", VMA(1) );
-			return qfalse;
-		}
-		break;
+		Com_sprintf( (char *) VMA(2), args[3], "??%s", VMA(1) );
+		return qfalse;
 
 	case CG_SET_SHARED_BUFFER:
 		cl.mSharedMemory = ((char *)VMA(1));

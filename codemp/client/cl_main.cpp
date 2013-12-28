@@ -4,7 +4,6 @@
 // cl_main.c  -- client main loop
 
 #include "client.h"
-#include "qcommon/stringed_ingame.h"
 #include <limits.h>
 #include "snd_local.h"
 
@@ -503,7 +502,7 @@ void CL_PlayDemo_f( void ) {
 	char		*arg;
 
 	if (Cmd_Argc() != 2) {
-		Com_Printf ("playdemo <demoname>\n");
+		Com_Printf ("demo <demoname>\n");
 		return;
 	}
 
@@ -530,7 +529,7 @@ void CL_PlayDemo_f( void ) {
 	if (!clc.demofile) {
 		if (!Q_stricmp(arg, "(null)"))
 		{
-			Com_Error( ERR_DROP, SE_GetString("CON_TEXT_NO_DEMO_SELECTED") );
+			Com_Error( ERR_DROP, "Server was killed" );
 		}
 		else
 		{
@@ -1666,79 +1665,6 @@ void CL_ServersResponsePacket( netadr_t from, msg_t *msg ) {
 	Com_Printf("%d servers parsed (total %d)\n", numservers, total);
 }
 
-#ifndef MAX_STRINGED_SV_STRING
-#define MAX_STRINGED_SV_STRING 1024
-#endif
-static void CL_CheckSVStringEdRef(char *buf, const char *str)
-{ //I don't really like doing this. But it utilizes the system that was already in place.
-	int i = 0;
-	int b = 0;
-	int strLen = 0;
-	qboolean gotStrip = qfalse;
-
-	if (!str || !str[0])
-	{
-		if (str)
-		{
-			strcpy(buf, str);
-		}
-		return;
-	}
-
-	strcpy(buf, str);
-
-	strLen = strlen(str);
-
-	if (strLen >= MAX_STRINGED_SV_STRING)
-	{
-		return;
-	}
-
-	while (i < strLen && str[i])
-	{
-		gotStrip = qfalse;
-
-		if (str[i] == '@' && (i+1) < strLen)
-		{
-			if (str[i+1] == '@' && (i+2) < strLen)
-			{
-				if (str[i+2] == '@' && (i+3) < strLen)
-				{ //@@@ should mean to insert a stringed reference here, so insert it into buf at the current place
-					char stripRef[MAX_STRINGED_SV_STRING];
-					int r = 0;
-
-					while (i < strLen && str[i] == '@')
-					{
-						i++;
-					}
-
-					while (i < strLen && str[i] && str[i] != ' ' && str[i] != ':' && str[i] != '.' && str[i] != '\n')
-					{
-						stripRef[r] = str[i];
-						r++;
-						i++;
-					}
-					stripRef[r] = 0;
-
-					buf[b] = 0;
-					Q_strcat(buf, MAX_STRINGED_SV_STRING, SE_GetString(va("MP_SVGAME_%s", stripRef)));
-					b = strlen(buf);
-				}
-			}
-		}
-
-		if (!gotStrip)
-		{
-			buf[b] = str[i];
-			b++;
-		}
-		i++;
-	}
-
-	buf[b] = 0;
-}
-
-
 /*
 =================
 CL_ConnectionlessPacket
@@ -1860,12 +1786,9 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 		// NOTE: we may have to add exceptions for auth and update servers
 		if (NET_CompareAdr(from, clc.serverAddress) || NET_CompareAdr(from, rcon_address))
 		{
-			char sTemp[MAX_STRINGED_SV_STRING];
-
 			s = MSG_ReadString( msg );
-			CL_CheckSVStringEdRef(sTemp, s);
-			Q_strncpyz( clc.serverMessage, sTemp, sizeof( clc.serverMessage ) );
-			Com_Printf( "%s", sTemp );
+			Q_strncpyz( clc.serverMessage, s, sizeof( clc.serverMessage ) );
+			Com_Printf( "%s", s );
 		}
 		return;
 	}
@@ -1955,9 +1878,7 @@ void CL_CheckTimeout( void ) {
 		&& cls.state >= CA_CONNECTED && cls.state != CA_CINEMATIC
 	    && cls.realtime - clc.lastPacketTime > cl_timeout->value*1000) {
 		if (++cl.timeoutcount > 5) {	// timeoutcount saves debugger
-			const char *psTimedOut = SE_GetString("MP_SVGAME_SERVER_CONNECTION_TIMED_OUT");
-			Com_Printf ("\n%s\n",psTimedOut);
-			Com_Error(ERR_DROP, psTimedOut);
+			Com_Error(ERR_DROP, "Server connection timed out.");
 			//CL_Disconnect( qtrue );
 			return;
 		}
@@ -2016,15 +1937,11 @@ CL_Frame
 */
 static unsigned int frameCount;
 static float avgFrametime=0.0;
-extern void SE_CheckForLanguageUpdates(void);
 void CL_Frame ( int msec ) {
 
 	if ( !com_cl_running->integer ) {
 		return;
 	}
-
-	SE_CheckForLanguageUpdates();	// will take zero time to execute unless language changes, then will reload strings.
-									//	of course this still doesn't work for menus...
 
 	if ( cls.state == CA_DISCONNECTED && !( cls.keyCatchers & KEYCATCH_UI )
 		&& !com_sv_running->integer ) {
@@ -2310,7 +2227,6 @@ void CL_InitRef( void ) {
 	ri.Cvar_VariableValue = Cvar_VariableValue;
 	ri.Cvar_VariableIntegerValue = Cvar_VariableIntegerValue;
 	ri.Sys_LowPhysicalMemory = Sys_LowPhysicalMemory;
-	ri.SE_GetString = SE_GetString;
 	ri.FS_FreeFile = FS_FreeFile;
 	ri.FS_FreeFileList = FS_FreeFileList;
 	ri.FS_Read = FS_Read;

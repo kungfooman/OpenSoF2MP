@@ -12,8 +12,6 @@ Ghoul2 Insert Start
 #include "qcommon/MiniHeap.h"
 #endif
 
-#include "qcommon/stringed_ingame.h"
-
 /*
 ===============
 SV_SendConfigstring

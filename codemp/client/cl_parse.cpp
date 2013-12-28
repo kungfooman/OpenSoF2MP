@@ -4,7 +4,6 @@
 // cl_parse.c  -- parse a message received from the server
 
 #include "client.h"
-#include "qcommon/stringed_ingame.h"
 //#include "ghoul2/G2_local.h"
 #ifdef _DONETPROFILE_
 #include "qcommon/INetProfile.h"

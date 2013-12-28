@@ -12,7 +12,6 @@
 #include <direct.h>
 #include <io.h>
 #include <conio.h>
-#include "qcommon/stringed_ingame.h"
 
 #define	CD_BASEDIR	"gamedata\\gamedata"
 #define	CD_EXE		"jamp.exe"
@@ -1151,22 +1150,6 @@ void QuickMemTest(void)
 		if (pvData)
 		{
 			free(pvData);
-		}
-		else
-		{
-			// err...
-			//
-			LPCSTR psContinue = SE_GetString("CON_TEXT_FAILED_MEMTEST");
-								// ( since it's too much hassle doing MBCS code pages and decodings etc for MessageBox command )
-
-			#define GetYesNo(psQuery)	(!!(MessageBox(NULL,psQuery,"Query",MB_YESNO|MB_ICONWARNING|MB_TASKMODAL)==IDYES))
-			if (!GetYesNo(va(psContinue,iMemTestMegs)))
-			{
-				LPCSTR psNoMem = SE_GetString("CON_TEXT_INSUFFICIENT_MEMORY");
-								// ( since it's too much hassle doing MBCS code pages and decodings etc for MessageBox command )
-
-				Com_Error( ERR_FATAL, psNoMem );
-			}
 		}
 	}
 }

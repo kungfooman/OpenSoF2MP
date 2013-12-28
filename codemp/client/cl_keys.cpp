@@ -2,7 +2,6 @@
 #include "qcommon/exe_headers.h"
 
 #include "client.h"
-#include "qcommon/stringed_ingame.h"
 /*
 
 key up events are sent even if in console mode

@@ -4,7 +4,6 @@
 #include "qcommon/exe_headers.h"
 
 #include "GenericParser2.h"
-#include "stringed_ingame.h"
 #include "qcommon/game_version.h"
 #ifndef __linux__
 #include "qcommon/platform.h"
@@ -1216,8 +1215,6 @@ void Com_Init( char *commandLine ) {
 
 		s = va("%s %s %s", JK_VERSION, PLATFORM_STRING, __DATE__ );
 		com_version = Cvar_Get ("version", s, CVAR_ROM | CVAR_SERVERINFO );
-
-		SE_Init();
 
 		Sys_Init();
 		Netchan_Init( Com_Milliseconds() & 0xffff );	// pick a port value that should be nice and random

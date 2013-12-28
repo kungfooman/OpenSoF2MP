@@ -5,7 +5,6 @@
 #include "server.h"
 
 #include "botlib/botlib.h"
-#include "qcommon/stringed_ingame.h"
 
 #if !defined(CROFFSYSTEM_H_INC)
 	#include "qcommon/RoffSystem.h"

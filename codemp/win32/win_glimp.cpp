@@ -22,7 +22,6 @@
 #include "resource.h"
 #include "glw_win.h"
 #include "win_local.h"
-#include "qcommon/stringed_ingame.h"
 extern void WG_CheckHardwareGamma( void );
 extern void WG_RestoreGamma( void );
 
@@ -734,19 +733,10 @@ static rserr_t GLW_SetMode( int mode,
 	{
 		if (!cdsFullscreen && (colorbits == 0 || colorbits >= 15 ) )
 		{
-			// since I can't be bothered trying to mess around with asian codepages and MBCS stuff for a windows
-			//	error box that'll only appear if something's seriously fucked then I'm going to fallback to
-			//	english text when these would otherwise be used...
-			//
-			char sErrorHead[1024];	// ott
-
-			Q_strncpyz(sErrorHead, ri.SE_GetString("CON_TEXT_LOW_DESKTOP_COLOUR_DEPTH"), sizeof(sErrorHead) );
-
-			const char *psErrorBody = ri.SE_GetString("CON_TEXT_TRY_ANYWAY");
-
 			if ( MessageBox( NULL, 							
-						psErrorBody,
-						sErrorHead,
+						"It is highly unlikely that a correct\nwindowed display can be initialized with\nthe current desktop display depth.  Select\n"
+						"'OK' to try anyway.  Press 'Cancel' if you\nhave a 3Dfx Voodoo, Voodoo-2, or Voodoo Rush\n3D accelerator installed, or if you otherwise\nwish to quit.",
+						"Low Desktop Color Depth",
 						MB_OKCANCEL | MB_ICONEXCLAMATION ) != IDOK )
 			{
 				return RSERR_INVALID_MODE;

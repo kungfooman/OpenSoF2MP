@@ -14,49 +14,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-typedef enum
-{
-	eWestern,	// ( I only care about asian languages in here at the moment )
-	eRussian,	//  .. but now I need to care about this, since it uses a different TP
-	ePolish,	// ditto
-} Language_e;
-
-// this is to cut down on all the stupid string compares I've been doing, and convert asian stuff to switch-case
-//
-Language_e GetLanguageEnum()
-{
-	static int			iSE_Language_ModificationCount = -1234;	// any old silly value that won't match the cvar mod count
-	static Language_e	eLanguage = eWestern;
-
-	// only re-strcmp() when language string has changed from what we knew it as...
-	//
-	if (iSE_Language_ModificationCount != se_language->modificationCount )
-	{
-		iSE_Language_ModificationCount  = se_language->modificationCount;
-
-				if ( Language_IsRussian()	)	eLanguage = eRussian;
-		else	if ( Language_IsPolish()	)	eLanguage = ePolish;
-		else	eLanguage = eWestern;
-	}
-
-	return eLanguage;
-}
-
-struct SBCSOverrideLanguages_t
-{
-	LPCSTR		m_psName;
-	Language_e	m_eLanguage;
-};
-
-// so I can do some stuff with for-next loops when I add polish etc...
-//
-SBCSOverrideLanguages_t g_SBCSOverrideLanguages[]=
-{
-	{"russian",	eRussian},
-	{"polish",	ePolish},
-	{NULL,		eWestern}
-};
-
 
 
 //================================================
@@ -81,12 +38,7 @@ public:
 	int				mAscender;
 	int				mDescender;
 
-	bool			mbRoundCalcs;	// trying to make this !@#$%^ thing work with scaling
 	int				m_iThisFont;	// handle to itself
-	int				m_iAltSBCSFont;	// -1 == NULL // alternative single-byte font for languages like russian/polish etc that need to override high characters ?
-	int				m_iOriginalFontWhenSBCSOverriden;
-	float			m_fAltSBCSFontScaleFactor;	// -1, else amount to adjust returned values by to make them fit the master western font they're substituting for
-	bool			m_bIsFakeAlienLanguage;	// ... if true, don't process as MBCS or override as SBCS etc
 
 	CFontInfo(const char *fontName);
 //	CFontInfo(int fill) { memset(this, fill, sizeof(*this)); }	// wtf?
@@ -109,20 +61,10 @@ public:
 
 
 
-// round float to one decimal place...
-//
-float RoundTenth( float fValue )
-{
-	return ( floorf( (fValue*10.0f) + 0.5f) ) / 10.0f;
-}
-
-
 int							g_iCurrentFontIndex;	// entry 0 is reserved index for missing/invalid, else ++ with each new font registered
 vector<CFontInfo *>			g_vFontArray;
 typedef map<sstring_t, int>	FontIndexMap_t;
 							FontIndexMap_t g_mapFontIndexes;
-int g_iNonScaledCharRange;	// this is used with auto-scaling of asian fonts, anything below this number is preserved in scale, anything above is scaled down by 0.75f
-
 //paletteRGBA_c				lastcolour;
 
 // ============================================================================
@@ -178,11 +120,7 @@ CFontInfo::CFontInfo(const char *_fontName)
 	
 	// clear some general things...
 	//
-	m_iAltSBCSFont = -1;
 	m_iThisFont = -1;
-	m_iOriginalFontWhenSBCSOverriden = -1;
-	m_fAltSBCSFontScaleFactor = -1;
-	m_bIsFakeAlienLanguage = !strcmp(_fontName,"aurabesh");	// dont try and make SBCS or asian overrides for this
 
 	len = ri.FS_ReadFile(fontName, NULL);
 	if (len == sizeof(dfontdat_t))
@@ -198,7 +136,6 @@ CFontInfo::CFontInfo(const char *_fontName)
 		mHeight = fontdat->mHeight;
 		mAscender = fontdat->mAscender;
 		mDescender = fontdat->mDescender;
-		mbRoundCalcs = !!strstr(fontName,"ergo");
 
 		// cope with bad fontdat headers...
 		//
@@ -224,42 +161,12 @@ CFontInfo::CFontInfo(const char *_fontName)
 	// finished...
 	g_vFontArray.resize(g_iCurrentFontIndex + 1);
 	g_vFontArray[g_iCurrentFontIndex++] = this;
-
-
-	if ( ri.Cvar_VariableIntegerValue( "com_buildScript" ) == 2)
-	{
-		Com_Printf( "com_buildScript(2): Registering foreign fonts...\n" );
-		static qboolean bDone = qfalse;	// Do this once only (for speed)...
-		if (!bDone)
-		{
-			bDone = qtrue;
-
-			int iGlyphTPs = 0;
-			const char *psLang = NULL;
-
-			// SBCS override languages...
-			//
-			fileHandle_t f;	
-			for (int i=0; g_SBCSOverrideLanguages[i].m_psName ;i++)
-			{
-				char sTemp[MAX_QPATH];
-
-				sprintf(sTemp,"fonts/%s.tga", g_SBCSOverrideLanguages[i].m_psName );
-				ri.FS_FOpenFileRead( sTemp, &f, qfalse );
-				if (f) ri.FS_FCloseFile( f );
-
-				sprintf(sTemp,"fonts/%s.fontdat", g_SBCSOverrideLanguages[i].m_psName );
-				ri.FS_FOpenFileRead( sTemp, &f, qfalse );
-				if (f) ri.FS_FCloseFile( f );
-			}
-		}
-	}
 }
 
 static CFontInfo *GetFont_Actual(int index)
 {
 	index &= SET_MASK;
-	if((index >= 1) && (index < g_iCurrentFontIndex))
+	if((index >= 0) && (index < g_iCurrentFontIndex))
 	{
 		CFontInfo *pFont = g_vFontArray[index];
 		return pFont;
@@ -294,82 +201,17 @@ const int CFontInfo::GetLetterHorizAdvance(unsigned int uiLetter)
 	return pGlyph->horizAdvance ? pGlyph->horizAdvance : mGlyphs['.'].horizAdvance;
 }
 
-// ensure any GetFont calls that need SBCS overriding (such as when playing in Russian) have the appropriate stuff done...
-//
-static CFontInfo *GetFont_SBCSOverride(CFontInfo *pFont, Language_e eLanguageSBCS, LPCSTR psLanguageNameSBCS )
-{
-	if ( !pFont->m_bIsFakeAlienLanguage )
-	{
-		if ( GetLanguageEnum() == eLanguageSBCS )
-		{
-			if ( pFont->m_iAltSBCSFont == -1 ) 	// no reg attempted yet?
-			{
-				// need to register this alternative SBCS font...
-				//
-				int iAltFontIndex = RE_RegisterFont( va("%s/%s",COM_SkipPath(pFont->m_sFontName),psLanguageNameSBCS) );	// ensure unique name (eg: "lcd/russian")
-				CFontInfo *pAltFont = GetFont_Actual( iAltFontIndex );
-				if ( pAltFont )
-				{
-					// work out the scaling factor for this font's glyphs...( round it to 1 decimal place to cut down on silly scale factors like 0.53125 )
-					//
-					pAltFont->m_fAltSBCSFontScaleFactor = RoundTenth((float)pFont->GetPointSize() / (float)pAltFont->GetPointSize());
-					//
-					// then override with the main properties of the original font...
-					//
-					pAltFont->mPointSize = pFont->GetPointSize();//(float) pAltFont->GetPointSize() * pAltFont->m_fAltSBCSFontScaleFactor;
-					pAltFont->mHeight	 = pFont->GetHeight();//(float) pAltFont->GetHeight()	* pAltFont->m_fAltSBCSFontScaleFactor;
-					pAltFont->mAscender	 = pFont->GetAscender();//(float) pAltFont->GetAscender()	* pAltFont->m_fAltSBCSFontScaleFactor;
-					pAltFont->mDescender = pFont->GetDescender();//(float) pAltFont->GetDescender()	* pAltFont->m_fAltSBCSFontScaleFactor;
-
-//					pAltFont->mPointSize = (float) pAltFont->GetPointSize() * pAltFont->m_fAltSBCSFontScaleFactor;
-//					pAltFont->mHeight	 = (float) pAltFont->GetHeight()	* pAltFont->m_fAltSBCSFontScaleFactor;
-//					pAltFont->mAscender	 = (float) pAltFont->GetAscender()	* pAltFont->m_fAltSBCSFontScaleFactor;
-//					pAltFont->mDescender = (float) pAltFont->GetDescender()	* pAltFont->m_fAltSBCSFontScaleFactor;
-
-					pAltFont->mbRoundCalcs = true;
-					pAltFont->m_iOriginalFontWhenSBCSOverriden = pFont->m_iThisFont;
-				}
-				pFont->m_iAltSBCSFont = iAltFontIndex;
-			}
-
-			if ( pFont->m_iAltSBCSFont > 0)
-			{
-				return GetFont_Actual( pFont->m_iAltSBCSFont );
-			}
-		}
-	}
-
-	return NULL;
-}
-
-
-
 CFontInfo *GetFont(int index)
 {
 	CFontInfo *pFont = GetFont_Actual( index );
-
-	if (pFont)
-	{
-		// any SBCS overrides? (this has to be pretty quick, and is (sort of))...
-		//
-		for (int i=0; g_SBCSOverrideLanguages[i].m_psName; i++)
-		{
-			CFontInfo *pAltFont = GetFont_SBCSOverride( pFont, g_SBCSOverrideLanguages[i].m_eLanguage, g_SBCSOverrideLanguages[i].m_psName );
-			if (pAltFont) 
-			{
-				return pAltFont;
-			}
-		}
-	}
-
 	return pFont;
 }
 
 
 int RE_Font_StrLenPixels(const char *psText, const int iFontHandle, const float fScale)
 {			
-	int			iMaxWidth = 0;
-	int			iThisWidth= 0;
+	float		maxWidth = 0.f;
+	float		thisWidth= 0.f;
 	CFontInfo	*curfont;
 
 	curfont = GetFont(iFontHandle);
@@ -378,7 +220,6 @@ int RE_Font_StrLenPixels(const char *psText, const int iFontHandle, const float 
 		return(0);
 	}
 
-	float fScaleA = fScale;
 	while(*psText)
 	{
 		int iAdvanceCount;
@@ -398,61 +239,22 @@ int RE_Font_StrLenPixels(const char *psText, const int iFontHandle, const float 
 
 		if (uiLetter == 0x0A)
 		{
-			iThisWidth = 0;
+			thisWidth = 0.f;
 		}
 		else
 		{
 			int iPixelAdvance = curfont->GetLetterHorizAdvance( uiLetter );
 	
-			float fValue = iPixelAdvance * ((uiLetter > g_iNonScaledCharRange) ? fScaleA : fScale);
-			iThisWidth += curfont->mbRoundCalcs ? Round( fValue ) : fValue;
-			if (iThisWidth > iMaxWidth)
+			float fValue = iPixelAdvance * fScale;
+			thisWidth += fValue;
+			if (thisWidth > maxWidth)
 			{
-				iMaxWidth = iThisWidth;
+				maxWidth = thisWidth;
 			}
 		}
 	}
 
-	return iMaxWidth;
-}
-
-// not really a font function, but keeps naming consistant...
-//
-int RE_Font_StrLenChars(const char *psText)
-{			
-	// logic for this function's letter counting must be kept same in this function and RE_Font_DrawString()
-	//
-	int iCharCount = 0;
-
-	while ( *psText )
-	{
-		// in other words, colour codes and CR/LF don't count as chars, all else does...
-		//
-		int iAdvanceCount;
-		unsigned int uiLetter = AnyLanguage_ReadCharFromString( psText, &iAdvanceCount, NULL );
-		psText += iAdvanceCount;
-
-		switch (uiLetter)
-		{
-			case '^':
-				if (*psText >= '0' &&
-					*psText <= '9')
-				{
-					psText++;
-				}
-				else
-				{
-					iCharCount++;
-				}
-				break;	// colour code (note next-char skip)
-			case 10:								break;	// linefeed
-			case 13:								break;	// return 
-			case '_':	iCharCount += 1; break;	// special word-break hack
-			default:	iCharCount++;				break;
-		}
-	}
-	
-	return iCharCount;
+	return Round(maxWidth);
 }
 
 int RE_Font_HeightPixels(const int iFontHandle, const float fScale)
@@ -463,7 +265,7 @@ int RE_Font_HeightPixels(const int iFontHandle, const float fScale)
 	if(curfont)
 	{
 		float fValue = curfont->GetPointSize() * fScale;
-		return curfont->mbRoundCalcs ? Round(fValue) : fValue;
+		return Round(fValue);
 	}
 	return(0);
 }
@@ -472,7 +274,8 @@ int RE_Font_HeightPixels(const int iFontHandle, const float fScale)
 //
 void RE_Font_DrawString(int x, int y, qhandle_t font, float scale, vec4_t color, const char* text, int limit, int flags, int cursorPos, char cursor)
 {
-	int					curX, curY, colour;
+	float				curX, curY;
+	int					colour;
 	const glyphInfo_t	*letter;
 	qhandle_t			shader;
 
@@ -495,7 +298,7 @@ void RE_Font_DrawString(int x, int y, qhandle_t font, float scale, vec4_t color,
 	RE_SetColor( color );
 
 	curX = x;
-	y += Round((curfont->GetHeight() - (curfont->GetDescender() >> 1)) * scale);
+	y += (curfont->GetHeight() - curfont->GetDescender()) * scale;
 
 	qboolean nextTextWouldOverflow = qfalse;
 	const char *textStart = text;
@@ -509,13 +312,13 @@ void RE_Font_DrawString(int x, int y, qhandle_t font, float scale, vec4_t color,
 		{
 		case 10:						//linefeed
 			curX = x;
-			y += Round(curfont->GetPointSize() * scale);
+			y += curfont->GetPointSize() * scale;
 			break;
 		case 13:						// Return
 			break;
 		case 32:						// Space
 			letter = curfont->GetLetter(' ');			
-			curX += Round(letter->horizAdvance * scale);
+			curX += letter->horizAdvance * scale;
 			nextTextWouldOverflow = (limit && (text - textStart) > limit) ? qtrue : qfalse;	// yeuch
 			break;
 		case '^':
@@ -534,22 +337,16 @@ void RE_Font_DrawString(int x, int y, qhandle_t font, float scale, vec4_t color,
 				letter = curfont->GetLetter('.');
 			}
 
-			int advancePixels = Round(letter->horizAdvance * scale);
+			float advancePixels = letter->horizAdvance * scale;
 			nextTextWouldOverflow = (limit && (text - textStart) > limit) ? qtrue : qfalse;	// yeuch
 			if (!nextTextWouldOverflow)
 			{
-				// this 'mbRoundCalcs' stuff is crap, but the only way to make the font code work. Sigh...
-				//				
-				curY = y - (curfont->mbRoundCalcs ? Round(letter->baseline * scale) : letter->baseline * scale);
-				if (curfont->m_fAltSBCSFontScaleFactor != -1)
-				{
-					curY += 3;	// I'm sick and tired of going round in circles trying to do this legally, so bollocks to it
-				}
+				curY = y - letter->baseline * scale;
 
-				RE_StretchPic ( curX + Round(letter->horizOffset * scale), // float x
+				RE_StretchPic ( curX + letter->horizOffset * scale, // float x
 								curY,	// float y
-								curfont->mbRoundCalcs ? Round(letter->width * scale) : letter->width * scale,	// float w
-								curfont->mbRoundCalcs ? Round(letter->height * scale) : letter->height * scale, // float h
+								letter->width * scale,	// float w
+								letter->height * scale, // float h
 								letter->s,						// float s1
 								letter->t,						// float t1
 								letter->s2,					// float s2
@@ -570,18 +367,18 @@ void RE_Font_DrawString(int x, int y, qhandle_t font, float scale, vec4_t color,
 		curX = x;
 		for ( int i = 0 ; i < cursorPos ; ++i ) {
 			letter = curfont->GetLetter( textStart[i] );			// Description of letter
-			curX += Round(letter->horizAdvance * scale);
+			curX += letter->horizAdvance * scale;
 		}
 		letter = curfont->GetLetter( cursor, &shader );			// Description of letter
 		if(!letter->width)
 		{
 			letter = curfont->GetLetter('.');
 		}
-		curY = y - (curfont->mbRoundCalcs ? Round(letter->baseline * scale) : letter->baseline * scale);
-		RE_StretchPic ( curX + Round(letter->horizOffset * scale), // float x
+		curY = y - letter->baseline * scale;
+		RE_StretchPic ( curX + letter->horizOffset * scale, // float x
 						curY,	// float y
-						curfont->mbRoundCalcs ? Round(letter->width * scale) : letter->width * scale,	// float w
-						curfont->mbRoundCalcs ? Round(letter->height * scale) : letter->height * scale, // float h
+						letter->width * scale,	// float w
+						letter->height * scale, // float h
 						letter->s,						// float s1
 						letter->t,						// float t1
 						letter->s2,					// float s2
@@ -624,8 +421,7 @@ int RE_RegisterFont(const char *psName)
 
 void R_InitFonts(void)
 {
-	g_iCurrentFontIndex = 1;			// entry 0 is reserved for "missing/invalid"
-	g_iNonScaledCharRange = INT_MAX;	// default all chars to have no special scaling (other than user supplied)
+	g_iCurrentFontIndex = 0;
 }
 
 /*
@@ -651,13 +447,13 @@ void R_FontList_f( void ) {
 
 void R_ShutdownFonts(void)
 {
-	for(int i = 1; i < g_iCurrentFontIndex; i++)	// entry 0 is reserved for "missing/invalid"
+	for(int i = 0; i < g_iCurrentFontIndex; i++)
 	{
 		delete g_vFontArray[i];
 	}
 	g_mapFontIndexes.clear();
 	g_vFontArray.clear();
-	g_iCurrentFontIndex = 1;	// entry 0 is reserved for "missing/invalid"
+	g_iCurrentFontIndex = 0;
 }
 
 // this is only really for debugging while tinkering with fonts, but harmless to leave in...
@@ -669,7 +465,7 @@ void R_ReloadFonts_f(void)
 	vector <sstring_t> vstrFonts;
 
 	int iFontToFind;
-	for (iFontToFind = 1; iFontToFind < g_iCurrentFontIndex; iFontToFind++)
+	for (iFontToFind = 0; iFontToFind < g_iCurrentFontIndex; iFontToFind++)
 	{	
 		FontIndexMap_t::iterator it;
 		for (it = g_mapFontIndexes.begin(); it != g_mapFontIndexes.end(); ++it)

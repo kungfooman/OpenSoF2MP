@@ -86,7 +86,6 @@ typedef struct {
 
 	qhandle_t			(*RegisterFont)							( const char *fontName );
 	int					(*Font_StrLenPixels)					( const char *text, const int iFontIndex, const float scale );
-	int					(*Font_StrLenChars)						( const char *text );
 	int					(*Font_HeightPixels)					( const int iFontIndex, const float scale );
 	void				(*Font_DrawString)						( int x, int y, qhandle_t font, float scale, vec4_t color, const char* text, int limit, int flags, int cursorPos, char cursor );
 	unsigned int		(*AnyLanguage_ReadCharFromString)		( const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation/* = NULL*/ );

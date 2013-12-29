@@ -254,7 +254,7 @@ void Field_Draw( field_t *edit, int x, int y, int width, qboolean showCursor )
 
 void Field_BigDraw( field_t *edit, int x, int y, int width, qboolean showCursor ) 
 {
-	Field_VariableSizeDraw( edit, x, y, width, BIGCHAR_WIDTH, showCursor );
+	Field_VariableSizeDraw( edit, x, y, width, GIANTCHAR_HEIGHT/2, showCursor );
 }
 
 /*

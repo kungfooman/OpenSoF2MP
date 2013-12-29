@@ -568,20 +568,20 @@ void Con_DrawNotify (void)
 		if (chat_team)
 		{
 			chattext = "say_team:";
-			SCR_DrawBigString (8, v, chattext, 1.0f );
+			SCR_DrawBigString (16, v, chattext, 1.0f );
 			skip = strlen(chattext)+1;
 		}
 		else
 		{
 			chattext = "say:";
-			SCR_DrawBigString (8, v, chattext, 1.0f );
+			SCR_DrawBigString (16, v, chattext, 1.0f );
 			skip = strlen(chattext)+1;
 		}
 
-		Field_BigDraw( &chatField, skip * BIGCHAR_WIDTH, v,
-			cls.glconfig.vidWidth - ( skip + 1 ) * BIGCHAR_WIDTH, qtrue );
+		Field_BigDraw( &chatField, skip * GIANTCHAR_HEIGHT/2, v,
+			cls.glconfig.vidWidth - ( skip + 1 ) * GIANTCHAR_HEIGHT/2, qtrue );
 
-		v += BIGCHAR_HEIGHT;
+		v += GIANTCHAR_HEIGHT/2;
 	}
 
 }

@@ -372,10 +372,10 @@ void CL_ConsolePrint( const char *txt) {
 	int prev;							// NERVE - SMF
 
 	// TTimo - prefix for text that shows up in console but not in notify
-	// backported from RTCW
-	if ( !Q_strncmp( txt, "[skipnotify]", 12 ) ) {
+	// backported from RTCW adjusted for SOF2
+	if ( txt[0] == '@' ) {
 		skipnotify = qtrue;
-		txt += 12;
+		txt += 1;
 	}
 	if ( txt[0] == '*' ) {
 		skipnotify = qtrue;

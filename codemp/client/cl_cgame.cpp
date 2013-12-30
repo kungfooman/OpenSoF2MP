@@ -1050,8 +1050,6 @@ Ghoul2 Insert End
 
 	case CG_SP_GETSTRINGTEXTSTRING:
 //	case CG_SP_GETSTRINGTEXT:
-		const char* text;
-
 		assert(VMA(1));
 		assert(VMA(2));
 
@@ -1263,6 +1261,9 @@ Ghoul2 Insert End
 		VM_Call( uivm, UI_SET_ACTIVE_MENU, args[1] );
 		return 0;
 
+	case CG_UI_CLOSEALL:
+		VM_Call( uivm, UI_CLOSEALL );
+		return 0;
 
 	case CG_G2_SETGHOUL2MODELFLAGSBYINDEX:
 		{

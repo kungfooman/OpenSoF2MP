@@ -197,6 +197,7 @@ void		G2_ConstructGhoulSkeleton( CGhoul2Info_v &ghoul2,const int frameNum,bool c
 qboolean	G2API_SkinlessModel(CGhoul2Info *g2);
 
 #ifdef _G2_GORE
+void		G2API_InitGore(void);
 int			G2API_GetNumGoreMarks(CGhoul2Info *g2);
 void		G2API_AddSkinGore(CGhoul2Info_v &ghoul2,SSkinGoreData &gore);
 void		G2API_ClearSkinGore ( CGhoul2Info_v &ghoul2 );

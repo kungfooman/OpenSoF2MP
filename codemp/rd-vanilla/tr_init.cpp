@@ -1377,6 +1377,9 @@ void R_Init( void ) {
 	R_InitImages();
 	R_InitShaders(qfalse);
 	R_InitSkins();
+#ifdef _G2_GORE
+	G2API_InitGore();
+#endif
 
 	R_TerrainInit(); //rwwRMG - added
 

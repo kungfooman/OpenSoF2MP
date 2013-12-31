@@ -2534,6 +2534,145 @@ qboolean G2API_SkinlessModel(CGhoul2Info *g2)
 #ifdef _G2_GORE
 void ResetGoreTag(); // put here to reduce coupling
 
+qhandle_t goreShaders[PGORE_COUNT];
+
+void G2API_InitGore(void)
+{
+	for (int gore = 0; gore < PGORE_COUNT; ++gore) {
+		char * shaderPath = 0;
+		switch (gore) {
+			case PGORE_ARMOR:
+				shaderPath = "skingore/armor";
+				break;
+			case PGORE_BULLETBIG:
+				shaderPath = "models/characters/gore/new_bullet_1";
+				break;
+			case PGORE_KNIFESLASH:
+				shaderPath = "models/characters/gore/knife_slash";
+				break;
+			case PGORE_PUNCTURE:
+				shaderPath = "models/characters/gore/knife_puncture";
+				break;
+			case PGORE_SHOTGUN:
+				shaderPath = "models/characters/gore/bullet_hole_shotgun";
+				break;
+			case PGORE_SHOTGUNBIG:
+				shaderPath = "models/characters/gore/bullet_hole_shotgun2";
+				break;
+			case PGORE_IMMOLATE:
+				shaderPath = "models/characters/gore/immolation_sensation";
+				break;
+			case PGORE_BURN:
+				shaderPath = "models/characters/gore/damage_scorch";
+				break;
+			case PGORE_SPURT:
+				shaderPath = "models/characters/gore/spurter";
+				break;
+			case PGORE_SPLATTER:
+				shaderPath = "models/characters/gore/splatter";
+				break;
+			case PGORE_BLOODY_GLASS:
+				shaderPath = "models/characters/gore/bloody_glass";
+				break;
+			case PGORE_BLOODY_GLASS_B:
+				shaderPath = "models/characters/gore/bloody_glass_b";
+				break;
+			case PGORE_BLOODY_ICK:
+				shaderPath = "models/characters/gore/bloody_ick";
+				break;
+			case PGORE_BLOODY_DROOP:
+				shaderPath = "models/characters/gore/bloody_droop";
+				break;
+			case PGORE_BLOODY_MAUL:
+				shaderPath = "models/characters/gore/bloody_maul";
+				break;
+			case PGORE_BLOODY_DROPS:
+				shaderPath = "models/characters/gore/bloody_drops";
+				break;
+			case PGORE_BULLET_E:
+				shaderPath = "models/characters/gore/bullet_e";
+				break;
+			case PGORE_BULLET_F:
+				shaderPath = "models/characters/gore/bullet_f";
+				break;
+			case PGORE_BULLET_G:
+				shaderPath = "models/characters/gore/bullet_g";
+				break;
+			case PGORE_BULLET_H:
+				shaderPath = "models/characters/gore/bullet_h";
+				break;
+			case PGORE_BULLET_I:
+				shaderPath = "models/characters/gore/bullet_i";
+				break;
+			case PGORE_BULLET_J:
+				shaderPath = "models/characters/gore/bullet_j";
+				break;
+			case PGORE_BULLET_K:
+				shaderPath = "models/characters/gore/bullet_k";
+				break;
+			case PGORE_BLOODY_HAND:
+				shaderPath = "models/characters/gore/bloody_hand";
+				break;
+			case PGORE_POWDER_BURN_DENSE:
+				shaderPath = "models/characters/gore/powder_burn_dense";
+				break;
+			case PGORE_POWDER_BURN_CHUNKY:
+				shaderPath = "models/characters/gore/powder_burn_chunky";
+				break;
+			case PGORE_KNIFESLASH2:
+				shaderPath = "models/characters/gore/knife_slash2";
+				break;
+			case PGORE_KNIFESLASH3:
+				shaderPath = "models/characters/gore/knife_slash3";
+				break;
+			case PGORE_CHUNKY_SPLAT:
+				shaderPath = "models/characters/gore/chunky_splat";
+				break;
+			case PGORE_BIG_SPLATTER:
+				shaderPath = "models/characters/gore/big_splatter";
+				break;
+			case PGORE_BLOODY_SPLOTCH:
+				shaderPath = "models/characters/gore/bloody_splotch";
+				break;
+			case PGORE_BLEEDER:
+				shaderPath = "models/characters/gore/bleeder";
+				break;
+			case PGORE_PELLETS:
+				shaderPath = "models/characters/gore/pellets";
+				break;
+			case PGORE_KNIFE_SOAK:
+				shaderPath = "models/characters/gore/knife_soak";
+				break;
+			case PGORE_BLEEDER_DENSE:
+				shaderPath = "models/characters/gore/bleeder_dense";
+				break;
+			case PGORE_BLOODY_SPLOTCH2:
+				shaderPath = "models/characters/gore/bloody_splotch2";
+				break;
+			case PGORE_BLOODY_DRIPS:
+				shaderPath = "models/characters/gore/bloody_drips";
+				break;
+			case PGORE_DRIPPING_DOWN:
+				shaderPath = "models/characters/gore/dripping_down";
+				break;
+			case PGORE_GUTSHOT:
+				shaderPath = "models/characters/gore/gutshot";
+				break;
+			case PGORE_SHRAPNEL:
+				shaderPath = "models/characters/gore/gore_shrapnel";
+				break;
+			case PGORE_NONE:
+			default:
+				break;
+		}
+		qhandle_t shader = 0;
+		if (shaderPath) {
+			shader = RE_RegisterShader(shaderPath);
+		}
+		goreShaders[gore] = shader;
+	}
+}
+
 //way of seeing how many marks are on a model currently -rww
 int G2API_GetNumGoreMarks(CGhoul2Info *g2)
 {
@@ -2601,10 +2740,14 @@ void G2API_AddSkinGore(CGhoul2Info_v &ghoul2,SSkinGoreData &gore)
 
 		G2_TransformModel(ghoul2, gore.currentTime, gore.scale,ri.GetG2VertSpaceServer(),lod,true);
 
+		// Get the gore2 shader
+		int goreShader = goreShaders[gore.shaderEnum];
+
 		// now walk each model and compute new texture coordinates
-		G2_TraceModels(ghoul2, transHitLocation, transRayDirection, 0, gore.entNum, 0,lod,0.0f,gore.SSize,gore.TSize,gore.theta,gore.shaderEnum,&gore,qtrue);
+		G2_TraceModels(ghoul2, transHitLocation, transRayDirection, 0, gore.entNum, 0,lod,0.0f,gore.SSize,gore.TSize,gore.theta,goreShader,&gore,qtrue);
 	}
 }
+
 #endif
 
 qboolean G2_TestModelPointers(CGhoul2Info *ghlInfo) // returns true if the model is properly set up

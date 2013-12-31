@@ -1143,7 +1143,11 @@ void Com_Init( char *commandLine ) {
 		com_maxfps = Cvar_Get ("com_maxfps", "125", CVAR_ARCHIVE);
 		com_blood = Cvar_Get ("com_blood", "1", CVAR_ARCHIVE);
 
+#ifdef _DEBUG
 		com_developer = Cvar_Get ("developer", "1", CVAR_TEMP );
+#else
+		com_developer = Cvar_Get ("developer", "0", CVAR_TEMP );
+#endif
 		com_vmdebug = Cvar_Get ("vmdebug", "1", CVAR_TEMP );
 		com_logfile = Cvar_Get ("logfile", "2", CVAR_TEMP );
 

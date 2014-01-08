@@ -46,6 +46,8 @@ extern CMiniHeap *G2VertSpaceClient;
 
 #include "qcommon/timing.h"
 
+#include "materials.h"
+
 //#include "renderer/tr_local.h"
 
 //extern int contentOverride;
@@ -1197,35 +1199,23 @@ Ghoul2 Insert End
 
 
 	case CG_MAT_RESET:
-		//SOF2 TODO
+		Mat_Reset();
 		return 0;
 	case CG_MAT_CACHE:
-		//SOF2 TODO
+		Mat_Init();
 		return 0;
 	case CG_MAT_GET_SOUND:
-		//SOF2 TODO
-		//(char *key, int material)
-		return 0;
+		return Mat_GetSound((char*) VMA(1), args[2]);
 	case CG_MAT_GET_DECAL:
-		//SOF2 TODO
-		//(char *key, int material)
-		return 0;
+		return Mat_GetDecal((char*) VMA(1), args[2]);
 	case CG_MAT_GET_DECAL_SCALE:
-		//SOF2 TODO
-		//(char *key, int material)
-		return 0;
+		return Mat_GetDecalScale((char*) VMA(1), args[2]);
 	case CG_MAT_GET_EFFECT:
-		//SOF2 TODO
-		//(char *key, int material)
-		return 0;
+		return Mat_GetEffect((char*) VMA(1), args[2]);
 	case CG_MAT_GET_DEBRIS:
-		//SOF2 TODO
-		//(char *key, int material)
-		return 0;
+		return Mat_GetDebris((char*) VMA(1), args[2]);
 	case CG_MAT_GET_DEBRIS_SCALE:
-		//SOF2 TODO
-		//(char *key, int material)
-		return 0;
+		return Mat_GetDebrisScale((char*) VMA(1), args[2]);
 
 
 	case CG_G2_ATTACHG2MODEL:

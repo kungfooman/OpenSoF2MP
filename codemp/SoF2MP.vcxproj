@@ -147,6 +147,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="client\materials.h" />
     <ClInclude Include="game\anims.h" />
     <ClInclude Include="game\bg_weapons.h" />
     <ClInclude Include="game\botlib.h" />
@@ -322,6 +323,7 @@
     <ClCompile Include="client\cl_parse.cpp" />
     <ClCompile Include="client\cl_scrn.cpp" />
     <ClCompile Include="client\cl_ui.cpp" />
+    <ClCompile Include="client\materials.cpp" />
     <ClCompile Include="qcommon\CNetProfile.cpp" />
     <ClCompile Include="qcommon\GenericParser2.cpp" />
     <ClCompile Include="qcommon\RoffSystem.cpp" />

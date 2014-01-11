@@ -125,7 +125,6 @@ static char			sInfoOnly_CurrentDynamicMusicSet[64];	// any old reasonable size, 
 #define		SOUND_FULLVOLUME	256
 
 #define		SOUND_ATTENUATE		0.0008f
-#define		VOICE_ATTENUATE		0.004f
 
 const float	SOUND_FMAXVOL=0.75;//1.0;
 const int	SOUND_MAXVOL=255;
@@ -1645,7 +1644,7 @@ void S_StartSound(const vec3_t origin, int entityNum, int entchannel, sfxHandle_
 		ch->fixed_origin = qfalse;
 	}
 
-	ch->master_vol = volume;
+	ch->master_vol = (volume == -1 ? SOUND_MAXVOL : volume);
 	ch->entnum = entityNum;
 	ch->entchannel = entchannel;
 	ch->thesfx = sfx;

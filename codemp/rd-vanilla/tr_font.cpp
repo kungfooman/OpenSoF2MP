@@ -385,7 +385,7 @@ void RE_Font_DrawString(int x, int y, qhandle_t font, float scale, vec4_t color,
 						shader							// qhandle_t hShader
 						);
 	}
-	//let it remember the old color //RE_SetColor(NULL);;
+	RE_SetColor(NULL);;
 }
 
 int RE_RegisterFont(const char *psName) 

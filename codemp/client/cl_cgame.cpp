@@ -874,7 +874,7 @@ int CL_CgameSystemCalls( int *args ) {
 			CFxBoltInterface * obj = (CFxBoltInterface *) VMA(2);
 			CGhoul2Info_v& ghoul2 = *(CGhoul2Info_v *) obj->ghoul2;
 			int boltInfo=0;
-			if ( re.G2API_AttachEnt( &boltInfo, &ghoul2[1], obj->boltNum, 1, obj->modelNum ) )
+			if ( re.G2API_AttachEnt( &boltInfo, &ghoul2[obj->modelNum], obj->boltNum, 1, obj->modelNum ) )
 			{
 				FX_PlayBoltedEffectID(args[1], obj->origin, boltInfo, (int) &ghoul2, -1, qfalse );
 				return 1;
@@ -1027,7 +1027,7 @@ Ghoul2 Insert Start
 		return 0;
 
 	case CG_G2_ADDBOLT:
-		return	re.G2API_AddBolt(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3));
+		return re.G2API_AddBolt(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3));
 
 	case CG_G2_SETBOLTON:
 		re.G2API_SetBoltInfo(*((CGhoul2Info_v *)args[1]), args[2], args[3]);
@@ -1042,7 +1042,7 @@ Ghoul2 Insert Start
 Ghoul2 Insert End
 */
 	case CG_G2_SETROOTSURFACE:
-		return re.G2API_SetRootSurface(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3));
+		return re.G2API_SetRootSurface(**(CGhoul2Info_v **)VMA(1), args[2], (const char *)VMA(3));
 
 	case CG_G2_SETSURFACEONOFF:
 		return re.G2API_SetSurfaceOnOff(*((CGhoul2Info_v *)args[1]), args[2], (const char *)VMA(3), args[4]);
@@ -1275,6 +1275,14 @@ Ghoul2 Insert End
 	case CG_AS_ADDLOCALSET:
 		//SOF2 TODO
 		return 0;
+
+	case CG_G2_GETNUMMODELS:
+		//SOF2 TODO
+		return -1;
+
+	case CG_G2_FINDBOLTINDEX:
+		//SOF2 TODO
+		return -1;
 
 	default:
 		Com_Printf("Bad cgame system trap: %i\n", args[0] );

@@ -126,6 +126,7 @@ qhandle_t Material::getEffect(const char * key) const {
 
 const char * materialNames[MATERIAL_LAST] = { MATERIALS };
 Material * materials[MATERIAL_LAST] = { NULL };
+Material * materialDefault = NULL;
 
 /// Parse and initialize our materials.
 void Mat_Init(void) {
@@ -143,6 +144,11 @@ void Mat_Init(void) {
 			}
 			materials[i] = new Material(materialGroup);
 		}
+
+		if (materialDefault) {
+			delete materialDefault;
+		}
+		materialDefault = new Material(baseGroup->FindSubGroup("default"));
 	}
 
 	parser.Clean();
@@ -152,17 +158,18 @@ void Mat_Init(void) {
 
 /// Clear all materials.
 void Mat_Reset(void) {
-	for (int i = 0; i < MATERIAL_LAST; ++i) {
-		delete materials[i];
-		materials[i] = NULL;
-	}
+	// Do nothing as Mat_Reset is called after Mat_Init so we can't use it to clean up our materials.
 }
 
 /// Get the sound for the given key and material.
 sfxHandle_t Mat_GetSound(char * key, int material) {
 	Material * const mat = materials[material];
 	if (mat) {
-		return mat->getSound(key);
+		sfxHandle_t sound = mat->getSound(key);
+		if (!sound) {
+			return materialDefault->getSound(key);
+		}
+		return sound;
 	}
 	return 0;
 }
@@ -181,7 +188,11 @@ const float Mat_GetDecalScale(char * key, int material) {
 qhandle_t Mat_GetEffect(char * key, int material) {
 	Material * const mat = materials[material];
 	if (mat) {
-		return mat->getEffect(key);
+		qhandle_t effect = mat->getEffect(key);
+		if (!effect) {
+			return materialDefault->getEffect(key);
+		}
+		return effect;
 	}
 	return 0;
 }

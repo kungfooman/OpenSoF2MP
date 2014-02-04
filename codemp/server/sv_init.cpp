@@ -561,10 +561,6 @@ Ghoul2 Insert End
 		sv.configstrings[i] = CopyString("");
 	}
 
-	//rww - RAGDOLL_BEGIN
-	re.G2API_SetTime(sv.time,0);
-	//rww - RAGDOLL_END
-
 	// make sure we are not paused
 	Cvar_Set("cl_paused", "0");
 
@@ -603,17 +599,11 @@ Ghoul2 Insert End
 
 	// run a few frames to allow everything to settle
 	for ( i = 0 ;i < 3 ; i++ ) {
-		//rww - RAGDOLL_BEGIN
-		re.G2API_SetTime(sv.time,0);
-		//rww - RAGDOLL_END
 		VM_Call( gvm, GAME_RUN_FRAME, sv.time );
 		SV_BotFrame( sv.time );
 		sv.time += 100;
 		svs.time += 100;
 	}
-	//rww - RAGDOLL_BEGIN
-	re.G2API_SetTime(sv.time,0);
-	//rww - RAGDOLL_END
 
 	// create a baseline for more efficient communications
 	SV_CreateBaseline ();
@@ -670,9 +660,6 @@ Ghoul2 Insert End
 	SV_BotFrame( sv.time );
 	sv.time += 100;
 	svs.time += 100;
-	//rww - RAGDOLL_BEGIN
-	re.G2API_SetTime(sv.time,0);
-	//rww - RAGDOLL_END
 
 	if ( sv_pure->integer ) {
 		// the server sends these to the clients so they will only

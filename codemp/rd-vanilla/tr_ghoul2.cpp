@@ -2491,7 +2491,7 @@ void RenderSurfaces(CRenderSurface &RS) //also ended up just ripping right from 
 #ifdef _G2_GORE
 			if (RS.gore_set && drawGore)
 			{
-				int curTime = G2API_GetTime(tr.refdef.time);
+				int curTime = tr.refdef.time;
 				pair<multimap<int,SGoreSurface>::iterator,multimap<int,SGoreSurface>::iterator> range=
 					RS.gore_set->mGoreRecords.equal_range(RS.surfaceNum);
 				multimap<int,SGoreSurface>::iterator k,kcur;

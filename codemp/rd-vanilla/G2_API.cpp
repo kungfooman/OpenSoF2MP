@@ -145,39 +145,6 @@ qboolean G2_SetupModelPointers(CGhoul2Info *ghlInfo);
 qboolean G2_SetupModelPointers(CGhoul2Info_v &ghoul2);
 qboolean G2_TestModelPointers(CGhoul2Info *ghlInfo);
 
-//rww - RAGDOLL_BEGIN
-#define NUM_G2T_TIME (2)
-static int G2TimeBases[NUM_G2T_TIME];
-
-void G2API_SetTime(int currentTime,int clock)
-{
-	assert(clock>=0&&clock<NUM_G2T_TIME);
-#if G2_DEBUG_TIME
-	Com_Printf("Set Time: before c%6d  s%6d",G2TimeBases[1],G2TimeBases[0]);
-#endif
-	G2TimeBases[clock]=currentTime;
-	if (G2TimeBases[1]>G2TimeBases[0]+200)
-	{
-		G2TimeBases[1]=0; // use server time instead
-		return;
-	}
-#if G2_DEBUG_TIME
-	Com_Printf(" after c%6d  s%6d\n",G2TimeBases[1],G2TimeBases[0]);
-#endif
-}
-
-int	G2API_GetTime(int argTime) // this may or may not return arg depending on ghoul2_time cvar
-{
-	int ret=G2TimeBases[1];
-	if ( !ret )
-	{
-		ret = G2TimeBases[0];
-	}
-
-	return ret;
-}
-//rww - RAGDOLL_END
-
 //rww - Stuff to allow association of ghoul2 instances to entity numbers.
 //This way, on listen servers when both the client and server are doing
 //ghoul2 operations, we can copy relevant data off the client instance
@@ -1133,8 +1100,7 @@ qboolean G2API_GetBoneAnim(CGhoul2Info *ghlInfo, const char *boneName, const int
 	assert(currentFrame!=animSpeed); //this is bad
 	if (G2_SetupModelPointers(ghlInfo))
 	{
-		int aCurrentTime=G2API_GetTime(currentTime);
- 		qboolean ret=G2_Get_Bone_Anim(ghlInfo, ghlInfo->mBlist, boneName, aCurrentTime, currentFrame,
+ 		qboolean ret=G2_Get_Bone_Anim(ghlInfo, ghlInfo->mBlist, boneName, currentTime, currentFrame,
 			startFrame, endFrame, flags, animSpeed, modelList, ghlInfo->mModelindex);
 #ifdef _DEBUG
 		/*
@@ -1421,7 +1387,6 @@ extern int ragTraceCount;
 void G2API_AnimateG2ModelsRag(CGhoul2Info_v &ghoul2, int AcurrentTime,CRagDollUpdateParams *params)
 {
 	int model;
-	int currentTime=G2API_GetTime(AcurrentTime);
 
 #ifdef _DEBUG
 	ragTraceTime = 0;
@@ -1434,7 +1399,7 @@ void G2API_AnimateG2ModelsRag(CGhoul2Info_v &ghoul2, int AcurrentTime,CRagDollUp
 	{
 		if (ghoul2[model].mModel)
 		{
-			G2_Animate_Bone_List(ghoul2,currentTime,model,params);	
+			G2_Animate_Bone_List(ghoul2,AcurrentTime,model,params);	
 		}
 	}
 #ifdef _DEBUG
@@ -1796,7 +1761,6 @@ qboolean G2API_GetBoltMatrix(CGhoul2Info_v &ghoul2, const int modelIndex, const 
 	{
 		if (matrix&&modelIndex>=0&&modelIndex<ghoul2.size())
 		{
-			int tframeNum=G2API_GetTime(frameNum);
 			CGhoul2Info *ghlInfo = &ghoul2[modelIndex];
 			G2ERROR(boltIndex >= 0 && (boltIndex < ghlInfo->mBltlist.size()),va("Invalid Bolt Index (%d:%s)",boltIndex,ghlInfo->mFileName));
 
@@ -1817,9 +1781,9 @@ qboolean G2API_GetBoltMatrix(CGhoul2Info_v &ghoul2, const int modelIndex, const 
 					gG2_GBMNoReconstruct = qfalse;
 				}
 #else
-				if (G2_NeedsRecalc(ghlInfo,tframeNum))
+				if (G2_NeedsRecalc(ghlInfo,frameNum))
 				{
-					G2_ConstructGhoulSkeleton(ghoul2,tframeNum,true,scale);
+					G2_ConstructGhoulSkeleton(ghoul2,frameNum,true,scale);
 				}
 #endif
 
@@ -2028,9 +1992,8 @@ void G2API_CollisionDetectCache(CollisionRecord_t *collRecMap, CGhoul2Info_v &gh
 	{
 		vec3_t	transRayStart, transRayEnd;
 
-		int tframeNum=G2API_GetTime(frameNumber);
 		// make sure we have transformed the whole skeletons for each model
-		if (G2_NeedRetransform(&ghoul2[0], tframeNum) || !ghoul2[0].mTransformedVertsArray)
+		if (G2_NeedRetransform(&ghoul2[0], frameNumber) || !ghoul2[0].mTransformedVertsArray)
 		{ //optimization, only create new transform space if we need to, otherwise
 			//store it off!
 			int i = 0;

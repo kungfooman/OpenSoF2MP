@@ -1377,7 +1377,7 @@ static int G2_Set_Bone_Angles_Rag(
 				assert(!"Invalid RAG PCJ\n");
 			}
 		}
-		bone.ragStartTime=G2API_GetTime(0);
+		bone.ragStartTime=0;
 		bone.boneBlendStart = bone.ragStartTime;
 		bone.boneBlendTime = blendTime;
 		bone.radius=radius;
@@ -1640,7 +1640,7 @@ void G2_SetRagDoll(CGhoul2Info_v &ghoul2V,CRagDollParams *parms)
 	{
 		return;
 	}
-	int curTime=G2API_GetTime(0);
+	int curTime=0;
 	boneInfo_v &blist = ghoul2.mBlist;
 	int	index = G2_Find_Bone_Rag(&ghoul2, blist, "model_root");
 	switch (parms->RagPhase)
@@ -2130,7 +2130,7 @@ void G2_SetRagDollBullet(CGhoul2Info &ghoul2,const vec3_t rayStart,const vec3_t 
 	//				bone.lastAngles[2]+=flrand(-10.0f*lenr,10.0f*lenr);
 
 					// go dynamic
-					bone.firstCollisionTime=G2API_GetTime(0);
+					bone.firstCollisionTime=0;
 //					bone.firstCollisionTime=0;
 					bone.restTime=0;
 				}
@@ -2412,7 +2412,7 @@ static void G2_RagDoll(CGhoul2Info_v &ghoul2V,int g2Index,CRagDollUpdateParams *
 #endif
 
 //	params->DebugLine(handPos,handPos2,false);
-	int frameNum=G2API_GetTime(0);
+	int frameNum=0;
 	CGhoul2Info &ghoul2=ghoul2V[g2Index];
 	assert(ghoul2.mFileName[0]);
 	boneInfo_v &blist = ghoul2.mBlist;
@@ -4438,7 +4438,7 @@ static void G2_DoIK(CGhoul2Info_v &ghoul2V,int g2Index,CRagDollUpdateParams *par
 		return;
 	}
 
-	int frameNum=G2API_GetTime(0);
+	int frameNum=0;
 	CGhoul2Info &ghoul2=ghoul2V[g2Index];
 	assert(ghoul2.mFileName[0]);
 
@@ -4533,7 +4533,7 @@ static int G2_Set_Bone_Angles_IK(
 		boneInfo_t &bone=blist[index];
 		bone.flags &= ~BONE_ANGLES_RAGDOLL;
 
-		bone.ragStartTime=G2API_GetTime(0);
+		bone.ragStartTime=0;
 		bone.radius=radius;
 		bone.weight=1.0f;
 

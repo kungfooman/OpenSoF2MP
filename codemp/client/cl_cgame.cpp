@@ -1391,14 +1391,6 @@ CL_CGameRendering
 =====================
 */
 void CL_CGameRendering( stereoFrame_t stereo ) {
-	//rww - RAGDOLL_BEGIN
-	if (!com_sv_running->integer)
-	{ //set the server time to match the client time, if we don't have a server going.
-		re.G2API_SetTime(cl.serverTime, 0);
-	}
-	re.G2API_SetTime(cl.serverTime, 1);
-	//rww - RAGDOLL_END
-
 	VM_Call( cgvm, CG_DRAW_ACTIVE_FRAME, cl.serverTime, stereo, clc.demoplaying );
 	VM_Debug( 0 );
 }

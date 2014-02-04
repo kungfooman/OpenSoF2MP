@@ -1119,10 +1119,6 @@ void SV_Frame( int msec ) {
 		VM_Call( gvm, GAME_RUN_FRAME, sv.time );
 	}
 
-	//rww - RAGDOLL_BEGIN
-	re.G2API_SetTime(sv.time,0);
-	//rww - RAGDOLL_END
-
 	if ( com_speeds->integer ) {
 		time_game = Sys_Milliseconds () - startTime;
 	}

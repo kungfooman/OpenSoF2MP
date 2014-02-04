@@ -160,7 +160,6 @@ typedef struct {
 	char *				(*G2API_GetSurfaceName)					( CGhoul2Info *ghlInfo, int surfNumber );
 	int					(*G2API_GetSurfaceOnOff)				( CGhoul2Info *ghlInfo, const char *surfaceName );
 	int					(*G2API_GetSurfaceRenderStatus)			( CGhoul2Info *ghlInfo, const char *surfaceName );
-	int					(*G2API_GetTime)						( int argTime );
 	int					(*G2API_Ghoul2Size)						( CGhoul2Info_v &ghoul2 );
 	void				(*G2API_GiveMeVectorFromMatrix)			( mdxaBone_t *boltMatrix, Eorientations flags, vec3_t vec );
 	qboolean			(*G2API_HasGhoul2ModelOnIndex)			( CGhoul2Info_v **ghlRemove, const int modelIndex );
@@ -204,7 +203,6 @@ typedef struct {
 	qboolean			(*G2API_SetShader)						( CGhoul2Info *ghlInfo, qhandle_t customShader );
 	qboolean			(*G2API_SetSkin)						( CGhoul2Info *ghlInfo, qhandle_t customSkin, qhandle_t renderSkin );
 	qboolean			(*G2API_SetSurfaceOnOff)				( CGhoul2Info_v &ghoul2, const int modelIndex, const char *surfaceName, const int flags );
-	void				(*G2API_SetTime)						( int currentTime, int clock );
 	qboolean			(*G2API_SkinlessModel)					( CGhoul2Info *g2 );
 	qboolean			(*G2API_StopBoneAngles)					( CGhoul2Info *ghlInfo, const char *boneName );
 	qboolean			(*G2API_StopBoneAnglesIndex)			( CGhoul2Info *ghlInfo, const int index );

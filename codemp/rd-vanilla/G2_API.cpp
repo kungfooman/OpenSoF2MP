@@ -212,7 +212,7 @@ qboolean G2API_OverrideServerWithClientData(CGhoul2Info *serverInstance)
 	CGhoul2Info_v &g2Ref = *g2ClientAttachments[serverInstance->entityNum];
 	clientInstance = &g2Ref[0];
 
-	int frameNum = G2API_GetTime(0);
+	int frameNum = 0;
 
 	if (clientInstance->mSkelFrameNum != frameNum)
 	{ //it has to be constructed already

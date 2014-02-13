@@ -869,16 +869,10 @@ int CL_CgameSystemCalls( int *args ) {
 
 	case CG_FX_PLAY_BOLTED_EFFECT_ID:
 		{
+			//SOF2 TODO Temporarily use FX_PlayEffectID here.
 			//(int id,CFxBoltInterface *obj, int vol, int rad)
-			//SOF2 TODO (some guesses here to make it work)
-			CFxBoltInterface * obj = (CFxBoltInterface *) VMA(2);
-			CGhoul2Info_v& ghoul2 = *(CGhoul2Info_v *) obj->ghoul2;
-			int boltInfo=0;
-			if ( re.G2API_AttachEnt( &boltInfo, &ghoul2[obj->modelNum], obj->boltNum, 1, obj->modelNum ) )
-			{
-				FX_PlayBoltedEffectID(args[1], obj->origin, boltInfo, (int) &ghoul2, -1, qfalse );
-				return 1;
-			}
+			CFxBoltInterface * boltInterface = (CFxBoltInterface *) VMA(2);
+			FX_PlayEffectID(args[1], boltInterface->origin, boltInterface->forward, args[3], args[4]);
 			return 0;
 		}
 	case CG_FX_ADD_SCHEDULED_EFFECTS:

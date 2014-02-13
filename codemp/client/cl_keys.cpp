@@ -626,24 +626,8 @@ void Console_Key (int key) {
 
 		// leading slash is an explicit command
 		if ( kg.g_consoleField.buffer[0] == '\\' || kg.g_consoleField.buffer[0] == '/' ) {
-			if (cgvm && cl.mSharedMemory)
-			{ //don't do this unless cgame is inited and shared memory is valid
-				const char *buf = (kg.g_consoleField.buffer+1);
-				TCGIncomingConsoleCommand *icc = (TCGIncomingConsoleCommand *)cl.mSharedMemory;
-
-				strcpy(icc->conCommand, buf);
-				
-				if (icc->conCommand[0])
-				{ //the vm call says to execute this command in place
-					Cbuf_AddText( icc->conCommand );
-					Cbuf_AddText ("\n");
-				}
-			}
-			else
-			{ //just exec it then
-				Cbuf_AddText( kg.g_consoleField.buffer+1 );	// valid command
-				Cbuf_AddText ("\n");
-			}
+			Cbuf_AddText( kg.g_consoleField.buffer+1 );	// valid command
+			Cbuf_AddText ("\n");
 		} else {
 			// other text will be chat messages
 			if ( !kg.g_consoleField.buffer[0] ) {
@@ -1359,23 +1343,8 @@ void CL_KeyEvent (int key, qboolean down, unsigned time) {
 				}
 			} else {
 				// down-only command
-				if (cgvm && cl.mSharedMemory)
-				{ //don't do this unless cgame is inited and shared memory is valid
-					TCGIncomingConsoleCommand *icc = (TCGIncomingConsoleCommand *)cl.mSharedMemory;
-
-					strcpy(icc->conCommand, kb);
-					
-					if (icc->conCommand[0])
-					{ //the vm call says to execute this command in place
-						Cbuf_AddText( icc->conCommand );
-						Cbuf_AddText ("\n");
-					}
-				}
-				else
-				{ //otherwise just add it
-					Cbuf_AddText (kb);
-					Cbuf_AddText ("\n");
-				}
+				Cbuf_AddText (kb);
+				Cbuf_AddText ("\n");
 			}
 		}
 	}

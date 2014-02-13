@@ -396,29 +396,6 @@ typedef struct
 	int			mPassEntityNum;	// input
 } TCGPointContents;
 
-// CG_GET_BOLT_POS
-typedef struct
-{
-	vec3_t		mOrigin;		// output
-	vec3_t		mAngles;		// output
-	vec3_t		mScale;			// output
-	int			mEntityNum;		// input
-} TCGGetBoltData;
-
-// CG_IMPACT_MARK
-typedef struct
-{
-	int		mHandle;
-	vec3_t	mPoint;
-	vec3_t	mAngle;
-	float	mRotation;
-	float	mRed;
-	float	mGreen;
-	float	mBlue;
-	float	mAlphaStart;
-	float	mSizeStart;
-} TCGImpactMark;
-
 // CG_GET_LERP_ORIGIN
 // CG_GET_LERP_ANGLES
 // CG_GET_MODEL_SCALE
@@ -436,20 +413,6 @@ typedef struct
 	int		mSkipNumber, mMask;			// input
 } TCGTrace;
 
-// CG_G2MARK
-typedef struct
-{
-	int			shader;
-	float		size;
-	vec3_t		start, dir;
-} TCGG2Mark;
-
-// CG_INCOMING_CONSOLE_COMMAND
-typedef struct
-{
-	char conCommand[1024];
-} TCGIncomingConsoleCommand;
-
 // CG_FX_CAMERASHAKE
 typedef struct
 {
@@ -466,16 +429,13 @@ typedef struct
 	vec3_t	mOrigin, mAngles, mScale;	// input
 } TCGMiscEnt;
 
+/// CG_CM_TM_CONVERT_POS
 typedef struct
 {
-	refEntity_t		ent;				// output
-	void			*ghoul2;			// input
-	int				modelIndex;			// input
-	int				boltIndex;			// input
-	vec3_t			origin;				// input
-	vec3_t			angles;				// input
-	vec3_t			modelScale;			// input
-} TCGPositionOnBolt;
+	vec3_t	mOrigin;					// input
+	int		mWidth, mHeight;			// input
+	int		mX, mY;						// output
+} TCGConvertPos;
 
 //ragdoll callback structs -rww
 #define RAG_CALLBACK_NONE				0

@@ -1,0 +1,76 @@
+--- a/codemp/win32/engine.rc
++++ b/codemp/win32/engine.rc
+@@ -80,12 +80,12 @@ BEGIN
+     BEGIN
+         BLOCK "040904b0"
+         BEGIN
+-            VALUE "Comments", "OpenJK Contributors"
+-            VALUE "FileDescription", "OpenJK Multiplayer"
++            VALUE "Comments", "OpenSOF2 Contributors"
++            VALUE "FileDescription", "OpenSOF2 Multiplayer"
+             VALUE "FileVersion", VERSION_STRING
+-            VALUE "InternalName", "JK MP"
+-            VALUE "OriginalFilename", "OpenJK.exe"
+-            VALUE "ProductName", "OpenJK"
++            VALUE "InternalName", "SOF2 MP"
++            VALUE "OriginalFilename", "OpenSOF2MP.exe"
++            VALUE "ProductName", "OpenSOF2"
+             VALUE "ProductVersion", VERSION_STRING
+         END
+     END
+diff --git a/codemp/win32/icon.ico b/codemp/win32/icon.ico
+index 1978a752399938283fbcc66f14cb6b614dd9a597..6cf4a4663ba9a79140f25f595815de53dc7a7f38 100644
+GIT binary patch
+literal 2686
+zcmeH{y^fqP5XWb=k+4#2np_?sB`1okM6-{R@}w(Fhb0PIx`J0pL~|0&K2kd9od1ly
+zz+$)*QPL#CVUOqM`C#llq641G<%IDaeSJ^#k%&Iyz2G%?*)9UMEhcO<M)vavm9Ez-
+zW+>$4kGy9MFCI2wuvot(?kx!B{<s*mmm(0Noed^bH}R>~s7yQtSaD#nU<!msQR6b&
+z4Q8nTX6R6bPi8iX1xUCFtEn!I$|iA@O_E4<L1W<!?2DOCSVfNjd4v(><v26Z1o5UI
+zYK3EjeJnNH@UpZikibyFHs_*6LW3s9sNkz|#z%b2n(^A82h1_3Ek0McO@&K+I~=hQ
+z7-=@sb8g_>4U4J}f;ZmD0*6nzqkQ%%gr)=LbqhE%xu*C~K+fDhvrG{RYYLQz{uL5>
+zvBALGxu&za%Ct5Jz!I#Y%24LkkID~p>}TVwHJ!5l2Z6hn*V#O2<=Mesxa%hCtiX2T
+z_9av>LsW;DS@gHhX##e+aaW}Yklsw(mCMkg!{b++qQ7zu(N^*u9dG?`_MZE8O!&8x
+z96Fk?&E;wn#VPgYgDr~3M>%0W<CWmh@yl1ZT8K}nzqe1>NV+xIXuV1KsD^BekKgcr
+zwgZ`V%rItNrT!KNPvG95O}0P}?#26xR4x3$+dSnXZf!d}41{Z>)_2c2-&kCb;mb&$
+zz@HNTS`V&rzOIyOeLdbM#|n2_X{WWQb(L_OX>PUSz8=%tBisAjF+Ze-AEGsVamuME
+cUpIn_sp-3}>^a5X6aAYa|1$m$|7-_-0x`6QRsaA1
+
+literal 3262
+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
+KF{$PMZ15kAg)o)?
+
+diff --git a/codemp/win32/win_glimp.cpp b/codemp/win32/win_glimp.cpp
+index 163d772..e786544 100644

@@ -1,0 +1,230 @@
+--- a/codemp/win32/win_glimp.cpp
++++ b/codemp/win32/win_glimp.cpp
+@@ -22,7 +22,6 @@
+ #include "resource.h"
+ #include "glw_win.h"
+ #include "win_local.h"
+-#include "qcommon/stringed_ingame.h"
+ extern void WG_CheckHardwareGamma( void );
+ extern void WG_RestoreGamma( void );
+ 
+@@ -715,6 +714,7 @@ static rserr_t GLW_SetMode( int mode,
+ 		Com_Printf (" invalid mode\n" );
+ 		return RSERR_INVALID_MODE;
+ 	}
++	glConfig.windowAspect = glConfig.vidWidth / (glConfig.vidHeight * 1.0f);
+ 	Com_Printf (" %d %d %s\n", glConfig.vidWidth, glConfig.vidHeight, win_fs[cdsFullscreen] );
+ 
+ 	//
+@@ -733,27 +733,10 @@ static rserr_t GLW_SetMode( int mode,
+ 	{
+ 		if (!cdsFullscreen && (colorbits == 0 || colorbits >= 15 ) )
+ 		{
+-			// since I can't be bothered trying to mess around with asian codepages and MBCS stuff for a windows
+-			//	error box that'll only appear if something's seriously fucked then I'm going to fallback to
+-			//	english text when these would otherwise be used...
+-			//
+-			char sErrorHead[1024];	// ott
+-
+-			extern qboolean Language_IsAsian(void);
+-			Q_strncpyz(sErrorHead, Language_IsAsian() ? "Low Desktop Color Depth" : ri.SE_GetString("CON_TEXT_LOW_DESKTOP_COLOUR_DEPTH"), sizeof(sErrorHead) );
+-
+-			const char *psErrorBody = Language_IsAsian() ?
+-												"It is highly unlikely that a correct windowed\n"
+-												"display can be initialized with the current\n"
+-												"desktop display depth.  Select 'OK' to try\n"
+-												"anyway.  Select 'Cancel' to try a fullscreen\n"
+-												"mode instead."
+-												:
+-												ri.SE_GetString("CON_TEXT_TRY_ANYWAY");
+-
+ 			if ( MessageBox( NULL, 							
+-						psErrorBody,
+-						sErrorHead,
++						"It is highly unlikely that a correct\nwindowed display can be initialized with\nthe current desktop display depth.  Select\n"
++						"'OK' to try anyway.  Press 'Cancel' if you\nhave a 3Dfx Voodoo, Voodoo-2, or Voodoo Rush\n3D accelerator installed, or if you otherwise\nwish to quit.",
++						"Low Desktop Color Depth",
+ 						MB_OKCANCEL | MB_ICONEXCLAMATION ) != IDOK )
+ 			{
+ 				return RSERR_INVALID_MODE;
+@@ -972,13 +955,13 @@ static void GLW_InitTextureCompression( void )
+ 	if ( !r_ext_compressed_textures->value )
+ 	{
+ 		// Compressed textures are off
+-		glConfig.textureCompression = TC_NONE;
++		//glConfig.textureCompression = TC_NONE;
+ 		Com_Printf ("...ignoring texture compression\n" );
+ 	}
+ 	else if ( !old_tc && !newer_tc )
+ 	{
+ 		// Requesting texture compression, but no method found
+-		glConfig.textureCompression = TC_NONE;
++		//glConfig.textureCompression = TC_NONE;
+ 		Com_Printf ("...no supported texture compression method found\n" );
+ 		Com_Printf (".....ignoring texture compression\n" );
+ 	}
+@@ -992,13 +975,13 @@ static void GLW_InitTextureCompression( void )
+ 			{
+ 				Com_Printf ("...no tc preference specified\n" );
+ 				Com_Printf (".....using GL_EXT_texture_compression_s3tc\n" );
+-				glConfig.textureCompression = TC_S3TC_DXT;
++				//glConfig.textureCompression = TC_S3TC_DXT;
+ 			}
+ 			else
+ 			{
+ 				Com_Printf ("...no tc preference specified\n" );
+ 				Com_Printf (".....using GL_S3_s3tc\n" );
+-				glConfig.textureCompression = TC_S3TC;
++				//glConfig.textureCompression = TC_S3TC;
+ 			}
+ 		}
+ 		else
+@@ -1010,12 +993,12 @@ static void GLW_InitTextureCompression( void )
+ 				if ( r_ext_preferred_tc_method->integer == TC_S3TC )
+ 				{
+ 					Com_Printf ("...using preferred tc method, GL_S3_s3tc\n" );
+-					glConfig.textureCompression = TC_S3TC;
++					//glConfig.textureCompression = TC_S3TC;
+ 				}
+ 				else
+ 				{
+ 					Com_Printf ("...using preferred tc method, GL_EXT_texture_compression_s3tc\n" );
+-					glConfig.textureCompression = TC_S3TC_DXT;
++					//glConfig.textureCompression = TC_S3TC_DXT;
+ 				}
+ 			}
+ 			else
+@@ -1027,14 +1010,14 @@ static void GLW_InitTextureCompression( void )
+ 					if ( old_tc )
+ 					{
+ 						Com_Printf ("...using GL_S3_s3tc\n" );
+-						glConfig.textureCompression = TC_S3TC;
++						//glConfig.textureCompression = TC_S3TC;
+ 					}
+ 					else
+ 					{
+ 						// Drat, preference can't be honored 
+ 						Com_Printf ("...preferred tc method, GL_S3_s3tc not available\n" );
+ 						Com_Printf (".....falling back to GL_EXT_texture_compression_s3tc\n" );
+-						glConfig.textureCompression = TC_S3TC_DXT;
++						//glConfig.textureCompression = TC_S3TC_DXT;
+ 					}
+ 				}
+ 				else
+@@ -1043,14 +1026,14 @@ static void GLW_InitTextureCompression( void )
+ 					if ( newer_tc )
+ 					{
+ 						Com_Printf ("...using GL_EXT_texture_compression_s3tc\n" );
+-						glConfig.textureCompression = TC_S3TC_DXT;
++						//glConfig.textureCompression = TC_S3TC_DXT;
+ 					}
+ 					else
+ 					{
+ 						// Drat, preference can't be honored 
+ 						Com_Printf ("...preferred tc method, GL_EXT_texture_compression_s3tc not available\n" );
+ 						Com_Printf (".....falling back to GL_S3_s3tc\n" );
+-						glConfig.textureCompression = TC_S3TC;
++						//glConfig.textureCompression = TC_S3TC;
+ 					}
+ 				}
+ 			}
+@@ -1097,7 +1080,7 @@ static void GLW_InitExtensions( void )
+ 	}
+ 
+ 	// GL_EXT_texture_filter_anisotropic
+-	glConfig.maxTextureFilterAnisotropy = 0;
++	/*glConfig.maxTextureFilterAnisotropy = 0;
+ 	if ( strstr( glConfig.extensions_string, "EXT_texture_filter_anisotropic" ) )
+ 	{
+ #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF	//can't include glext.h here ... sigh
+@@ -1119,10 +1102,10 @@ static void GLW_InitExtensions( void )
+ 		}
+ 	}
+ 	else
+-	{
++	{*/
+ 		Com_Printf ("...GL_EXT_texture_filter_anisotropic not found\n" );
+ 		ri.Cvar_Set( "r_ext_texture_filter_anisotropic_avail", "0" );
+-	}
++	//}
+ 
+ 	// GL_EXT_clamp_to_edge
+ 	glConfig.clampToEdgeAvailable = qfalse;
+@@ -1657,10 +1640,10 @@ void GLimp_Init( void )
+ 	GLW_StartOpenGL();
+ 
+ 	// get our config strings
+-	glConfig.vendor_string = (const char *) qglGetString (GL_VENDOR);
+-	glConfig.renderer_string = (const char *) qglGetString (GL_RENDERER);
+-	glConfig.version_string = (const char *) qglGetString (GL_VERSION);
+-	glConfig.extensions_string = (const char *) qglGetString (GL_EXTENSIONS);
++	strcpy(glConfig.vendor_string, (const char *) qglGetString (GL_VENDOR));
++	strcpy(glConfig.renderer_string, (const char *) qglGetString (GL_RENDERER));
++	strcpy(glConfig.version_string, (const char *) qglGetString (GL_VERSION));
++	strcpy(glConfig.extensions_string, (const char *) qglGetString (GL_EXTENSIONS));
+ 	
+ 	if (!glConfig.vendor_string || !glConfig.renderer_string || !glConfig.version_string || !glConfig.extensions_string)
+ 	{
+@@ -1722,7 +1705,7 @@ void GLimp_Init( void )
+ 		
+ 		GLW_InitExtensions();	//get the values for test below
+ 		//this must be a really sucky card!
+-		if ( (glConfig.textureCompression == TC_NONE) || (glConfig.maxActiveTextures < 2)  || (glConfig.maxTextureSize <= 512) )
++		if (/* (glConfig.textureCompression == TC_NONE) ||*/ (glConfig.maxActiveTextures < 2)  || (glConfig.maxTextureSize <= 512) )
+ 		{
+ 			ri.Cvar_Set( "r_picmip", "2");
+ 			ri.Cvar_Set( "r_colorbits", "16");
+@@ -1747,7 +1730,7 @@ void GLimp_Init( void )
+ void GLimp_Shutdown( void )
+ {
+ //	const char *strings[] = { "soft", "hard" };
+-//	const char *success[] = { "failed", "success" };
++	const char *success[] = { "failed", "success" };
+ 	int retVal;
+ 
+ 	// FIXME: Brian, we need better fallbacks from partially initialized failures
+@@ -1765,14 +1748,14 @@ void GLimp_Shutdown( void )
+ 	{
+ 		retVal = qwglMakeCurrent( NULL, NULL ) != 0;
+ 
+-//		Com_Printf ("...wglMakeCurrent( NULL, NULL ): %s\n", success[retVal] );
++		Com_Printf ("...wglMakeCurrent( NULL, NULL ): %s\n", success[retVal] );
+ 	}
+ 
+ 	// delete HGLRC
+ 	if ( glw_state.hGLRC )
+ 	{
+ 		retVal = qwglDeleteContext( glw_state.hGLRC ) != 0;
+-//		Com_Printf ("...deleting GL context: %s\n", success[retVal] );
++		Com_Printf ("...deleting GL context: %s\n", success[retVal] );
+ 		glw_state.hGLRC = NULL;
+ 	}
+ 
+@@ -1780,14 +1763,14 @@ void GLimp_Shutdown( void )
+ 	if ( glw_state.hDC )
+ 	{
+ 		retVal = ReleaseDC( tr.wv->hWnd, glw_state.hDC ) != 0;
+-//		Com_Printf ("...releasing DC: %s\n", success[retVal] );
++		Com_Printf ("...releasing DC: %s\n", success[retVal] );
+ 		glw_state.hDC   = NULL;
+ 	}
+ 
+ 	// destroy window
+ 	if ( tr.wv->hWnd )
+ 	{
+-//		Com_Printf ("...destroying window\n" );
++		Com_Printf ("...destroying window\n" );
+ 		ShowWindow( tr.wv->hWnd, SW_HIDE );
+ 		DestroyWindow( tr.wv->hWnd );
+ 		tr.wv->hWnd = NULL;
+@@ -1804,7 +1787,7 @@ void GLimp_Shutdown( void )
+ 	// reset display settings
+ 	if ( glw_state.cdsFullscreen )
+ 	{
+-//		Com_Printf ("...resetting display\n" );
++		Com_Printf ("...resetting display\n" );
+ 		ChangeDisplaySettings( 0, 0 );
+ 		glw_state.cdsFullscreen = qfalse;
+ 	}
+diff --git a/codemp/win32/win_input.cpp b/codemp/win32/win_input.cpp
+index b701032..b26028d 100644

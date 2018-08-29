@@ -1,0 +1,13 @@
+--- a/codemp/qcommon/RoffSystem.h
++++ b/codemp/qcommon/RoffSystem.h
+@@ -147,7 +147,7 @@ private:
+ 	qboolean	ApplyROFF( SROFFEntity *roff_ent,
+ 					CROFFSystem::CROFF *roff );	// True = success; False = roff complete
+ 
+-	void	ProcessNote(SROFFEntity *roff_ent, char *note);
++	//void	ProcessNote(SROFFEntity *roff_ent, char *note);
+ 
+ 	void	SetLerp( trajectory_t *tr, 
+ 					trType_t, vec3_t origin, 
+diff --git a/codemp/qcommon/cm_shader.cpp b/codemp/qcommon/cm_shader.cpp
+index 757aa92..e200359 100644

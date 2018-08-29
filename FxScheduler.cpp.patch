@@ -1,0 +1,17 @@
+--- a/codemp/client/FxScheduler.cpp
++++ b/codemp/client/FxScheduler.cpp
+@@ -1649,10 +1649,10 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
+ 
+ 		theFxHelper.AddDecalToScene ( fx->mMediaHandles.GetHandle(), org, ax[0], fx->mRotation.GetVal(), sRGB[0], sRGB[1], sRGB[2], fx->mAlphaStart.GetVal(), qtrue, fx->mSizeStart.GetVal(), qfalse );
+ 
+-		if (fx->mFlags & FX_GHOUL2_DECALS)
++		/*if (fx->mFlags & FX_GHOUL2_DECALS)
+ 		{
+ 			theFxHelper.AddGhoul2Decal(fx->mMediaHandles.GetHandle(), org, ax[0], fx->mSizeStart.GetVal());
+-		}
++		}*/
+ 
+ 		break;
+ 
+diff --git a/codemp/client/FxSystem.cpp b/codemp/client/FxSystem.cpp
+index 2eac708..b22586e 100644

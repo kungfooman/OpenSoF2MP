@@ -1,0 +1,13 @@
+--- a/codemp/qcommon/cm_shader.cpp
++++ b/codemp/qcommon/cm_shader.cpp
+@@ -490,7 +490,7 @@ void CM_ShutdownShaderProperties(void)
+ {
+ 	if(cmShaderTable.count())
+ 	{
+-//		Com_Printf("Shutting down cmShaderTable .....\n");
++		Com_Printf("Shutting down cmShaderTable .....\n");
+ 		cmShaderTable.clear();
+ 	}
+ }
+diff --git a/codemp/qcommon/common.cpp b/codemp/qcommon/common.cpp
+index 081c69d..9a3f916 100644

@@ -1,0 +1,75 @@
+--- a/codemp/rd-vanilla/tr_local.h
++++ b/codemp/rd-vanilla/tr_local.h
+@@ -21,7 +21,8 @@ inline long myftol( float f );
+ 
+ // 14 bits
+ // see QSORT_SHADERNUM_SHIFT
+-#define	MAX_SHADERS				16384
++#define SHADERNUM_BITS        14
++#define MAX_SHADERS                (1<<SHADERNUM_BITS)
+ // can't be increased without changing bit packing for drawsurfs
+ 
+ #define MAX_SHADER_STATES 2048
+@@ -472,6 +473,10 @@ typedef struct shader_s {
+ 
+   int shaderStates[MAX_STATES_PER_SHADER];          // index to valid shader states
+ */
++	char		hitMaterial[MAX_QPATH];
++	char		hitLocation[MAX_QPATH];
++	int			damage;
++	int			damageShaderNum;
+ 
+ 	struct shader_s *remappedShader;                  // current shader this one is remapped too
+ 	struct	shader_s	*next;
+@@ -937,14 +942,17 @@ compared quickly during the qsorting process
+ 
+ the bits are allocated as follows:
+ 
+-18-31 : sorted shader index
+-7-17  : entity index
++17-31 : sorted shader index
++7-16  : entity index
+ 2-6   : fog index
+ 0-1   : dlightmap index
+ */
+-#define	QSORT_SHADERNUM_SHIFT	18
+-#define	QSORT_ENTITYNUM_SHIFT	7
+ #define	QSORT_FOGNUM_SHIFT		2
++#define	QSORT_ENTITYNUM_SHIFT	7
++#define	QSORT_SHADERNUM_SHIFT	(QSORT_ENTITYNUM_SHIFT+GENTITYNUM_BITS)
++#if (QSORT_SHADERNUM_SHIFT+SHADERNUM_BITS) > 32
++        #error "Need to update sorting, too many bits."
++#endif
+ 
+ extern	int			gl_filter_min, gl_filter_max;
+ 
+@@ -1000,7 +1008,6 @@ typedef struct {
+ 	viewParms_t	viewParms;
+ 	orientationr_t	ori;		// Can't use or as it is a c++ reserved word DREWS 2/2/2002
+ 	backEndCounters_t	pc;
+-	qboolean	isHyperspace;
+ 	trRefEntity_t	*currentEntity;
+ 	qboolean	skyRenderedThisView;	// flag for drawing sun
+ 
+@@ -1402,7 +1409,7 @@ void		RE_SetWorldVisData( const byte *vis );
+ 
+ qhandle_t	RE_RegisterServerModel( const char *name );
+ qhandle_t	RE_RegisterModel( const char *name );
+-qhandle_t	RE_RegisterSkin( const char *name );
++qhandle_t	RE_RegisterSkin( const char *name, int numPairs, char *skinPairs );
+ void		RE_Shutdown( qboolean destroyWindow );
+ 
+ void		RE_RegisterMedia_LevelLoadBegin(const char *psMapName, ForceReload_e eForceReload);
+@@ -1795,8 +1802,8 @@ void	RB_CalcColorFromOneMinusEntity( unsigned char *dstColors );
+ void	RB_CalcSpecularAlpha( unsigned char *alphas );
+ void	RB_CalcDisintegrateColors( unsigned char *colors );
+ void	RB_CalcDiffuseColor( unsigned char *colors );
+-void	RB_CalcDiffuseEntityColor( unsigned char *colors );
+-void	RB_CalcDisintegrateVertDeform( void );
++//void	RB_CalcDiffuseEntityColor( unsigned char *colors );
++//void	RB_CalcDisintegrateVertDeform( void );
+ 
+ /*
+ =============================================================
+diff --git a/codemp/rd-vanilla/tr_main.cpp b/codemp/rd-vanilla/tr_main.cpp
+index 2d586cb..f2f3e77 100644

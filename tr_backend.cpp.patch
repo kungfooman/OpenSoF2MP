@@ -1,0 +1,225 @@
+--- a/codemp/rd-vanilla/tr_backend.cpp
++++ b/codemp/rd-vanilla/tr_backend.cpp
+@@ -408,28 +408,6 @@ void GL_State( unsigned long stateBits )
+ 
+ 
+ 
+-/*
+-================
+-RB_Hyperspace
+-
+-A player has predicted a teleport, but hasn't arrived yet
+-================
+-*/
+-static void RB_Hyperspace( void ) {
+-	float		c;
+-
+-	if ( !backEnd.isHyperspace ) {
+-		// do initialization shit
+-	}
+-
+-	c = ( backEnd.refdef.time & 255 ) / 255.0f;
+-	qglClearColor( c, c, c, 1 );
+-	qglClear( GL_COLOR_BUFFER_BIT );
+-
+-	backEnd.isHyperspace = qtrue;
+-}
+-
+-
+ void SetViewportAndScissor( void ) {
+ 	qglMatrixMode(GL_PROJECTION);
+ 	qglLoadMatrixf( backEnd.viewParms.projectionMatrix );
+@@ -481,7 +459,7 @@ void RB_BeginDrawingView (void) {
+ 		tr_stencilled = false;
+ 	}
+ 
+-	if (skyboxportal)
++	/*if (skyboxportal)
+ 	{
+ 		if ( backEnd.refdef.rdflags & RDF_SKYBOXPORTAL )
+ 		{	// portal scene, clear whatever is necessary
+@@ -495,7 +473,7 @@ void RB_BeginDrawingView (void) {
+ 		}
+ 	}
+ 	else
+-	{
++	{*/
+ 		if ( r_fastsky->integer && !( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) && !g_bRenderGlowingObjects )
+ 		{
+ 			clearBits |= GL_COLOR_BUFFER_BIT;	// FIXME: only if sky shaders have been used
+@@ -505,9 +483,9 @@ void RB_BeginDrawingView (void) {
+ 			qglClearColor( 0.0f, 0.0f, 0.0f, 1.0f );	// FIXME: get color of sky
+ #endif
+ 		}
+-	}
++	//}
+ 
+-	if ( tr.refdef.rdflags & RDF_AUTOMAP || (!( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) && r_DynamicGlow->integer && !g_bRenderGlowingObjects ) )
++	if (/* tr.refdef.rdflags & RDF_AUTOMAP ||*/ (!( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) && r_DynamicGlow->integer && !g_bRenderGlowingObjects ) )
+ 	{
+ 		if (tr.world && tr.world->globalFog != -1)
+ 		{ //this is because of a bug in multiple scenes I think, it needs to clear for the second scene but it doesn't normally.
+@@ -530,16 +508,6 @@ void RB_BeginDrawingView (void) {
+ 		qglClear( clearBits );
+ 	}
+ 
+-	if ( ( backEnd.refdef.rdflags & RDF_HYPERSPACE ) )
+-	{
+-		RB_Hyperspace();
+-		return;
+-	}
+-	else
+-	{
+-		backEnd.isHyperspace = qfalse;
+-	}
+-
+ 	glState.faceCulling = -1;		// force face culling to set next time
+ 
+ 	// we will only draw a sun if there was sky rendered in this view
+@@ -688,7 +656,6 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
+ 	drawSurf_t		*drawSurf;
+ 	unsigned int	oldSort;
+ 	float			originalTime;
+-	trRefEntity_t	*curEnt;
+ 	postRender_t	*pRender;
+ 	bool			didShadowPass = false;
+ #ifdef __MACOS__
+@@ -750,7 +717,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
+ 		// change the tess parameters if needed
+ 		// a "entityMergable" shader is a shader that can have surfaces from seperate
+ 		// entities merged into a single batch, like smoke and blood puff sprites
+-		if (entityNum != TR_WORLDENT &&
++		/*if (entityNum != TR_WORLDENT &&
+ 			g_numPostRenders < MAX_POST_RENDERS)
+ 		{
+ 			if ( (backEnd.refdef.entities[entityNum].e.renderfx & RF_DISTORTION) ||
+@@ -785,7 +752,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
+ 				pRender->drawSurf = drawSurf;
+ 				pRender->dlighted = dlighted;
+ 				pRender->fogNum = fogNum;
+-				pRender->shader = shader;
++				pRender->shader = shader;*/
+ 
+ 				/*
+ 				if (shader == tr.distortionShader)
+@@ -794,7 +761,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
+ 				}
+ 				else
+ 				*/
+-				{
++				/*{
+ 					pRender->eValid = qtrue;
+ 				}
+ 
+@@ -809,7 +776,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
+ 				//continue without bothering to begin a draw surf
+ 				continue;
+ 			}
+-		}
++		}*/
+ 		/*
+ 		else if (shader == tr.distortionShader &&
+ 			g_numPostRenders < MAX_POST_RENDERS)
+@@ -902,11 +869,11 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
+ #endif
+ 				}
+ 
+-				if ( backEnd.currentEntity->e.renderfx & RF_NODEPTH ) {
++				/*if ( backEnd.currentEntity->e.renderfx & RF_NODEPTH ) {
+ 					// No depth at all, very rare but some things for seeing through walls
+ 					depthRange = 2;
+ 				}
+-				else if ( backEnd.currentEntity->e.renderfx & RF_DEPTHHACK ) {
++				else */if ( backEnd.currentEntity->e.renderfx & RF_DEPTHHACK ) {
+ 					// hack the depth range to prevent view model from poking into walls
+ 					depthRange = 1;
+ 				}
+@@ -1004,8 +971,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
+ #endif
+ 			}
+ 			else
+-			*/
+-			{ //ent
++			{*/ //ent
+ 				backEnd.currentEntity = &backEnd.refdef.entities[pRender->entNum];
+ 
+ 				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
+@@ -1024,7 +990,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
+ 					R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.ori );
+ #endif
+ 				}
+-			}
++			//}
+ 
+ 			qglLoadMatrixf( backEnd.ori.modelMatrix );
+ 
+@@ -1112,7 +1078,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
+ 				}
+ 				lastPostEnt = ENTITYNUM_NONE;
+ 			}
+-			*/
++
+ 			if (!pRender->eValid)
+ 			{
+ 			}
+@@ -1177,7 +1143,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
+ 
+ 					lastPostEnt = pRender->entNum;
+ 				}
+-			}
++			}*/
+ 
+ 			rb_surfaceTable[ *pRender->drawSurf->surface ]( pRender->drawSurf->surface );
+ 			RB_EndSurface();
+@@ -1239,7 +1205,8 @@ void	RB_SetGL2D (void) {
+ 	qglScissor( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
+ 	qglMatrixMode(GL_PROJECTION);
+     qglLoadIdentity ();
+-	qglOrtho (0, 640, 480, 0, 0, 1);
++	//qglOrtho (0, 640, 480, 0, 0, 1);
++	qglOrtho (0, glConfig.vidWidth, glConfig.vidHeight, 0, 0, 1 );
+ 	qglMatrixMode(GL_MODELVIEW);
+     qglLoadIdentity ();
+ 
+@@ -1382,10 +1349,6 @@ const void *RB_StretchPic ( const void *data ) {
+ 
+ 	cmd = (const stretchPicCommand_t *)data;
+ 
+-	if ( !backEnd.projection2D ) {
+-		RB_SetGL2D();
+-	}
+-
+ 	shader = cmd->shader;
+ 	if ( shader != tess.shader ) {
+ 		if ( tess.numIndexes ) {
+@@ -1395,6 +1358,10 @@ const void *RB_StretchPic ( const void *data ) {
+ 		RB_BeginSurface( shader, 0 );
+ 	}
+ 
++	if ( !backEnd.projection2D ) {
++		RB_SetGL2D();
++	}
++
+ 	RB_CHECKOVERFLOW( 4, 6 );
+ 	numVerts = tess.numVertexes;
+ 	numIndexes = tess.numIndexes;
+@@ -1592,7 +1559,7 @@ const void	*RB_DrawSurfs( const void *data ) {
+ 		qglDisable( GL_TEXTURE_2D );
+ 		qglEnable( GL_TEXTURE_RECTANGLE_EXT ); 
+ 		qglBindTexture( GL_TEXTURE_RECTANGLE_EXT, tr.sceneImage ); 
+-		qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_EXT, 0, 0, 0, 0, 0, glConfig.vidWidth, glConfig.vidHeight ); 
++		qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_EXT, 0, 0, 0, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
+ 		qglDisable( GL_TEXTURE_RECTANGLE_EXT );
+ 		qglEnable( GL_TEXTURE_2D );    
+ 
+@@ -1611,7 +1578,7 @@ const void	*RB_DrawSurfs( const void *data ) {
+ 		qglDisable( GL_TEXTURE_2D );
+ 		qglEnable( GL_TEXTURE_RECTANGLE_EXT ); 
+ 		qglBindTexture( GL_TEXTURE_RECTANGLE_EXT, tr.screenGlow ); 
+-		qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_EXT, 0, 0, 0, 0, 0, glConfig.vidWidth, glConfig.vidHeight ); 
++		qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_EXT, 0, 0, 0, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
+ 		qglDisable( GL_TEXTURE_RECTANGLE_EXT );
+ 		qglEnable( GL_TEXTURE_2D );
+ 		
+diff --git a/codemp/rd-vanilla/tr_bsp.cpp b/codemp/rd-vanilla/tr_bsp.cpp
+index b1dc28a..7906eff 100644

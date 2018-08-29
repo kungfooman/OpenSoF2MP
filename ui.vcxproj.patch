@@ -1,0 +1,17 @@
+--- a/codemp/ui/ui.vcxproj
++++ b/codemp/ui/ui.vcxproj
+@@ -18,10 +18,12 @@
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
++    <PlatformToolset>v110</PlatformToolset>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
++    <PlatformToolset>v110</PlatformToolset>
+   </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+diff --git a/codemp/ui/ui.vcxproj.filters b/codemp/ui/ui.vcxproj.filters
+index c3a645e..0dcd289 100644

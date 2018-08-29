@@ -1,0 +1,13 @@
+--- a/codemp/botlib/l_script.cpp
++++ b/codemp/botlib/l_script.cpp
+@@ -526,7 +526,7 @@ int PS_ReadName(script_t *script, token_t *token)
+    } while ((c >= 'a' && c <= 'z') ||
+ 				(c >= 'A' && c <= 'Z') ||
+ 				(c >= '0' && c <= '9') ||
+-				c == '_');
++				c == '_' || c == '/');
+ 	token->string[len] = '\0';
+ 	//the sub type is the length of the name
+ 	token->subtype = len;
+diff --git a/codemp/cgame/cg_draw.c b/codemp/cgame/cg_draw.c
+index 7438e3d..317fa62 100644

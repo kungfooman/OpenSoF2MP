@@ -1,0 +1,265 @@
+--- a/codemp/rd-vanilla/tr_image.cpp
++++ b/codemp/rd-vanilla/tr_image.cpp
+@@ -114,10 +114,10 @@ void GL_TextureMode( const char *string ) {
+ 	gl_filter_max = modes[i].maximize;
+ 
+ 	// If the level they requested is less than possible, set the max possible...
+-	if ( r_ext_texture_filter_anisotropic->value > glConfig.maxTextureFilterAnisotropy )
++	/*if ( r_ext_texture_filter_anisotropic->value > glConfig.maxTextureFilterAnisotropy )
+ 	{
+ 		ri.Cvar_Set( "r_ext_texture_filter_anisotropic", va("%f",glConfig.maxTextureFilterAnisotropy) );
+-	}
++	}*/
+ 	// change all the existing mipmap texture objects
+ 	   				 R_Images_StartIteration();
+ 	while ( (glt   = R_Images_GetNextIteration()) != NULL)
+@@ -127,13 +127,13 @@ void GL_TextureMode( const char *string ) {
+ 			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+ 			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+ 
+-			if(glConfig.maxTextureFilterAnisotropy>0) {
++			/*if(glConfig.maxTextureFilterAnisotropy>0) {
+ 				if(r_ext_texture_filter_anisotropic->integer>1) {
+ 					qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
+ 				} else {
+ 					qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
+ 				}
+-			}
++			}*/
+ 		}
+ 	}
+ }
+@@ -660,7 +660,7 @@ static void Upload32( unsigned *data,
+ 		// select proper internal format
+ 		if ( samples == 3 )
+ 		{
+-			if ( glConfig.textureCompression == TC_S3TC && allowTC )
++			/*if ( glConfig.textureCompression == TC_S3TC && allowTC )
+ 			{
+ 				*pformat = GL_RGB4_S3TC;
+ 			}
+@@ -673,7 +673,7 @@ static void Upload32( unsigned *data,
+ 					*pformat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+ 				}
+ 			}
+-			else if ( isLightmap && r_texturebitslm->integer > 0 )
++			else*/ if ( isLightmap && r_texturebitslm->integer > 0 )
+ 			{
+ 				// Allow different bit depth when we are a lightmap
+ 				if ( r_texturebitslm->integer == 16 )
+@@ -700,11 +700,11 @@ static void Upload32( unsigned *data,
+ 		}
+ 		else if ( samples == 4 )
+ 		{
+-			if ( glConfig.textureCompression == TC_S3TC_DXT && allowTC)
++			/*if ( glConfig.textureCompression == TC_S3TC_DXT && allowTC)
+ 			{	// Compress both alpha and color
+ 				*pformat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+ 			}
+-			else if ( r_texturebits->integer == 16 )
++			else*/ if ( r_texturebits->integer == 16 )
+ 			{
+ 				*pformat = GL_RGBA4;
+ 			}
+@@ -767,10 +767,10 @@ done:
+ 	{
+ 		qglTexParameterf(uiTarget, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+ 		qglTexParameterf(uiTarget, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+-		if(r_ext_texture_filter_anisotropic->integer>1 && glConfig.maxTextureFilterAnisotropy>0)
++		/*if(r_ext_texture_filter_anisotropic->integer>1 && glConfig.maxTextureFilterAnisotropy>0)
+ 		{			
+ 			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value );
+-		}
++		}*/
+ 	}
+ 	else
+ 	{
+@@ -1203,7 +1203,7 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
+ 	image_t		*image;
+ 	qboolean	isLightmap = qfalse;
+ 
+-	if (strlen(name) >= MAX_QPATH ) {
++	if (strlen(name) >= MAX_OSPATH ) {
+ 		Com_Error (ERR_DROP, "R_CreateImage: \"%s\" is too long\n", name);
+ 	}
+ 
+@@ -2134,7 +2134,7 @@ Loads any of the supported image types into a cannonical
+ */
+ void R_LoadImage( const char *shortname, byte **pic, int *width, int *height, GLenum *format ) {
+ 	int		bytedepth;
+-	char	name[MAX_QPATH];
++	char	name[MAX_OSPATH];
+ 
+ 	*pic = NULL;
+ 	*width = 0;
+@@ -2656,7 +2656,7 @@ static void R_CreateDefaultImage( void ) {
+ 		data[x][DEFAULT_SIZE-1][2] =
+ 		data[x][DEFAULT_SIZE-1][3] = 255;
+ 	}
+-	tr.defaultImage = R_CreateImage("*default", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, GL_RGBA, qtrue, qfalse, qfalse, GL_REPEAT );
++	tr.defaultImage = R_CreateImage("*default", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, GL_RGBA, qtrue, qfalse, qtrue, GL_REPEAT );
+ }
+ 
+ /*
+@@ -2926,87 +2926,7 @@ bool RE_SplitSkins(const char *INname, char *skinhead, char *skintorso, char *sk
+ 	return false;
+ }
+ 
+-// given a name, go get the skin we want and return
+-qhandle_t RE_RegisterIndividualSkin( const char *name , qhandle_t hSkin) 
+-{
+-	skin_t			*skin;
+-	skinSurface_t	*surf;
+-	char			*text, *text_p;
+-	char			*token;
+-	char			surfName[MAX_QPATH];
+-
+-	// load and parse the skin file
+-    ri.FS_ReadFile( name, (void **)&text );
+-	if ( !text ) {
+-#ifndef FINAL_BUILD
+-		Com_Printf( "WARNING: RE_RegisterSkin( '%s' ) failed to load!\n", name );
+-#endif
+-		return 0;
+-	}
+-
+-	assert (tr.skins[hSkin]);	//should already be setup, but might be an 3part append
+-
+-	skin = tr.skins[hSkin];
+-
+-	text_p = text;
+-	while ( text_p && *text_p ) {
+-		// get surface name
+-		token = CommaParse( &text_p );
+-		Q_strncpyz( surfName, token, sizeof( surfName ) );
+-
+-		if ( !token[0] ) {
+-			break;
+-		}
+-		// lowercase the surface name so skin compares are faster
+-		Q_strlwr( surfName );
+-
+-		if ( *text_p == ',' ) {
+-			text_p++;
+-		}
+-
+-		if ( !strncmp( token, "tag_", 4 ) ) {	//these aren't in there, but just in case you load an id style one...
+-			continue;
+-		}
+-		
+-		// parse the shader name
+-		token = CommaParse( &text_p );
+-
+-		if ( !strcmp( &surfName[strlen(surfName)-4], "_off") )
+-		{
+-			if ( !strcmp( token ,"*off" ) )
+-			{
+-				continue;	//don't need these double offs
+-			}
+-			surfName[strlen(surfName)-4] = 0;	//remove the "_off"
+-		}
+-		if (sizeof( skin->surfaces) / sizeof( skin->surfaces[0] ) <= skin->numSurfaces)
+-		{
+-			assert( sizeof( skin->surfaces) / sizeof( skin->surfaces[0] ) > skin->numSurfaces );
+-			Com_Printf( "WARNING: RE_RegisterSkin( '%s' ) more than %d surfaces!\n", name, sizeof( skin->surfaces) / sizeof( skin->surfaces[0] ) );
+-			break;
+-		}
+-		surf = (skinSurface_t *) Hunk_Alloc( sizeof( *skin->surfaces[0] ), h_low );
+-		skin->surfaces[skin->numSurfaces] = (_skinSurface_t *)surf;
+-
+-		Q_strncpyz( surf->name, surfName, sizeof( surf->name ) );
+-
+-		if (gServerSkinHack)	surf->shader = R_FindServerShader( token, lightmapsNone, stylesDefault, qtrue );
+-		else					surf->shader = R_FindShader( token, lightmapsNone, stylesDefault, qtrue );
+-		skin->numSurfaces++;
+-	}
+-
+-	ri.FS_FreeFile( text );
+-
+-
+-	// never let a skin have 0 shaders
+-	if ( skin->numSurfaces == 0 ) {
+-		return 0;		// use default skin
+-	}
+-
+-	return hSkin;
+-}
+-
+-qhandle_t RE_RegisterSkin( const char *name ) {
++qhandle_t RE_RegisterSkin( const char *name, int numPairs, char *skinPairs ) {
+ 	qhandle_t	hSkin;
+ 	skin_t		*skin;
+ 
+@@ -3045,34 +2965,29 @@ qhandle_t RE_RegisterSkin( const char *name ) {
+ 	// make sure the render thread is stopped
+ 	R_SyncRenderThread();
+ 
+-	// If not a .skin file, load as a single shader
+-	if ( strcmp( name + strlen( name ) - 5, ".skin" ) ) {
+-/*		skin->numSurfaces = 1;
+-		skin->surfaces[0] = (skinSurface_t *)Hunk_Alloc( sizeof(skin->surfaces[0]), h_low );
+-		skin->surfaces[0]->shader = R_FindShader( name, lightmapsNone, stylesDefault, qtrue );
+-		return hSkin;
+-*/
+-	}
+ 
+-	char skinhead[MAX_QPATH]={0};
+-	char skintorso[MAX_QPATH]={0};
+-	char skinlower[MAX_QPATH]={0};
+-	if ( RE_SplitSkins(name, (char*)&skinhead, (char*)&skintorso, (char*)&skinlower ) )
+-	{//three part
+-		hSkin = RE_RegisterIndividualSkin(skinhead, hSkin);
+-		if (hSkin)
+-		{
+-			hSkin = RE_RegisterIndividualSkin(skintorso, hSkin);
+-			if (hSkin)
+-			{
+-				hSkin = RE_RegisterIndividualSkin(skinlower, hSkin);
+-			}
+-		}
++	char surfName[MAX_QPATH];
++	char *token;
++	for (int i = 0; i < numPairs; ++i) {
++		token = CommaParse(&skinPairs);
++		Q_strncpyz( surfName, token, sizeof( surfName ) );
++
++		token = CommaParse(&skinPairs);
++		skinSurface_t *surf = (skinSurface_t *) Hunk_Alloc( sizeof( *skin->surfaces[0] ), h_low );
++		skin->surfaces[skin->numSurfaces] = (_skinSurface_t *)surf;
++
++		Q_strncpyz( surf->name, surfName, sizeof( surf->name ) );
++
++		if (gServerSkinHack)	surf->shader = R_FindServerShader( token, lightmapsNone, stylesDefault, qtrue );
++		else					surf->shader = R_FindShader( token, lightmapsNone, stylesDefault, qtrue );
++		skin->numSurfaces++;
+ 	}
+-	else
+-	{//single skin
+-		hSkin = RE_RegisterIndividualSkin(name, hSkin);
++
++	// never let a skin have 0 shaders
++	if ( skin->numSurfaces == 0 ) {
++		return 0;		// use default skin
+ 	}
++
+ 	return(hSkin);
+ }
+ 
+@@ -3199,11 +3114,13 @@ qhandle_t RE_RegisterServerSkin( const char *name ) {
+ 		ri.Com_TheHunkMarkHasBeenMade() &&
+ 		ShaderHashTableExists())
+ 	{ //If the client is running then we can go straight into the normal registerskin func
+-		return RE_RegisterSkin(name);
++		//SOF2 TODO
++		return RE_RegisterSkin(name, 0, NULL);
+ 	}
+ 
+ 	gServerSkinHack = true;
+-	r = RE_RegisterSkin(name);
++	//SOF2 TODO
++	r = RE_RegisterSkin(name, 0, NULL);
+ 	gServerSkinHack = false;
+ 
+ 	return r;
+diff --git a/codemp/rd-vanilla/tr_init.cpp b/codemp/rd-vanilla/tr_init.cpp
+index a5baf9f..d66a5a1 100644

@@ -1,0 +1,56 @@
+--- a/codemp/rd-vanilla/G2_local.h
++++ b/codemp/rd-vanilla/G2_local.h
+@@ -86,9 +86,6 @@ void		G2_RemoveRedundantBolts(boltInfo_v &bltlist, surfaceInfo_v &slist, int *ac
+ 
+ 
+ // API calls - G2_API.cpp
+-void		G2API_SetTime(int currentTime, int clock);
+-int			G2API_GetTime(int argTime);
+-
+ qhandle_t	G2API_PrecacheGhoul2Model(const char *fileName);
+ 
+ int			G2API_InitGhoul2Model(CGhoul2Info_v **ghoul2Ptr, const char *fileName, int modelIndex, qhandle_t customSkin = NULL, qhandle_t customShader = NULL, int modelFlags = 0, int lodBias = 0);
+@@ -98,7 +95,7 @@ qboolean	G2API_SetShader(CGhoul2Info *ghlInfo, qhandle_t customShader);
+ qboolean	G2API_HasGhoul2ModelOnIndex(CGhoul2Info_v **ghlRemove, const int modelIndex);
+ qboolean	G2API_RemoveGhoul2Model(CGhoul2Info_v **ghlRemove, const int modelIndex);
+ qboolean	G2API_RemoveGhoul2Models(CGhoul2Info_v **ghlRemove);
+-qboolean	G2API_SetSurfaceOnOff(CGhoul2Info_v &ghoul2, const char *surfaceName, const int flags);
++qboolean	G2API_SetSurfaceOnOff(CGhoul2Info_v &ghoul2, int modelIndex, const char *surfaceName, const int flags);
+ int			G2API_GetSurfaceOnOff(CGhoul2Info *ghlInfo, const char *surfaceName);
+ qboolean	G2API_SetRootSurface(CGhoul2Info_v &ghoul2, const int modelIndex, const char *surfaceName);
+ qboolean	G2API_RemoveSurface(CGhoul2Info *ghlInfo, const int index);
+@@ -146,8 +143,9 @@ int			G2API_GetSurfaceIndex(CGhoul2Info *ghlInfo, const char *surfaceName);
+ char		*G2API_GetSurfaceName(CGhoul2Info *ghlInfo, int surfNumber);
+ char		*G2API_GetGLAName(CGhoul2Info_v &ghoul2, int modelIndex);
+ qboolean	G2API_SetBoneAnglesMatrix(CGhoul2Info *ghlInfo, const char *boneName, const mdxaBone_t &matrix, const int flags, qhandle_t *modelList, int blendTime = 0, int currentTime = 0);
+-qboolean	G2API_SetNewOrigin(CGhoul2Info_v &ghoul2, const int boltIndex);
++qboolean	G2API_SetNewOrigin(CGhoul2Info_v &ghoul2, const int modelIndex, const int boltIndex);
+ int			G2API_GetBoneIndex(CGhoul2Info *ghlInfo, const char *boneName);
++int			G2API_GetBoltIndex(CGhoul2Info *ghlInfo, const int modelIndex);
+ qboolean	G2API_StopBoneAnglesIndex(CGhoul2Info *ghlInfo, const int index);
+ qboolean	G2API_StopBoneAnimIndex(CGhoul2Info *ghlInfo, const int index);
+ qboolean	G2API_SetBoneAnglesIndex( CGhoul2Info *ghlInfo, const int index, const vec3_t angles, const int flags, const Eorientations yaw, const Eorientations pitch, const Eorientations roll, qhandle_t *modelList, int blendTime, int currentTime );
+@@ -160,7 +158,7 @@ void		G2API_LoadSaveCodeDestructGhoul2Info(CGhoul2Info_v &ghoul2);
+ void		G2API_FreeSaveBuffer(char *buffer);
+ char		*G2API_GetAnimFileNameIndex(qhandle_t modelIndex);
+ int			G2API_GetSurfaceRenderStatus(CGhoul2Info *ghlInfo, const char *surfaceName);
+-void		G2API_CopySpecificG2Model(CGhoul2Info_v &ghoul2From, int modelFrom, CGhoul2Info_v &ghoul2To, int modelTo);
++int			G2API_CopySpecificG2Model(CGhoul2Info_v &ghoul2From, int modelFrom, CGhoul2Info_v &ghoul2To, int modelTo);
+ void		G2API_DuplicateGhoul2Instance(CGhoul2Info_v &g2From, CGhoul2Info_v **g2To);
+ void		G2API_SetBoltInfo(CGhoul2Info_v &ghoul2, int modelIndex, int boltInfo);
+ 
+@@ -196,10 +194,11 @@ void		G2_ConstructGhoulSkeleton( CGhoul2Info_v &ghoul2,const int frameNum,bool c
+ qboolean	G2API_SkinlessModel(CGhoul2Info *g2);
+ 
+ #ifdef _G2_GORE
++void		G2API_InitGore(void);
+ int			G2API_GetNumGoreMarks(CGhoul2Info *g2);
+ void		G2API_AddSkinGore(CGhoul2Info_v &ghoul2,SSkinGoreData &gore);
+ void		G2API_ClearSkinGore ( CGhoul2Info_v &ghoul2 );
+-#endif // _SOF2
++#endif // _G2_GORE
+ 
+ int			G2API_Ghoul2Size ( CGhoul2Info_v &ghoul2 );
+ void		RemoveBoneCache( CBoneCache *boneCache );
+diff --git a/codemp/rd-vanilla/G2_misc.cpp b/codemp/rd-vanilla/G2_misc.cpp
+index b28a72d..4d126ff 100644

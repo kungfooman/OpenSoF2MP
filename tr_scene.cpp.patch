@@ -1,0 +1,47 @@
+--- a/codemp/rd-vanilla/tr_scene.cpp
++++ b/codemp/rd-vanilla/tr_scene.cpp
+@@ -212,7 +212,7 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
+ #ifdef _DEBUG
+ 	if (ent->reType == RT_MODEL)
+ 	{
+-		assert(ent->hModel || ent->ghoul2 || ent->customShader);
++		assert(ent->hModel || ent->ghoul2 || ent->customShader || ent->renderfx);
+ 	}
+ #endif
+ 
+@@ -747,7 +747,7 @@ void RE_RenderScene( const refdef_t *fd ) {
+ 	tr.refdef.frametime = fd->time - lastTime;
+ 	lastTime = fd->time;
+ 
+-	if (fd->rdflags & RDF_SKYBOXPORTAL)
++	/*if (fd->rdflags & RDF_SKYBOXPORTAL)
+ 	{
+ 		skyboxportal = 1;
+ 	}
+@@ -757,9 +757,9 @@ void RE_RenderScene( const refdef_t *fd ) {
+ 		drawskyboxportal = 1;
+ 	}
+ 	else
+-	{
++	{*/
+ 		drawskyboxportal = 0;
+-	}
++	//}
+ 
+ 	if (tr.refdef.frametime > 500)
+ 	{
+@@ -873,10 +873,10 @@ void RE_RenderScene( const refdef_t *fd ) {
+ 
+ 	RE_RenderWorldEffects();
+ 
+-	if (tr.refdef.rdflags & RDF_AUTOMAP)
++	/*if (tr.refdef.rdflags & RDF_AUTOMAP)
+ 	{
+ 		RE_RenderAutoMap();
+-	}
++	}*/
+ }
+ 
+ #if 0 //rwwFIXMEFIXME: Disable this before release!!!!!! I am just trying to find a crash bug.
+diff --git a/codemp/rd-vanilla/tr_shade.cpp b/codemp/rd-vanilla/tr_shade.cpp
+index 65dd206..0f4d527 100644

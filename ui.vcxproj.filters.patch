@@ -1,0 +1,95 @@
+--- a/codemp/ui/ui.vcxproj.filters
++++ b/codemp/ui/ui.vcxproj.filters
+@@ -26,12 +26,6 @@
+     <ClCompile Include="..\game\bg_weapons.c">
+       <Filter>Source Files</Filter>
+     </ClCompile>
+-    <ClCompile Include="..\game\q_math.c">
+-      <Filter>Source Files</Filter>
+-    </ClCompile>
+-    <ClCompile Include="..\game\q_shared.c">
+-      <Filter>Source Files</Filter>
+-    </ClCompile>
+     <ClCompile Include="ui_atoms.c">
+       <Filter>Source Files</Filter>
+     </ClCompile>
+@@ -53,6 +47,12 @@
+     <ClCompile Include="ui_syscalls.c">
+       <Filter>Source Files</Filter>
+     </ClCompile>
++    <ClCompile Include="..\qcommon\q_math.c">
++      <Filter>Source Files</Filter>
++    </ClCompile>
++    <ClCompile Include="..\qcommon\q_shared.c">
++      <Filter>Source Files</Filter>
++    </ClCompile>
+   </ItemGroup>
+   <ItemGroup>
+     <ClInclude Include="..\game\anims.h">
+@@ -73,51 +73,46 @@
+     <ClInclude Include="..\game\bg_weapons.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-    <ClInclude Include="..\shared\qcommon\disablewarnings.h">
++    <ClInclude Include="keycodes.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-    <ClInclude Include="..\shared\qcommon\game_version.h">
++    <ClInclude Include="menudef.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-    <ClInclude Include="keycodes.h">
++    <ClInclude Include="..\game\surfaceflags.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-    <ClInclude Include="menudef.h">
++    <ClInclude Include="..\cgame\tr_types.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-    <ClInclude Include="..\game\q_shared.h">
++    <ClInclude Include="ui_force.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-    <ClInclude Include="..\shared\qcommon\qfiles.h">
++    <ClInclude Include="ui_local.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-    <ClInclude Include="..\game\surfaceflags.h">
++    <ClInclude Include="ui_public.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-    <ClInclude Include="..\shared\qcommon\tags.h">
++    <ClInclude Include="ui_shared.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-    <ClInclude Include="..\cgame\tr_types.h">
++    <ClInclude Include="..\qcommon\disablewarnings.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-    <ClInclude Include="ui_force.h">
++    <ClInclude Include="..\qcommon\game_version.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-    <ClInclude Include="ui_local.h">
++    <ClInclude Include="..\qcommon\q_shared.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-    <ClInclude Include="ui_public.h">
++    <ClInclude Include="..\qcommon\qfiles.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-    <ClInclude Include="ui_shared.h">
++    <ClInclude Include="..\qcommon\tags.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+   </ItemGroup>
+-  <ItemGroup>
+-    <None Include="ui.def">
+-      <Filter>Header Files</Filter>
+-    </None>
+-  </ItemGroup>
+   <ItemGroup>
+     <ResourceCompile Include="..\win32\ui.rc">
+       <Filter>win32</Filter>
+diff --git a/codemp/ui/ui_public.h b/codemp/ui/ui_public.h
+index 10622b6..6f97789 100644

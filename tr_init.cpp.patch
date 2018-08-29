@@ -1,0 +1,118 @@
+--- a/codemp/rd-vanilla/tr_init.cpp
++++ b/codemp/rd-vanilla/tr_init.cpp
+@@ -320,7 +320,7 @@ void R_Splash()
+ 		pImage = R_FindImageFile( "menu/splash", qfalse, qfalse, qfalse, GL_CLAMP);
+ 	}
+ */
+-	pImage = R_FindImageFile( "menu/splash", qfalse, qfalse, qfalse, GL_CLAMP);
++	pImage = R_FindImageFile( "gfx/menus/backdrop/pra1_sof2_logo.jpg", qfalse, qfalse, qfalse, GL_CLAMP);
+ 	extern void	RB_SetGL2D (void);
+ 	RB_SetGL2D();	
+ 	if (pImage )
+@@ -329,12 +329,12 @@ void R_Splash()
+ 	}
+ 	GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO);
+ 
+-	const int width = 640;
+-	const int height = 480;
+-	const float x1 = 320 - width / 2;
+-	const float x2 = 320 + width / 2;
+-	const float y1 = 240 - height / 2;
+-	const float y2 = 240 + height / 2;
++	const int width = glConfig.vidWidth;
++	const int height = glConfig.vidHeight;
++	const float x1 = 0;//320 - width / 2;
++	const float x2 = width;//320 + width / 2;
++	const float y1 = 0;//240 - height / 2;
++	const float y2 = height;//240 + height / 2;
+ 
+ 
+ 	qglBegin (GL_TRIANGLE_STRIP);
+@@ -1081,11 +1081,11 @@ void GfxInfo_f( void )
+ 	Com_Printf ("multitexture: %s\n", enablestrings[qglActiveTextureARB != 0] );
+ 	Com_Printf ("compiled vertex arrays: %s\n", enablestrings[qglLockArraysEXT != 0 ] );
+ 	Com_Printf ("texenv add: %s\n", enablestrings[glConfig.textureEnvAddAvailable != 0] );
+-	Com_Printf ("compressed textures: %s\n", enablestrings[glConfig.textureCompression != TC_NONE] );
+-	Com_Printf ("compressed lightmaps: %s\n", enablestrings[(r_ext_compressed_lightmaps->integer != 0 && glConfig.textureCompression != TC_NONE)] );
+-	Com_Printf ("texture compression method: %s\n", tc_table[glConfig.textureCompression] );
+-	Com_Printf ("anisotropic filtering: %s  ", enablestrings[(r_ext_texture_filter_anisotropic->integer != 0) && glConfig.maxTextureFilterAnisotropy] );
+-		Com_Printf ("(%f of %f)\n", r_ext_texture_filter_anisotropic->value, glConfig.maxTextureFilterAnisotropy );
++	//Com_Printf ("compressed textures: %s\n", enablestrings[glConfig.textureCompression != TC_NONE] );
++	//Com_Printf ("compressed lightmaps: %s\n", enablestrings[(r_ext_compressed_lightmaps->integer != 0 && glConfig.textureCompression != TC_NONE)] );
++	//Com_Printf ("texture compression method: %s\n", tc_table[glConfig.textureCompression] );
++	//Com_Printf ("anisotropic filtering: %s  ", enablestrings[(r_ext_texture_filter_anisotropic->integer != 0) && glConfig.maxTextureFilterAnisotropy] );
++	//	Com_Printf ("(%f of %f)\n", r_ext_texture_filter_anisotropic->value, glConfig.maxTextureFilterAnisotropy );
+ 	Com_Printf ("Dynamic Glow: %s\n", enablestrings[r_DynamicGlow->integer] );
+ 	if (g_bTextureRectangleHack) Com_Printf ("Dynamic Glow ATI BAD DRIVER HACK %s\n", enablestrings[g_bTextureRectangleHack] );
+ 
+@@ -1305,7 +1305,7 @@ void R_Init( void ) {
+ 	int i;
+ 	byte *ptr;
+ 
+-//	Com_Printf ("----- R_Init -----\n" );
++	Com_Printf ("----- R_Init -----\n" );
+ 	// clear all our internal state
+ 	memset( &tr, 0, sizeof( tr ) );
+ 	memset( &backEnd, 0, sizeof( backEnd ) );
+@@ -1377,6 +1377,9 @@ void R_Init( void ) {
+ 	R_InitImages();
+ 	R_InitShaders(qfalse);
+ 	R_InitSkins();
++#ifdef _G2_GORE
++	G2API_InitGore();
++#endif
+ 
+ 	R_TerrainInit(); //rwwRMG - added
+ 
+@@ -1392,7 +1395,7 @@ void R_Init( void ) {
+ 	if ( err != GL_NO_ERROR )
+ 		Com_Printf ( "glGetError() = 0x%x\n", err);
+ 
+-//	Com_Printf ("----- finished R_Init -----\n" );
++	Com_Printf ("----- finished R_Init -----\n" );
+ }
+ 
+ /*
+@@ -1605,11 +1608,8 @@ Q_EXPORT refexport_t* QDECL GetRefAPI( int apiVersion, refimport_t *rimp ) {
+ 
+ 	re.RegisterFont							= RE_RegisterFont;
+ 	re.Font_StrLenPixels					= RE_Font_StrLenPixels;
+-	re.Font_StrLenChars						= RE_Font_StrLenChars;
+ 	re.Font_HeightPixels					= RE_Font_HeightPixels;
+ 	re.Font_DrawString						= RE_Font_DrawString;
+-	re.Language_IsAsian						= Language_IsAsian;
+-	re.Language_UsesSpaces					= Language_UsesSpaces;
+ 	re.AnyLanguage_ReadCharFromString		= AnyLanguage_ReadCharFromString;
+ 
+ 	re.RemapShader							= R_RemapShader;
+@@ -1680,7 +1680,6 @@ Q_EXPORT refexport_t* QDECL GetRefAPI( int apiVersion, refimport_t *rimp ) {
+ 	re.G2API_GetSurfaceName					= G2API_GetSurfaceName;
+ 	re.G2API_GetSurfaceOnOff				= G2API_GetSurfaceOnOff;
+ 	re.G2API_GetSurfaceRenderStatus			= G2API_GetSurfaceRenderStatus;
+-	re.G2API_GetTime						= G2API_GetTime;
+ 	re.G2API_Ghoul2Size						= G2API_Ghoul2Size;
+ 	re.G2API_GiveMeVectorFromMatrix			= G2API_GiveMeVectorFromMatrix;
+ 	re.G2API_HasGhoul2ModelOnIndex			= G2API_HasGhoul2ModelOnIndex;
+@@ -1724,18 +1723,18 @@ Q_EXPORT refexport_t* QDECL GetRefAPI( int apiVersion, refimport_t *rimp ) {
+ 	re.G2API_SetShader						= G2API_SetShader;
+ 	re.G2API_SetSkin						= G2API_SetSkin;
+ 	re.G2API_SetSurfaceOnOff				= G2API_SetSurfaceOnOff;
+-	re.G2API_SetTime						= G2API_SetTime;
+ 	re.G2API_SkinlessModel					= G2API_SkinlessModel;
+ 	re.G2API_StopBoneAngles					= G2API_StopBoneAngles;
+ 	re.G2API_StopBoneAnglesIndex			= G2API_StopBoneAnglesIndex;
+ 	re.G2API_StopBoneAnim					= G2API_StopBoneAnim;
+ 	re.G2API_StopBoneAnimIndex				= G2API_StopBoneAnimIndex;
++	re.G2API_GetBoltIndex					= G2API_GetBoltIndex;
+ 
+ 	#ifdef _G2_GORE
+ 	re.G2API_GetNumGoreMarks				= G2API_GetNumGoreMarks;
+ 	re.G2API_AddSkinGore					= G2API_AddSkinGore;
+ 	re.G2API_ClearSkinGore					= G2API_ClearSkinGore;
+-	#endif // _SOF2
++	#endif // _G2_GORE
+ 
+ 	// RMG / Terrain stuff
+ 	re.LoadDataImage						= R_LoadDataImage;
+diff --git a/codemp/rd-vanilla/tr_light.cpp b/codemp/rd-vanilla/tr_light.cpp
+index 019aa18..ec119bc 100644

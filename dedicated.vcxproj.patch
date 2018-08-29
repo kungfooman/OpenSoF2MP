@@ -1,0 +1,42 @@
+--- a/codemp/dedicated.vcxproj
++++ b/codemp/dedicated.vcxproj
+@@ -12,18 +12,21 @@
+   </ItemGroup>
+   <PropertyGroup Label="Globals">
+     <ProjectName>dedicated</ProjectName>
++    <ProjectGuid>{D1AF49E8-2E0B-4CF8-858B-40D72A6C041B}</ProjectGuid>
+   </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>NotSet</CharacterSet>
++    <PlatformToolset>v110</PlatformToolset>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>
+     </CharacterSet>
++    <PlatformToolset>v110</PlatformToolset>
+   </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+@@ -295,7 +298,6 @@
+     <ClCompile Include="server\sv_snapshot.cpp" />
+     <ClCompile Include="server\sv_world.cpp" />
+     <ClCompile Include="server\NPCNav\gameCallbacks.cpp" />
+-    <ClCompile Include="server\NPCNav\navigator.cpp" />
+     <ClCompile Include="null\null_client.cpp" />
+     <ClCompile Include="null\null_input.cpp" />
+     <ClCompile Include="null\null_renderer.cpp" />
+@@ -336,7 +338,6 @@
+     <ClCompile Include="icarus\instance.cpp" />
+     <ClCompile Include="icarus\interface.cpp" />
+     <ClCompile Include="icarus\memory.cpp" />
+-    <ClCompile Include="icarus\q3_interface.cpp" />
+     <ClCompile Include="icarus\q3_registers.cpp" />
+     <ClCompile Include="icarus\sequence.cpp" />
+     <ClCompile Include="icarus\sequencer.cpp" />
+diff --git a/codemp/game/anims.h b/codemp/game/anims.h
+index 8ad06f5..b8a0335 100644

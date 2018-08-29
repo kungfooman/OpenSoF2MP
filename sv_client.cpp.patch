@@ -1,0 +1,77 @@
+--- a/codemp/server/sv_client.cpp
++++ b/codemp/server/sv_client.cpp
+@@ -4,7 +4,6 @@
+ // sv_client.c -- server code for dealing with clients
+ 
+ #include "server.h"
+-#include "qcommon/stringed_ingame.h"
+ #include "RMG/RM_Headers.h"
+ #include "../zlib/zlib.h"
+ //#include "zlib32/zip.h"
+@@ -253,23 +252,23 @@ void SV_DirectConnect( netadr_t from ) {
+ 		}
+ 
+ 		ping = svs.time - svs.challenges[i].pingTime;
+-		Com_Printf( SE_GetString("MP_SVGAME", "CLIENT_CONN_WITH_PING"), i, ping);//"Client %i connecting with %i challenge ping\n", i, ping );
++		Com_Printf( "Client %i connecting with %i challenge ping\n", i, ping );
+ 		svs.challenges[i].connected = qtrue;
+ 
+ 		// never reject a LAN client based on ping
+ 		if ( !Sys_IsLANAddress( from ) ) {
+ 			if ( sv_minPing->value && ping < sv_minPing->value ) {
+ 				// don't let them keep trying until they get a big delay
+-				NET_OutOfBandPrint( NS_SERVER, from, va("print\n%s\n", SE_GetString("MP_SVGAME", "SERVER_FOR_HIGH_PING")));//Server is for high pings only\n" );
+-				Com_DPrintf (SE_GetString("MP_SVGAME", "CLIENT_REJECTED_LOW_PING"), i);//"Client %i rejected on a too low ping\n", i);
++				NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is for high pings only\n" );
++				Com_DPrintf ("Client %i rejected on a too low ping\n", i);
+ 				// reset the address otherwise their ping will keep increasing
+ 				// with each connect message and they'd eventually be able to connect
+ 				svs.challenges[i].adr.port = 0;
+ 				return;
+ 			}
+ 			if ( sv_maxPing->value && ping > sv_maxPing->value ) {
+-				NET_OutOfBandPrint( NS_SERVER, from, va("print\n%s\n", SE_GetString("MP_SVGAME", "SERVER_FOR_LOW_PING")));//Server is for low pings only\n" );
+-				Com_DPrintf (SE_GetString("MP_SVGAME", "CLIENT_REJECTED_HIGH_PING"), i);//"Client %i rejected on a too high ping\n", i);
++				NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is for low pings only\n" );
++				Com_DPrintf ("Client %i rejected on a too high ping\n", i);
+ 				return;
+ 			}
+ 		}
+@@ -643,6 +642,8 @@ void SV_SendClientGameState( client_t *client ) {
+ 	else
+ 	{
+ 		MSG_WriteShort ( &msg, 0 );
++		//SOF2 TODO
++		MSG_WriteLong ( &msg, 0 );
+ 	}
+ 
+ 	// deliver this to the client
+@@ -1102,22 +1103,22 @@ static void SV_VerifyPaks_f( client_t *cl ) {
+ 		//dlls are valid too now -rww
+ 		if (Cvar_VariableValue( "vm_cgame" ))
+ 		{
+-			bGood = (qboolean)(FS_FileIsInPAK("vm/cgame.qvm", &nChkSum1) == 1);
++			bGood = (qboolean)(FS_FileIsInPAK("vm/sof2mp_cgame.qvm", &nChkSum1) == 1);
+ 		}
+ 		else
+ 		{
+-			bGood = (qboolean)(FS_FileIsInPAK("cgamex86.dll", &nChkSum1) == 1);
++			bGood = (qboolean)(FS_FileIsInPAK("sof2mp_cgamex86.dll", &nChkSum1) == 1);
+ 		}
+ 
+ 		if (bGood)
+ 		{
+ 			if (Cvar_VariableValue( "vm_ui" ))
+ 			{
+-				bGood = (qboolean)(FS_FileIsInPAK("vm/ui.qvm", &nChkSum2) == 1);
++				bGood = (qboolean)(FS_FileIsInPAK("vm/sof2mp_ui.qvm", &nChkSum2) == 1);
+ 			}
+ 			else
+ 			{
+-				bGood = (qboolean)(FS_FileIsInPAK("uix86.dll", &nChkSum2) == 1);
++				bGood = (qboolean)(FS_FileIsInPAK("sof2mp_uix86.dll", &nChkSum2) == 1);
+ 			}
+ 		}
+ 
+diff --git a/codemp/server/sv_game.cpp b/codemp/server/sv_game.cpp
+index 302f431..abab5b6 100644

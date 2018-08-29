@@ -1,0 +1,39 @@
+--- a/codemp/rd-vanilla/tr_WorldEffects.cpp
++++ b/codemp/rd-vanilla/tr_WorldEffects.cpp
+@@ -1383,7 +1383,7 @@ void RB_RenderWorldEffects(void)
+ {
+ 	if (!tr.world || 
+ 		(tr.refdef.rdflags & RDF_NOWORLDMODEL) || 
+-		(backEnd.refdef.rdflags & RDF_SKYBOXPORTAL) || 
++		//(backEnd.refdef.rdflags & RDF_SKYBOXPORTAL) || 
+ 		!mParticleClouds.size()) 
+ 	{	//  no world rendering or no world or no particle clouds
+ 		return;
+@@ -1849,25 +1849,6 @@ void RE_WorldEffectCommand(const char *command)
+ 
+ 
+ 
+-float R_GetChanceOfSaberFizz()
+-{
+- 	float	chance = 0.0f;
+-	int		numWater = 0;
+-	for (int i=0; i<mParticleClouds.size(); i++)
+-	{
+-		if (mParticleClouds[i].mWaterParticles)
+-		{
+-			chance += (mParticleClouds[i].mGravity/20000.0f);
+-			numWater ++;
+-		}
+-	}
+-	if (numWater)
+-	{
+-		return (chance / numWater);
+-	}
+-	return 0.0f;
+-}
+-
+ bool R_IsRaining()
+ {
+ 	return !mParticleClouds.empty();
+diff --git a/codemp/rd-vanilla/tr_backend.cpp b/codemp/rd-vanilla/tr_backend.cpp
+index 3639a50..ee50f81 100644

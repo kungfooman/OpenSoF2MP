@@ -1,0 +1,13 @@
+--- a/codemp/png/png.cpp
++++ b/codemp/png/png.cpp
+@@ -594,7 +594,7 @@ bool PNG_Save(const char *name, byte *data, int width, int height, int bytedepth
+ 	png_error = PNG_ERROR_OK;
+ 
+ 	// Create the file
+-	fp = ri.FS_FOpenFileWrite(name);
++	fp = ri.FS_FOpenFileWrite(name, false);
+ 	if(!fp)
+ 	{
+ 		png_error = PNG_ERROR_CREATE_FAIL;
+diff --git a/codemp/qcommon/RoffSystem.cpp b/codemp/qcommon/RoffSystem.cpp
+index f9ce967..19df37f 100644

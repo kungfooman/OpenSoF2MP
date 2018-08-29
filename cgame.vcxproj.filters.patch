@@ -1,0 +1,91 @@
+--- a/codemp/cgame/cgame.vcxproj.filters
++++ b/codemp/cgame/cgame.vcxproj.filters
+@@ -152,12 +152,6 @@
+     <ClCompile Include="fx_rocketlauncher.c">
+       <Filter>Source Files</Filter>
+     </ClCompile>
+-    <ClCompile Include="..\game\q_math.c">
+-      <Filter>Source Files</Filter>
+-    </ClCompile>
+-    <ClCompile Include="..\game\q_shared.c">
+-      <Filter>Source Files</Filter>
+-    </ClCompile>
+     <ClCompile Include="..\game\SpeederNPC.c">
+       <Filter>Source Files</Filter>
+     </ClCompile>
+@@ -170,6 +164,12 @@
+     <ClCompile Include="cg_spawn.c">
+       <Filter>Source Files</Filter>
+     </ClCompile>
++    <ClCompile Include="..\qcommon\q_math.c">
++      <Filter>Source Files</Filter>
++    </ClCompile>
++    <ClCompile Include="..\qcommon\q_shared.c">
++      <Filter>Source Files</Filter>
++    </ClCompile>
+   </ItemGroup>
+   <ItemGroup>
+     <ClInclude Include="..\game\anims.h">
+@@ -202,15 +202,9 @@
+     <ClInclude Include="cg_public.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-    <ClInclude Include="..\shared\qcommon\disablewarnings.h">
+-      <Filter>Header Files</Filter>
+-    </ClInclude>
+     <ClInclude Include="fx_local.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-    <ClInclude Include="..\shared\Ghoul2\G2.h">
+-      <Filter>Header Files</Filter>
+-    </ClInclude>
+     <ClInclude Include="holocronicons.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+@@ -220,32 +214,33 @@
+     <ClInclude Include="..\ui\menudef.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-    <ClInclude Include="..\game\q_shared.h">
++    <ClInclude Include="..\game\surfaceflags.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-    <ClInclude Include="..\shared\qcommon\qfiles.h">
++    <ClInclude Include="tr_types.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-    <ClInclude Include="..\game\surfaceflags.h">
++    <ClInclude Include="..\ui\ui_shared.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-    <ClInclude Include="..\shared\qcommon\tags.h">
++    <ClInclude Include="cg_xcvar.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-    <ClInclude Include="tr_types.h">
++    <ClInclude Include="..\qcommon\disablewarnings.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-    <ClInclude Include="..\ui\ui_shared.h">
++    <ClInclude Include="..\ghoul2\G2.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-    <ClInclude Include="cg_xcvar.h">
++    <ClInclude Include="..\qcommon\q_shared.h">
+       <Filter>Header Files</Filter>
+     </ClInclude>
+-  </ItemGroup>
+-  <ItemGroup>
+-    <None Include="cgame.def">
++    <ClInclude Include="..\qcommon\qfiles.h">
+       <Filter>Header Files</Filter>
+-    </None>
++    </ClInclude>
++    <ClInclude Include="..\qcommon\tags.h">
++      <Filter>Header Files</Filter>
++    </ClInclude>
+   </ItemGroup>
+   <ItemGroup>
+     <ResourceCompile Include="..\win32\cgame.rc">
+diff --git a/codemp/client/FxPrimitives.cpp b/codemp/client/FxPrimitives.cpp
+index 0d9865e..38acda1 100644

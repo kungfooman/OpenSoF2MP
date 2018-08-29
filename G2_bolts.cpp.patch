@@ -1,0 +1,11 @@
+--- a/codemp/rd-vanilla/G2_bolts.cpp
++++ b/codemp/rd-vanilla/G2_bolts.cpp
+@@ -324,4 +324,4 @@ void G2_RemoveRedundantBolts(boltInfo_v &bltlist, surfaceInfo_v &slist, int *act
+ 			}
+ 		}
+ 	}
+-}
++}
+\ No newline at end of file
+diff --git a/codemp/rd-vanilla/G2_bones.cpp b/codemp/rd-vanilla/G2_bones.cpp
+index 5bbe3b0..85f4cce 100644

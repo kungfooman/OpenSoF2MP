@@ -1,0 +1,12 @@
+--- a/codemp/game/surfaceflags.h
++++ b/codemp/game/surfaceflags.h
+@@ -28,7 +28,6 @@
+ #define	CONTENTS_INSIDE			0x10000000	// volume is considered to be inside (i.e. indoors)
+ 
+ #define CONTENTS_SLIME			0x00020000	// CHC needs this since we use same tools
+-#define CONTENTS_LIGHTSABER		0x00040000	// ""
+ #define CONTENTS_TELEPORTER		0x00080000	// ""
+ #define CONTENTS_ITEM			0x00100000	// ""
+ #define CONTENTS_NOSHOT			0x00200000	// shots pass through me
+diff --git a/codemp/ghoul2/G2.h b/codemp/ghoul2/G2.h
+index b3f5ea6..c5e3bf3 100644

@@ -1,0 +1,17 @@
+--- a/codemp/game/game.vcxproj
++++ b/codemp/game/game.vcxproj
+@@ -18,10 +18,12 @@
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
++    <PlatformToolset>v110</PlatformToolset>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
++    <PlatformToolset>v110</PlatformToolset>
+   </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+diff --git a/codemp/game/surfaceflags.h b/codemp/game/surfaceflags.h
+index a01f1e1..54ad0ab 100644

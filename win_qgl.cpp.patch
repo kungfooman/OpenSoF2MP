@@ -1,0 +1,18 @@
+--- a/codemp/win32/win_qgl.cpp
++++ b/codemp/win32/win_qgl.cpp
+@@ -2781,11 +2781,11 @@ static void APIENTRY logViewport(GLint x, GLint y, GLsizei width, GLsizei height
+ */
+ void QGL_Shutdown( void )
+ {
+-//	Com_Printf ("...shutting down QGL\n" );
++	Com_Printf ("...shutting down QGL\n" );
+ 
+ 	if ( glw_state.hinstOpenGL )
+ 	{
+-//		Com_Printf ("...unloading OpenGL DLL\n" );
++		Com_Printf ("...unloading OpenGL DLL\n" );
+ 		FreeLibrary( glw_state.hinstOpenGL );
+ 	}
+ 
+diff --git a/codemp/win32/win_syscon.cpp b/codemp/win32/win_syscon.cpp
+index 0f4e208..92755c4 100644

@@ -1,0 +1,18 @@
+--- a/codemp/server/server.h
++++ b/codemp/server/server.h
+@@ -79,13 +79,6 @@ typedef struct {
+ 	int				areabytes;
+ 	byte			areabits[MAX_MAP_AREA_BYTES];		// portalarea visibility bits
+ 	playerState_t	ps;
+-	playerState_t	vps; //vehicle I'm riding's playerstate (if applicable) -rww
+-#ifdef _ONEBIT_COMBO
+-	int				*pDeltaOneBit;
+-	int				*pDeltaOneBitVeh;
+-	int				*pDeltaNumBit;
+-	int				*pDeltaNumBitVeh;
+-#endif
+ 	int				num_entities;
+ 	int				first_entity;		// into the circular sv_packet_entities[]
+ 										// the entities MUST be in increasing state number
+diff --git a/codemp/server/sv_ccmds.cpp b/codemp/server/sv_ccmds.cpp
+index 064d5d1..efde9c4 100644

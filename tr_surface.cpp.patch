@@ -1,0 +1,72 @@
+--- a/codemp/rd-vanilla/tr_surface.cpp
++++ b/codemp/rd-vanilla/tr_surface.cpp
+@@ -451,31 +451,6 @@ static void DoSprite( vec3_t origin, float radius, float rotation )
+ 	RB_AddQuadStamp( origin, left, up, backEnd.currentEntity->e.shaderRGBA );
+ }
+ 
+-//------------------
+-// RB_SurfaceSaber
+-//------------------
+-static void RB_SurfaceSaberGlow()
+-{ 
+-	vec3_t		end;
+-	refEntity_t *e;
+-
+-	e = &backEnd.currentEntity->e;
+-
+-	// Render the glow part of the blade
+-	for ( float i = e->saberLength; i > 0; i -= e->radius * 0.65f )
+-	{
+-		VectorMA( e->origin, i, e->axis[0], end );
+-
+-		DoSprite( end, e->radius, 0.0f );//random() * 360.0f );
+-		e->radius += 0.017f;
+-	}
+-
+-	// Big hilt sprite
+-	// Please don't kill me Pat...I liked the hilt glow blob, but wanted a subtle pulse.:)  Feel free to ditch it if you don't like it.  --Jeff
+-	// Please don't kill me Jeff...  The pulse is good, but now I want the halo bigger if the saber is shorter...  --Pat
+-	DoSprite( e->origin, 5.5f + random() * 0.25f, 0.0f );//random() * 360.0f );
+-}
+-
+ /*
+ ==============
+ RB_SurfaceLine
+@@ -1557,6 +1532,7 @@ RB_SurfaceAxis
+ Draws x/y/z lines from the origin for orientation debugging
+ ===================
+ */
++#ifdef _DEBUG
+ static void RB_SurfaceAxis( void ) {
+ 	GL_Bind( tr.whiteImage );
+ 	qglLineWidth( 3 );
+@@ -1573,6 +1549,7 @@ static void RB_SurfaceAxis( void ) {
+ 	qglEnd();
+ 	qglLineWidth( 1 );
+ }
++#endif
+ 
+ //===========================================================================
+ 
+@@ -1603,9 +1580,6 @@ void RB_SurfaceEntity( surfaceType_t *surfType ) {
+ 	case RT_ORIENTEDLINE:
+ 		RB_SurfaceOrientedLine();
+ 		break;
+-	case RT_SABER_GLOW:
+-		RB_SurfaceSaberGlow();
+-		break;
+ 	case RT_CYLINDER:
+ 		RB_SurfaceCylinder();
+ 		break;
+@@ -1635,7 +1609,9 @@ void RB_SurfaceEntity( surfaceType_t *surfType ) {
+ 		}
+ 		break;
+ 	default:
++#ifdef _DEBUG
+ 		RB_SurfaceAxis();
++#endif
+ 		break;
+ 	}
+ 	return;
+diff --git a/codemp/rd-vanilla/tr_world.cpp b/codemp/rd-vanilla/tr_world.cpp
+index d586991..ff417be 100644

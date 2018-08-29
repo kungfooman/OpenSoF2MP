@@ -1,0 +1,359 @@
+--- a/codemp/game/g_public.h
++++ b/codemp/game/g_public.h
+@@ -113,10 +113,6 @@ typedef enum {
+ 	// this should NOT be used for any game related tasks,
+ 	// because it is not journaled
+ 
+-	//Also for profiling.. do not use for game related tasks.
+-	G_PRECISIONTIMER_START,
+-	G_PRECISIONTIMER_END,
+-
+ 	// console variable interaction
+ 	G_CVAR_REGISTER,	// ( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags );
+ 	G_CVAR_UPDATE,	// ( vmCvar_t *vmCvar );
+@@ -147,6 +143,11 @@ typedef enum {
+ 	// the game needs to let the server system know where and how big the gentities
+ 	// are, so it can look at them directly without going through an interface
+ 
++	G_GET_WORLD_BOUNDS,		// ( vec3_t mins, vec3_t maxs )
++							// Returns the mins and maxs of the world
++
++	G_RMG_INIT,
++
+ 	G_DROP_CLIENT,		// ( int clientNum, const char *reason );
+ 	// kick a client off the server with a message
+ 
+@@ -173,18 +174,14 @@ typedef enum {
+ 	G_GET_SERVERINFO,	// ( char *buffer, int bufferSize );
+ 	// the serverinfo info string has all the cvars visible to server browsers
+ 
+-	G_SET_SERVER_CULL,
+-	//server culling to reduce traffic on open maps -rww
+-
+ 	G_SET_BRUSH_MODEL,	// ( gentity_t *ent, const char *name );
+ 	// sets mins and maxs based on the brushmodel name
+ 
++	G_SET_ACTIVE_SUBBSP,	// int index
++
+ 	G_TRACE,	// ( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask );
+ 	// collision detection against all linked entities
+ 
+-	G_G2TRACE,	// ( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask );
+-	// collision detection against all linked entities with ghoul2 check
+-
+ 	G_POINT_CONTENTS,	// ( const vec3_t point, int passEntityNum );
+ 	// point contents against all linked entities
+ 
+@@ -223,10 +220,9 @@ typedef enum {
+ 	// false when all tokens have been parsed.
+ 	// This should only be done at GAME_INIT time.
+ 
+-	G_SIEGEPERSSET,
+-	G_SIEGEPERSGET,
+-
+ 	G_FS_GETFILELIST,
++	G_BOT_GET_MEMORY,
++	G_BOT_FREE_MEMORY,
+ 	G_DEBUG_POLYGON_CREATE,
+ 	G_DEBUG_POLYGON_DELETE,
+ 	G_REAL_TIME,
+@@ -235,44 +231,6 @@ typedef enum {
+ 	G_TRACECAPSULE,	// ( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask );
+ 	G_ENTITY_CONTACTCAPSULE,	// ( const vec3_t mins, const vec3_t maxs, const gentity_t *ent );
+ 
+-//	SP_REGISTER_SERVER_CMD,
+-	SP_GETSTRINGTEXTSTRING,
+-
+-	G_ROFF_CLEAN,				// qboolean	ROFF_Clean(void);
+-	G_ROFF_UPDATE_ENTITIES,		// void		ROFF_UpdateEntities(void);
+-	G_ROFF_CACHE,				// int		ROFF_Cache(char *file);
+-	G_ROFF_PLAY,				// qboolean	ROFF_Play(int entID, int roffID, qboolean doTranslation);
+-	G_ROFF_PURGE_ENT,			// qboolean ROFF_PurgeEnt( int entID )
+-
+-	//rww - dynamic vm memory allocation!
+-	G_TRUEMALLOC,
+-	G_TRUEFREE,
+-
+-	//rww - icarus traps
+-	G_ICARUS_RUNSCRIPT,
+-	G_ICARUS_REGISTERSCRIPT,
+-
+-	G_ICARUS_INIT,
+-	G_ICARUS_VALIDENT,
+-	G_ICARUS_ISINITIALIZED,
+-	G_ICARUS_MAINTAINTASKMANAGER,
+-	G_ICARUS_ISRUNNING,
+-	G_ICARUS_TASKIDPENDING,
+-	G_ICARUS_INITENT,
+-	G_ICARUS_FREEENT,
+-	G_ICARUS_ASSOCIATEENT,
+-	G_ICARUS_SHUTDOWN,
+-	G_ICARUS_TASKIDSET,
+-	G_ICARUS_TASKIDCOMPLETE,
+-	G_ICARUS_SETVAR,
+-	G_ICARUS_VARIABLEDECLARED,
+-	G_ICARUS_GETFLOATVARIABLE,
+-	G_ICARUS_GETSTRINGVARIABLE,
+-	G_ICARUS_GETVECTORVARIABLE,
+-
+-	G_SET_SHARED_BUFFER,
+-
+-	//BEGIN VM STUFF
+ 	G_MEMSET = 100,
+ 	G_MEMCPY,
+ 	G_STRNCPY,
+@@ -280,7 +238,6 @@ typedef enum {
+ 	G_COS,
+ 	G_ATAN2,
+ 	G_SQRT,
+-	G_MATRIXMULTIPLY,
+ 	G_ANGLEVECTORS,
+ 	G_PERPENDICULARVECTOR,
+ 	G_FLOOR,
+@@ -292,54 +249,9 @@ typedef enum {
+ 	G_ACOS,
+ 	G_ASIN,
+ 
+-	//END VM STUFF
+-
+-	//rww - BEGIN NPC NAV TRAPS
+-	G_NAV_INIT = 200,
+-	G_NAV_FREE,
+-	G_NAV_LOAD,
+-	G_NAV_SAVE,
+-	G_NAV_ADDRAWPOINT,
+-	G_NAV_CALCULATEPATHS,
+-	G_NAV_HARDCONNECT,
+-	G_NAV_SHOWNODES,
+-	G_NAV_SHOWEDGES,
+-	G_NAV_SHOWPATH,
+-	G_NAV_GETNEARESTNODE,
+-	G_NAV_GETBESTNODE,
+-	G_NAV_GETNODEPOSITION,
+-	G_NAV_GETNODENUMEDGES,
+-	G_NAV_GETNODEEDGE,
+-	G_NAV_GETNUMNODES,
+-	G_NAV_CONNECTED,
+-	G_NAV_GETPATHCOST,
+-	G_NAV_GETEDGECOST,
+-	G_NAV_GETPROJECTEDNODE,
+-	G_NAV_CHECKFAILEDNODES,
+-	G_NAV_ADDFAILEDNODE,
+-	G_NAV_NODEFAILED,
+-	G_NAV_NODESARENEIGHBORS,
+-	G_NAV_CLEARFAILEDEDGE,
+-	G_NAV_CLEARALLFAILEDEDGES,
+-	G_NAV_EDGEFAILED,
+-	G_NAV_ADDFAILEDEDGE,
+-	G_NAV_CHECKFAILEDEDGE,
+-	G_NAV_CHECKALLFAILEDEDGES,
+-	G_NAV_ROUTEBLOCKED,
+-	G_NAV_GETBESTNODEALTROUTE,
+-	G_NAV_GETBESTNODEALT2,
+-	G_NAV_GETBESTPATHBETWEENENTS,
+-	G_NAV_GETNODERADIUS,
+-	G_NAV_CHECKBLOCKEDEDGES,
+-	G_NAV_CLEARCHECKEDNODES,
+-	G_NAV_CHECKEDNODE,
+-	G_NAV_SETCHECKEDNODE,
+-	G_NAV_FLAGALLNODES,
+-	G_NAV_GETPATHSCALCULATED,
+-	G_NAV_SETPATHSCALCULATED,
+-	//rww - END NPC NAV TRAPS
+-
+-	BOTLIB_SETUP = 250,				// ( void );
++	G_MATRIXMULTIPLY,
++
++	BOTLIB_SETUP = 200,				// ( void );
+ 	BOTLIB_SHUTDOWN,				// ( void );
+ 	BOTLIB_LIBVAR_SET,
+ 	BOTLIB_LIBVAR_GET,
+@@ -499,85 +411,73 @@ typedef enum {
+ 	BOTLIB_PC_FREE_SOURCE,
+ 	BOTLIB_PC_READ_TOKEN,
+ 	BOTLIB_PC_SOURCE_FILE_AND_LINE,
++	BOTLIB_PC_LOAD_GLOBAL_DEFINES,
++	BOTLIB_PC_REMOVE_ALL_GLOBAL_DEFINES,
+ 
+-	/*
+-Ghoul2 Insert Start
+-*/
+-	G_R_REGISTERSKIN,
+ 	G_G2_LISTBONES,
+ 	G_G2_LISTSURFACES,
+ 	G_G2_HAVEWEGHOULMODELS,
+ 	G_G2_SETMODELS,
+ 	G_G2_GETBOLT,
+-	G_G2_GETBOLT_NOREC,
+-	G_G2_GETBOLT_NOREC_NOROT,
+ 	G_G2_INITGHOUL2MODEL,
+-	G_G2_SETSKIN,
+-	G_G2_SIZE,
+ 	G_G2_ADDBOLT,
+ 	G_G2_SETBOLTINFO,
+ 	G_G2_ANGLEOVERRIDE,
+ 	G_G2_PLAYANIM,
+-	G_G2_GETBONEANIM,
+ 	G_G2_GETGLANAME,
+ 	G_G2_COPYGHOUL2INSTANCE,
+ 	G_G2_COPYSPECIFICGHOUL2MODEL,
+ 	G_G2_DUPLICATEGHOUL2INSTANCE,
+-	G_G2_HASGHOUL2MODELONINDEX,
+ 	G_G2_REMOVEGHOUL2MODEL,
+-	G_G2_REMOVEGHOUL2MODELS,
+ 	G_G2_CLEANMODELS,
+-	G_G2_COLLISIONDETECT,
+-	G_G2_COLLISIONDETECTCACHE,
+-
+-	G_G2_SETROOTSURFACE,
+-	G_G2_SETSURFACEONOFF,
+-	G_G2_SETNEWORIGIN,
+-	G_G2_DOESBONEEXIST,
+-	G_G2_GETSURFACERENDERSTATUS,
+-
+-	G_G2_ABSURDSMOOTHING,
+-
+-/*
+-	//rww - RAGDOLL_BEGIN
+-*/
+-	G_G2_SETRAGDOLL,
+-	G_G2_ANIMATEG2MODELS,
+-/*
+-	//rww - RAGDOLL_END
+-*/
+-	//additional ragdoll options -rww
+-	G_G2_RAGPCJCONSTRAINT,
+-	G_G2_RAGPCJGRADIENTSPEED,
+-	G_G2_RAGEFFECTORGOAL,
+-	G_G2_GETRAGBONEPOS,
+-	G_G2_RAGEFFECTORKICK,
+-	G_G2_RAGFORCESOLVE,
+-
+-	//rww - ik move method, allows you to specify a bone and move it to a world point (within joint constraints)
+-	//by using the majority of gil's existing bone angling stuff from the ragdoll code.
+-	G_G2_SETBONEIKSTATE,
+-	G_G2_IKMOVE,
+-
+-	G_G2_REMOVEBONE,
+-
+-	G_G2_ATTACHINSTANCETOENTNUM,
+-	G_G2_CLEARATTACHEDINSTANCE,
+-	G_G2_CLEANENTATTACHMENTS,
+-	G_G2_OVERRIDESERVER,
+-
+-	G_G2_GETSURFACENAME,
+-
+-	G_SET_ACTIVE_SUBBSP,
++
++	// CGenericParser2 (void *) routines
++	G_GP_PARSE,
++	G_GP_PARSE_FILE,
++	G_GP_CLEAN,
++	G_GP_DELETE,
++	G_GP_GET_BASE_PARSE_GROUP,
++
++	// CGPGroup (void *) routines
++	G_GPG_GET_NAME,
++	G_GPG_GET_NEXT,
++	G_GPG_GET_INORDER_NEXT,
++	G_GPG_GET_INORDER_PREVIOUS,
++	G_GPG_GET_PAIRS,
++	G_GPG_GET_INORDER_PAIRS,
++	G_GPG_GET_SUBGROUPS,
++	G_GPG_GET_INORDER_SUBGROUPS,
++	G_GPG_FIND_SUBGROUP,
++	G_GPG_FIND_PAIR,
++	G_GPG_FIND_PAIRVALUE,
++
++	// CGPValue (void *) routines
++	G_GPV_GET_NAME,
++	G_GPV_GET_NEXT,
++	G_GPV_GET_INORDER_NEXT,
++	G_GPV_GET_INORDER_PREVIOUS,
++	G_GPV_IS_LIST,
++	G_GPV_GET_TOP_VALUE,
++	G_GPV_GET_LIST,
++
+ 	G_CM_REGISTER_TERRAIN,
+-	G_RMG_INIT,
++	G_GET_MODEL_FORMALNAME,
+ 
+-	G_BOT_UPDATEWAYPOINTS,
+-	G_BOT_CALCULATEPATHS
+-/*
+-Ghoul2 Insert End
+-*/
++	G_VM_LOCALALLOC,
++	G_VM_LOCALALLOCUNALIGNED,
++	G_VM_LOCALTEMPALLOC,
++	G_VM_LOCALTEMPFREE,
++	G_VM_LOCALSTRINGALLOC,
+ 
++	G_G2_COLLISIONDETECT,
++	G_G2_REGISTERSKIN,
++	G_G2_SETSKIN,
++	G_G2_GETANIMFILENAMEINDEX,
++
++	G_GT_INIT,
++	G_GT_RUNFRAME,
++	G_GT_START,
++	G_GT_SENDEVENT,
+ } gameImport_t;
+ 
+ //bstate.h
+@@ -761,6 +661,10 @@ typedef enum {
+ 
+ 	GAME_RUN_FRAME,					// ( int levelTime );
+ 
++	GAME_GHOUL_INIT,
++
++	GAME_GHOUL_SHUTDOWN,
++
+ 	GAME_CONSOLE_COMMAND,			// ( void );
+ 	// ConsoleCommand will be called when a command has been issued
+ 	// that is not recognized as a builtin function.
+@@ -769,39 +673,9 @@ typedef enum {
+ 
+ 	BOTAI_START_FRAME,				// ( int time );
+ 
+-	GAME_ROFF_NOTETRACK_CALLBACK,	// int entnum, char *notetrack
+-
+-	GAME_SPAWN_RMG_ENTITY, //rwwRMG - added
+-
+-	//rww - icarus callbacks
+-	GAME_ICARUS_PLAYSOUND,
+-	GAME_ICARUS_SET,
+-	GAME_ICARUS_LERP2POS,
+-	GAME_ICARUS_LERP2ORIGIN,
+-	GAME_ICARUS_LERP2ANGLES,
+-	GAME_ICARUS_GETTAG,
+-	GAME_ICARUS_LERP2START,
+-	GAME_ICARUS_LERP2END,
+-	GAME_ICARUS_USE,
+-	GAME_ICARUS_KILL,
+-	GAME_ICARUS_REMOVE,
+-	GAME_ICARUS_PLAY,
+-	GAME_ICARUS_GETFLOAT,
+-	GAME_ICARUS_GETVECTOR,
+-	GAME_ICARUS_GETSTRING,
+-	GAME_ICARUS_SOUNDINDEX,
+-	GAME_ICARUS_GETSETIDFORSTRING,
+-	GAME_NAV_CLEARPATHTOPOINT,
+-	GAME_NAV_CLEARLOS,
+-	GAME_NAV_CLEARPATHBETWEENPOINTS,
+-	GAME_NAV_CHECKNODEFAILEDFORENT,
+-	GAME_NAV_ENTISUNLOCKEDDOOR,
+-	GAME_NAV_ENTISDOOR,
+-	GAME_NAV_ENTISBREAKABLE,
+-	GAME_NAV_ENTISREMOVABLEUSABLE,
+-	GAME_NAV_FINDCOMBATPOINTWAYPOINTS,
+-	
+-	GAME_GETITEMINDEXBYTAG
++	GAME_SPAWN_RMG_ENTITY,
++
++	GAME_GAMETYPE_COMMAND,			// ( int cmd, int arg0, int arg1, int arg2, int arg3, int arg4 );
+ } gameExport_t;
+ 
+ typedef struct
+diff --git a/codemp/game/g_syscalls.c b/codemp/game/g_syscalls.c
+index 0eea80e..e6002af 100644

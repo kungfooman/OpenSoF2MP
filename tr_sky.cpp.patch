@@ -1,0 +1,17 @@
+--- a/codemp/rd-vanilla/tr_sky.cpp
++++ b/codemp/rd-vanilla/tr_sky.cpp
+@@ -785,10 +785,10 @@ void RB_StageIteratorSky( void )
+ 		return;
+ 	}
+ 
+-	if (skyboxportal && !(backEnd.refdef.rdflags & RDF_SKYBOXPORTAL))
++/*	if (skyboxportal && !(backEnd.refdef.rdflags & RDF_SKYBOXPORTAL))
+ 	{
+ 		return;
+-	}
++	}*/
+ 
+ 	// go through all the polygons and project them onto
+ 	// the sky box to see which blocks on each side need
+diff --git a/codemp/rd-vanilla/tr_surface.cpp b/codemp/rd-vanilla/tr_surface.cpp
+index ff6220e..2404c64 100644

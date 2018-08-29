@@ -1,0 +1,12 @@
+--- a/codemp/ghoul2/G2_gore.h
++++ b/codemp/ghoul2/G2_gore.h
+@@ -47,7 +47,6 @@ struct SGoreSurface
+ 	int			mGoreTag;
+ 	int			mDeleteTime;
+ 	int			mFadeTime;
+-	bool		mFadeRGB;
+ 
+ 	int			mGoreGrowStartTime;
+ 	int			mGoreGrowEndTime;    // set this to -1 to disable growing
+diff --git a/codemp/ghoul2/ghoul2_shared.h b/codemp/ghoul2/ghoul2_shared.h
+index fb5c8ad..790a1b0 100644

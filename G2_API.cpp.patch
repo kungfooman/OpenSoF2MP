@@ -1,0 +1,385 @@
+--- a/codemp/rd-vanilla/G2_API.cpp
++++ b/codemp/rd-vanilla/G2_API.cpp
+@@ -145,39 +145,6 @@ qboolean G2_SetupModelPointers(CGhoul2Info *ghlInfo);
+ qboolean G2_SetupModelPointers(CGhoul2Info_v &ghoul2);
+ qboolean G2_TestModelPointers(CGhoul2Info *ghlInfo);
+ 
+-//rww - RAGDOLL_BEGIN
+-#define NUM_G2T_TIME (2)
+-static int G2TimeBases[NUM_G2T_TIME];
+-
+-void G2API_SetTime(int currentTime,int clock)
+-{
+-	assert(clock>=0&&clock<NUM_G2T_TIME);
+-#if G2_DEBUG_TIME
+-	Com_Printf("Set Time: before c%6d  s%6d",G2TimeBases[1],G2TimeBases[0]);
+-#endif
+-	G2TimeBases[clock]=currentTime;
+-	if (G2TimeBases[1]>G2TimeBases[0]+200)
+-	{
+-		G2TimeBases[1]=0; // use server time instead
+-		return;
+-	}
+-#if G2_DEBUG_TIME
+-	Com_Printf(" after c%6d  s%6d\n",G2TimeBases[1],G2TimeBases[0]);
+-#endif
+-}
+-
+-int	G2API_GetTime(int argTime) // this may or may not return arg depending on ghoul2_time cvar
+-{
+-	int ret=G2TimeBases[1];
+-	if ( !ret )
+-	{
+-		ret = G2TimeBases[0];
+-	}
+-
+-	return ret;
+-}
+-//rww - RAGDOLL_END
+-
+ //rww - Stuff to allow association of ghoul2 instances to entity numbers.
+ //This way, on listen servers when both the client and server are doing
+ //ghoul2 operations, we can copy relevant data off the client instance
+@@ -245,7 +212,7 @@ qboolean G2API_OverrideServerWithClientData(CGhoul2Info *serverInstance)
+ 	CGhoul2Info_v &g2Ref = *g2ClientAttachments[serverInstance->entityNum];
+ 	clientInstance = &g2Ref[0];
+ 
+-	int frameNum = G2API_GetTime(0);
++	int frameNum = 0;
+ 
+ 	if (clientInstance->mSkelFrameNum != frameNum)
+ 	{ //it has to be constructed already
+@@ -628,7 +595,7 @@ int G2API_InitGhoul2Model(CGhoul2Info_v **ghoul2Ptr, const char *fileName, int m
+ 	}
+ 	if (model==ghoul2.size())
+ 	{	//init should not be used to create additional models, only the first one
+-		assert(ghoul2.size() < 4); //use G2API_CopySpecificG2Model to add models
++		assert(ghoul2.size() < 7); //use G2API_CopySpecificG2Model to add models
+ 		ghoul2.push_back(CGhoul2Info()); 
+ 	}
+ 
+@@ -690,13 +657,13 @@ qboolean G2API_SetShader(CGhoul2Info *ghlInfo, qhandle_t customShader)
+ 	return qfalse;
+ }
+ 
+-qboolean G2API_SetSurfaceOnOff(CGhoul2Info_v &ghoul2, const char *surfaceName, const int flags)
++qboolean G2API_SetSurfaceOnOff(CGhoul2Info_v &ghoul2, int modelIndex, const char *surfaceName, const int flags)
+ {
+ 	CGhoul2Info *ghlInfo = NULL;
+ 
+ 	if ((int)&ghoul2 && ghoul2.size()>0)
+ 	{
+-		ghlInfo = &ghoul2[0];
++		ghlInfo = &ghoul2[modelIndex];
+ 	}
+ 
+ 	if (G2_SetupModelPointers(ghlInfo))
+@@ -1133,8 +1100,7 @@ qboolean G2API_GetBoneAnim(CGhoul2Info *ghlInfo, const char *boneName, const int
+ 	assert(currentFrame!=animSpeed); //this is bad
+ 	if (G2_SetupModelPointers(ghlInfo))
+ 	{
+-		int aCurrentTime=G2API_GetTime(currentTime);
+- 		qboolean ret=G2_Get_Bone_Anim(ghlInfo, ghlInfo->mBlist, boneName, aCurrentTime, currentFrame,
++ 		qboolean ret=G2_Get_Bone_Anim(ghlInfo, ghlInfo->mBlist, boneName, currentTime, currentFrame,
+ 			startFrame, endFrame, flags, animSpeed, modelList, ghlInfo->mModelindex);
+ #ifdef _DEBUG
+ 		/*
+@@ -1421,7 +1387,6 @@ extern int ragTraceCount;
+ void G2API_AnimateG2ModelsRag(CGhoul2Info_v &ghoul2, int AcurrentTime,CRagDollUpdateParams *params)
+ {
+ 	int model;
+-	int currentTime=G2API_GetTime(AcurrentTime);
+ 
+ #ifdef _DEBUG
+ 	ragTraceTime = 0;
+@@ -1434,7 +1399,7 @@ void G2API_AnimateG2ModelsRag(CGhoul2Info_v &ghoul2, int AcurrentTime,CRagDollUp
+ 	{
+ 		if (ghoul2[model].mModel)
+ 		{
+-			G2_Animate_Bone_List(ghoul2,currentTime,model,params);	
++			G2_Animate_Bone_List(ghoul2,AcurrentTime,model,params);	
+ 		}
+ 	}
+ #ifdef _DEBUG
+@@ -1796,7 +1761,6 @@ qboolean G2API_GetBoltMatrix(CGhoul2Info_v &ghoul2, const int modelIndex, const
+ 	{
+ 		if (matrix&&modelIndex>=0&&modelIndex<ghoul2.size())
+ 		{
+-			int tframeNum=G2API_GetTime(frameNum);
+ 			CGhoul2Info *ghlInfo = &ghoul2[modelIndex];
+ 			G2ERROR(boltIndex >= 0 && (boltIndex < ghlInfo->mBltlist.size()),va("Invalid Bolt Index (%d:%s)",boltIndex,ghlInfo->mFileName));
+ 
+@@ -1817,9 +1781,9 @@ qboolean G2API_GetBoltMatrix(CGhoul2Info_v &ghoul2, const int modelIndex, const
+ 					gG2_GBMNoReconstruct = qfalse;
+ 				}
+ #else
+-				if (G2_NeedsRecalc(ghlInfo,tframeNum))
++				if (G2_NeedsRecalc(ghlInfo,frameNum))
+ 				{
+-					G2_ConstructGhoulSkeleton(ghoul2,tframeNum,true,scale);
++					G2_ConstructGhoulSkeleton(ghoul2,frameNum,true,scale);
+ 				}
+ #endif
+ 
+@@ -2007,10 +1971,8 @@ static inline bool G2_NeedRetransform(CGhoul2Info *g2, int frameNum)
+ 		int newFrame = bone.startFrame + (time * bone.animSpeed);
+ 
+ 		if (newFrame < bone.endFrame ||
+-			(bone.flags & BONE_ANIM_OVERRIDE_LOOP) ||
+-			(bone.flags & BONE_NEED_TRANSFORM))
++			(bone.flags & BONE_ANIM_OVERRIDE_LOOP))
+ 		{ //ok, we're gonna have to do it. bone is apparently animating.
+-			bone.flags &= ~BONE_NEED_TRANSFORM;
+ 			needTrans = true;
+ 		}
+ 		i++;
+@@ -2030,9 +1992,8 @@ void G2API_CollisionDetectCache(CollisionRecord_t *collRecMap, CGhoul2Info_v &gh
+ 	{
+ 		vec3_t	transRayStart, transRayEnd;
+ 
+-		int tframeNum=G2API_GetTime(frameNumber);
+ 		// make sure we have transformed the whole skeletons for each model
+-		if (G2_NeedRetransform(&ghoul2[0], tframeNum) || !ghoul2[0].mTransformedVertsArray)
++		if (G2_NeedRetransform(&ghoul2[0], frameNumber) || !ghoul2[0].mTransformedVertsArray)
+ 		{ //optimization, only create new transform space if we need to, otherwise
+ 			//store it off!
+ 			int i = 0;
+@@ -2268,7 +2229,7 @@ int G2API_CopyGhoul2Instance(CGhoul2Info_v &g2From, CGhoul2Info_v &g2To, int mod
+ 	return -1;
+ }
+ 
+-void G2API_CopySpecificG2Model(CGhoul2Info_v &ghoul2From, int modelFrom, CGhoul2Info_v &ghoul2To, int modelTo)
++int G2API_CopySpecificG2Model(CGhoul2Info_v &ghoul2From, int modelFrom, CGhoul2Info_v &ghoul2To, int modelTo)
+ {
+ #if 0
+ 	qboolean forceReconstruct = qtrue;
+@@ -2282,10 +2243,17 @@ void G2API_CopySpecificG2Model(CGhoul2Info_v &ghoul2From, int modelFrom, CGhoul2
+ 		// assume we actually have a model to copy from
+ 		if (ghoul2From.size() > modelFrom)
+ 		{
++			// if it's -1 append it to the end
++			if (modelTo == -1)
++			{
++				modelTo = ghoul2To.size();
++			}
++
+ 			// if we don't have enough models on the to side, resize us so we do
+ 			if (ghoul2To.size() <= modelTo)
+ 			{
+-				assert (modelTo < 5);
++				//SOF2 TODO
++				//assert (modelTo < 5);
+ 				ghoul2To.resize(modelTo + 1);
+ #if 0
+ 				forceReconstruct = qtrue;
+@@ -2313,6 +2281,7 @@ void G2API_CopySpecificG2Model(CGhoul2Info_v &ghoul2From, int modelFrom, CGhoul2
+ #endif
+ 		}
+ 	}
++	return modelTo;
+ }
+ 
+ // This version will automatically copy everything about this model, and make a new one if necessary.
+@@ -2414,13 +2383,13 @@ char *G2API_GetGLAName(CGhoul2Info_v &ghoul2, int modelIndex)
+ 	return NULL;
+ }
+ 
+-qboolean G2API_SetNewOrigin(CGhoul2Info_v &ghoul2, const int boltIndex)
++qboolean G2API_SetNewOrigin(CGhoul2Info_v &ghoul2, const int modelIndex, const int boltIndex)
+ {
+ 	CGhoul2Info *ghlInfo = NULL;
+ 
+ 	if ((int)&ghoul2 && ghoul2.size()>0)
+ 	{
+-		ghlInfo = &ghoul2[0];
++		ghlInfo = &ghoul2[modelIndex];
+ 	}
+ 
+ 	if (G2_SetupModelPointers(ghlInfo))
+@@ -2458,6 +2427,15 @@ int G2API_GetBoneIndex(CGhoul2Info *ghlInfo, const char *boneName)
+ 	return -1;
+ }
+ 
++int G2API_GetBoltIndex(CGhoul2Info *ghlInfo, const int modelIndex)
++{
++	if (G2_SetupModelPointers(ghlInfo))
++	{
++		return G2_Find_Bolt_Bone_Num(ghlInfo->mBltlist, modelIndex);
++	}
++	return -1;
++}
++
+ qboolean G2API_SaveGhoul2Models(CGhoul2Info_v &ghoul2, char **buffer, int *size)
+ {
+ 	return G2_SaveGhoul2Models(ghoul2, buffer, size);
+@@ -2519,6 +2497,145 @@ qboolean G2API_SkinlessModel(CGhoul2Info *g2)
+ #ifdef _G2_GORE
+ void ResetGoreTag(); // put here to reduce coupling
+ 
++qhandle_t goreShaders[PGORE_COUNT];
++
++void G2API_InitGore(void)
++{
++	for (int gore = 0; gore < PGORE_COUNT; ++gore) {
++		char * shaderPath = 0;
++		switch (gore) {
++			case PGORE_ARMOR:
++				shaderPath = "skingore/armor";
++				break;
++			case PGORE_BULLETBIG:
++				shaderPath = "models/characters/gore/new_bullet_1";
++				break;
++			case PGORE_KNIFESLASH:
++				shaderPath = "models/characters/gore/knife_slash";
++				break;
++			case PGORE_PUNCTURE:
++				shaderPath = "models/characters/gore/knife_puncture";
++				break;
++			case PGORE_SHOTGUN:
++				shaderPath = "models/characters/gore/bullet_hole_shotgun";
++				break;
++			case PGORE_SHOTGUNBIG:
++				shaderPath = "models/characters/gore/bullet_hole_shotgun2";
++				break;
++			case PGORE_IMMOLATE:
++				shaderPath = "models/characters/gore/immolation_sensation";
++				break;
++			case PGORE_BURN:
++				shaderPath = "models/characters/gore/damage_scorch";
++				break;
++			case PGORE_SPURT:
++				shaderPath = "models/characters/gore/spurter";
++				break;
++			case PGORE_SPLATTER:
++				shaderPath = "models/characters/gore/splatter";
++				break;
++			case PGORE_BLOODY_GLASS:
++				shaderPath = "models/characters/gore/bloody_glass";
++				break;
++			case PGORE_BLOODY_GLASS_B:
++				shaderPath = "models/characters/gore/bloody_glass_b";
++				break;
++			case PGORE_BLOODY_ICK:
++				shaderPath = "models/characters/gore/bloody_ick";
++				break;
++			case PGORE_BLOODY_DROOP:
++				shaderPath = "models/characters/gore/bloody_droop";
++				break;
++			case PGORE_BLOODY_MAUL:
++				shaderPath = "models/characters/gore/bloody_maul";
++				break;
++			case PGORE_BLOODY_DROPS:
++				shaderPath = "models/characters/gore/bloody_drops";
++				break;
++			case PGORE_BULLET_E:
++				shaderPath = "models/characters/gore/bullet_e";
++				break;
++			case PGORE_BULLET_F:
++				shaderPath = "models/characters/gore/bullet_f";
++				break;
++			case PGORE_BULLET_G:
++				shaderPath = "models/characters/gore/bullet_g";
++				break;
++			case PGORE_BULLET_H:
++				shaderPath = "models/characters/gore/bullet_h";
++				break;
++			case PGORE_BULLET_I:
++				shaderPath = "models/characters/gore/bullet_i";
++				break;
++			case PGORE_BULLET_J:
++				shaderPath = "models/characters/gore/bullet_j";
++				break;
++			case PGORE_BULLET_K:
++				shaderPath = "models/characters/gore/bullet_k";
++				break;
++			case PGORE_BLOODY_HAND:
++				shaderPath = "models/characters/gore/bloody_hand";
++				break;
++			case PGORE_POWDER_BURN_DENSE:
++				shaderPath = "models/characters/gore/powder_burn_dense";
++				break;
++			case PGORE_POWDER_BURN_CHUNKY:
++				shaderPath = "models/characters/gore/powder_burn_chunky";
++				break;
++			case PGORE_KNIFESLASH2:
++				shaderPath = "models/characters/gore/knife_slash2";
++				break;
++			case PGORE_KNIFESLASH3:
++				shaderPath = "models/characters/gore/knife_slash3";
++				break;
++			case PGORE_CHUNKY_SPLAT:
++				shaderPath = "models/characters/gore/chunky_splat";
++				break;
++			case PGORE_BIG_SPLATTER:
++				shaderPath = "models/characters/gore/big_splatter";
++				break;
++			case PGORE_BLOODY_SPLOTCH:
++				shaderPath = "models/characters/gore/bloody_splotch";
++				break;
++			case PGORE_BLEEDER:
++				shaderPath = "models/characters/gore/bleeder";
++				break;
++			case PGORE_PELLETS:
++				shaderPath = "models/characters/gore/pellets";
++				break;
++			case PGORE_KNIFE_SOAK:
++				shaderPath = "models/characters/gore/knife_soak";
++				break;
++			case PGORE_BLEEDER_DENSE:
++				shaderPath = "models/characters/gore/bleeder_dense";
++				break;
++			case PGORE_BLOODY_SPLOTCH2:
++				shaderPath = "models/characters/gore/bloody_splotch2";
++				break;
++			case PGORE_BLOODY_DRIPS:
++				shaderPath = "models/characters/gore/bloody_drips";
++				break;
++			case PGORE_DRIPPING_DOWN:
++				shaderPath = "models/characters/gore/dripping_down";
++				break;
++			case PGORE_GUTSHOT:
++				shaderPath = "models/characters/gore/gutshot";
++				break;
++			case PGORE_SHRAPNEL:
++				shaderPath = "models/characters/gore/gore_shrapnel";
++				break;
++			case PGORE_NONE:
++			default:
++				break;
++		}
++		qhandle_t shader = 0;
++		if (shaderPath) {
++			shader = RE_RegisterShader(shaderPath);
++		}
++		goreShaders[gore] = shader;
++	}
++}
++
+ //way of seeing how many marks are on a model currently -rww
+ int G2API_GetNumGoreMarks(CGhoul2Info *g2)
+ {
+@@ -2586,10 +2703,14 @@ void G2API_AddSkinGore(CGhoul2Info_v &ghoul2,SSkinGoreData &gore)
+ 
+ 		G2_TransformModel(ghoul2, gore.currentTime, gore.scale,ri.GetG2VertSpaceServer(),lod,true);
+ 
++		// Get the gore2 shader
++		int goreShader = goreShaders[gore.shaderEnum];
++
+ 		// now walk each model and compute new texture coordinates
+-		G2_TraceModels(ghoul2, transHitLocation, transRayDirection, 0, gore.entNum, 0,lod,0.0f,gore.SSize,gore.TSize,gore.theta,gore.shader,&gore,qtrue);
++		G2_TraceModels(ghoul2, transHitLocation, transRayDirection, 0, gore.entNum, 0,lod,0.0f,gore.SSize,gore.TSize,gore.theta,goreShader,&gore,qtrue);
+ 	}
+ }
++
+ #endif
+ 
+ qboolean G2_TestModelPointers(CGhoul2Info *ghlInfo) // returns true if the model is properly set up
+@@ -2769,4 +2890,4 @@ qboolean G2_SetupModelPointers(CGhoul2Info_v &ghoul2) // returns true if any mod
+ 		ret=ret||r;
+ 	}
+ 	return (qboolean)ret;
+-}
++}
+\ No newline at end of file
+diff --git a/codemp/rd-vanilla/G2_bolts.cpp b/codemp/rd-vanilla/G2_bolts.cpp
+index bea01ea..42c2d5d 100644

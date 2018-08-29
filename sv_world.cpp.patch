@@ -1,0 +1,52 @@
+--- a/codemp/server/sv_world.cpp
++++ b/codemp/server/sv_world.cpp
+@@ -523,7 +523,7 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
+ 	int			i, num;
+ 	sharedEntity_t *touch;
+ 	int			passOwnerNum;
+-	trace_t		trace, oldTrace= {0};
++	trace_t		trace, oldTrace= {qfalse};
+ 	clipHandle_t	clipHandle;
+ 	float		*origin, *angles;
+ 	int			thisOwnerShared = 1;
+@@ -558,8 +558,7 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
+ 			if ( touch->r.ownerNum == clip->passEntityNum) {
+ 				if (touch->r.svFlags & SVF_OWNERNOTSHARED)
+ 				{
+-					if ( clip->contentmask != (MASK_SHOT | CONTENTS_LIGHTSABER) &&
+-						clip->contentmask != (MASK_SHOT))
++					if (clip->contentmask != (MASK_SHOT))
+ 					{ //it's not a laser hitting the other "missile", don't care then
+ 						continue;
+ 					}
+@@ -589,7 +588,7 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
+ 			continue;
+ 		}
+ 
+-		if ((clip->contentmask == (MASK_SHOT|CONTENTS_LIGHTSABER) || clip->contentmask == MASK_SHOT) && (touch->r.contents > 0 && (touch->r.contents & CONTENTS_NOSHOT)))
++		if (clip->contentmask == MASK_SHOT && (touch->r.contents > 0 && (touch->r.contents & CONTENTS_NOSHOT)))
+ 		{
+ 			continue;
+ 		}
+@@ -734,18 +733,7 @@ Ghoul2 Insert Start
+ 			}
+ #endif
+ 
+-			if (com_optvehtrace &&
+-				com_optvehtrace->integer &&
+-				touch->s.eType == ET_NPC &&
+-				touch->s.NPC_class == CLASS_VEHICLE &&
+-				touch->m_pVehicle)
+-			{ //for vehicles cache the transform data.
+-				re.G2API_CollisionDetectCache(G2Trace, *((CGhoul2Info_v *)touch->ghoul2), angles, touch->r.currentOrigin, svs.time, touch->s.number, clip->start, clip->end, touch->modelScale, G2VertSpaceServer, 0, clip->useLod, fRadius);
+-			}
+-			else
+-			{
+-				re.G2API_CollisionDetect(G2Trace, *((CGhoul2Info_v *)touch->ghoul2), angles, touch->r.currentOrigin, svs.time, touch->s.number, clip->start, clip->end, touch->modelScale, G2VertSpaceServer, 0, clip->useLod, fRadius);
+-			}
++			re.G2API_CollisionDetect(G2Trace, *((CGhoul2Info_v *)touch->ghoul2), angles, touch->r.currentOrigin, svs.time, touch->s.number, clip->start, clip->end, touch->modelScale, G2VertSpaceServer, 0, clip->useLod, fRadius);
+ 
+ 			tN = 0;
+ 			while (tN < MAX_G2_COLLISIONS)
+diff --git a/codemp/ui/keycodes.h b/codemp/ui/keycodes.h
+index 2a53a2d..86d8101 100644

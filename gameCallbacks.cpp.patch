@@ -1,0 +1,19 @@
+--- a/codemp/server/NPCNav/gameCallbacks.cpp
++++ b/codemp/server/NPCNav/gameCallbacks.cpp
+@@ -3,7 +3,7 @@
+ #include "game/g_public.h"
+ #include "server/server.h"
+ 
+-qboolean GNavCallback_NAV_ClearPathToPoint( sharedEntity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t point, int clipmask, int okToHitEntNum )
++/*qboolean GNavCallback_NAV_ClearPathToPoint( sharedEntity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t point, int clipmask, int okToHitEntNum )
+ {
+ 	return (qboolean)VM_Call(gvm, GAME_NAV_CLEARPATHTOPOINT, self->s.number, pmins, pmaxs, point, clipmask, okToHitEntNum);
+ }
+@@ -47,3 +47,4 @@ void GNavCallback_CP_FindCombatPointWaypoints( void )
+ {
+ 	VM_Call(gvm, GAME_NAV_FINDCOMBATPOINTWAYPOINTS);
+ }
++*/
+\ No newline at end of file
+diff --git a/codemp/server/NPCNav/navigator.cpp b/codemp/server/NPCNav/navigator.cpp
+index 2dc7a3d..c768bf4 100644

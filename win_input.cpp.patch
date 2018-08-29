@@ -1,0 +1,142 @@
+--- a/codemp/win32/win_input.cpp
++++ b/codemp/win32/win_input.cpp
+@@ -410,39 +410,39 @@ void IN_DIMouse( int *mx, int *my ) {
+ 		switch (od.dwOfs) {
+ 		case DIMOFS_BUTTON0:
+ 			if (od.dwData & 0x80)
+-				Sys_QueEvent( od.dwTimeStamp, SE_KEY, A_MOUSE1, qtrue, 0, NULL );
++				Sys_QueEvent( od.dwTimeStamp, SE_KEY, K_MOUSE1, qtrue, 0, NULL );
+ 			else
+-				Sys_QueEvent( od.dwTimeStamp, SE_KEY, A_MOUSE1, qfalse, 0, NULL );
++				Sys_QueEvent( od.dwTimeStamp, SE_KEY, K_MOUSE1, qfalse, 0, NULL );
+ 			break;
+ 
+ 		case DIMOFS_BUTTON1:
+ 			if (od.dwData & 0x80)
+-				Sys_QueEvent( od.dwTimeStamp, SE_KEY, A_MOUSE2, qtrue, 0, NULL );
++				Sys_QueEvent( od.dwTimeStamp, SE_KEY, K_MOUSE2, qtrue, 0, NULL );
+ 			else
+-				Sys_QueEvent( od.dwTimeStamp, SE_KEY, A_MOUSE2, qfalse, 0, NULL );
++				Sys_QueEvent( od.dwTimeStamp, SE_KEY, K_MOUSE2, qfalse, 0, NULL );
+ 			break;
+ 			
+ 		case DIMOFS_BUTTON2:
+ 			if (od.dwData & 0x80)
+-				Sys_QueEvent( od.dwTimeStamp, SE_KEY, A_MOUSE3, qtrue, 0, NULL );
++				Sys_QueEvent( od.dwTimeStamp, SE_KEY, K_MOUSE3, qtrue, 0, NULL );
+ 			else
+-				Sys_QueEvent( od.dwTimeStamp, SE_KEY, A_MOUSE3, qfalse, 0, NULL );
++				Sys_QueEvent( od.dwTimeStamp, SE_KEY, K_MOUSE3, qfalse, 0, NULL );
+ 			break;
+ 
+ 		case DIMOFS_BUTTON3:
+ 			if (od.dwData & 0x80)
+-				Sys_QueEvent( od.dwTimeStamp, SE_KEY, A_MOUSE4, qtrue, 0, NULL );
++				Sys_QueEvent( od.dwTimeStamp, SE_KEY, K_MOUSE4, qtrue, 0, NULL );
+ 			else
+-				Sys_QueEvent( od.dwTimeStamp, SE_KEY, A_MOUSE4, qfalse, 0, NULL );
++				Sys_QueEvent( od.dwTimeStamp, SE_KEY, K_MOUSE4, qfalse, 0, NULL );
+ 			break;
+ 
+ 		// needs DIRECTINPUT_VERSION >= 0x0700 to compile, which we seem to have, so...
+ 		//
+ 		case DIMOFS_BUTTON4:
+ 			if (od.dwData & 0x80)
+-				Sys_QueEvent( od.dwTimeStamp, SE_KEY, A_MOUSE5, qtrue, 0, NULL );
++				Sys_QueEvent( od.dwTimeStamp, SE_KEY, K_MOUSE5, qtrue, 0, NULL );
+ 			else
+-				Sys_QueEvent( od.dwTimeStamp, SE_KEY, A_MOUSE5, qfalse, 0, NULL );
++				Sys_QueEvent( od.dwTimeStamp, SE_KEY, K_MOUSE5, qfalse, 0, NULL );
+ 			break;
+ 		}
+ 	}
+@@ -564,11 +564,11 @@ IN_MouseEvent
+ 
+ static int mouseConvert[MAX_MOUSE_BUTTONS] =
+ {
+-	A_MOUSE1,
+-	A_MOUSE2,
+-	A_MOUSE3,
+-	A_MOUSE4,
+-	A_MOUSE5
++	K_MOUSE1,
++	K_MOUSE2,
++	K_MOUSE3,
++	K_MOUSE4,
++	K_MOUSE5
+ };
+ 
+ void IN_MouseEvent (int mstate)
+@@ -732,7 +732,7 @@ void IN_Frame (void) {
+ 		//}
+ 	}
+ 
+-	if( !Cvar_VariableIntegerValue("r_fullscreen") && loading ) {
++	if( !Cvar_VariableIntegerValue("r_fullscreen") && loading && !(cls.keyCatchers & KEYCATCH_UI)) {
+ 		IN_DeactivateMouse ();
+ 		return;
+ 	}
+@@ -874,15 +874,15 @@ int JoyToI( int value ) {
+ }
+ 
+ int	joyDirectionKeys[16] = {
+-	A_CURSOR_LEFT, A_CURSOR_RIGHT,
+-	A_CURSOR_UP, A_CURSOR_DOWN,
+-	A_JOY16, A_JOY17,
+-	A_JOY18, A_JOY19,
+-	A_JOY20, A_JOY21,
+-	A_JOY22, A_JOY23,
+-
+-	A_JOY24, A_JOY25,
+-	A_JOY26, A_JOY27
++	K_LEFTARROW, K_RIGHTARROW,
++	K_UPARROW, K_DOWNARROW,
++	K_JOY16, K_JOY17,
++	K_JOY18, K_JOY19,
++	K_JOY20, K_JOY21,
++	K_JOY22, K_JOY23,
++
++	K_JOY24, K_JOY25,
++	K_JOY26, K_JOY27
+ };
+ 
+ /*
+@@ -929,10 +929,10 @@ void IN_JoyMove( void ) {
+ 	buttonstate = joy.ji.dwButtons;
+ 	for ( i=0 ; i < joy.jc.wNumButtons ; i++ ) {
+ 		if ( (buttonstate & (1<<i)) && !(joy.oldbuttonstate & (1<<i)) ) {
+-			Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, A_JOY0 + i, qtrue, 0, NULL );
++			Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_JOY1 + i, qtrue, 0, NULL );
+ 		}
+ 		if ( !(buttonstate & (1<<i)) && (joy.oldbuttonstate & (1<<i)) ) {
+-			Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, A_JOY0 + i, qfalse, 0, NULL );
++			Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_JOY1 + i, qfalse, 0, NULL );
+ 		}
+ 	}
+ 	joy.oldbuttonstate = buttonstate;
+@@ -1017,9 +1017,9 @@ static void MIDI_NoteOff( int note )
+ {
+ 	int qkey;
+ 
+-	qkey = note - 60 + A_AUX0;
++	qkey = note - 60 + K_AUX1;
+ 
+-	if ( qkey < A_AUX0 )
++	if ( qkey < K_AUX1 )
+ 	{
+ 		return;
+ 	}
+@@ -1035,9 +1035,9 @@ static void MIDI_NoteOn( int note, int velocity )
+ 		MIDI_NoteOff( note );
+ 	}
+ 
+-	qkey = note - 60 + A_AUX0;
++	qkey = note - 60 + K_AUX1;
+ 
+-	if ( qkey < A_AUX0 )
++	if ( qkey < K_AUX1 )
+ 	{
+ 		return;
+ 	}
+diff --git a/codemp/win32/win_main.cpp b/codemp/win32/win_main.cpp
+index 0a57bed..b6fc327 100644

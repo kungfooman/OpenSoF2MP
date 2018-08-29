@@ -1,0 +1,60 @@
+--- a/codemp/client/FxSystem.h
++++ b/codemp/client/FxSystem.h
+@@ -90,8 +90,7 @@ public:
+ 	// Sound
+ 	inline	void	PlaySound( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfxHandle, int volume, int radius )
+ 	{
+-		//S_StartSound( origin, ENTITYNUM_NONE, CHAN_AUTO, sfxHandle, volume, radius );
+-		S_StartSound( origin, ENTITYNUM_NONE, CHAN_AUTO, sfxHandle );
++		S_StartSound( origin, ENTITYNUM_NONE, CHAN_AUTO, sfxHandle, volume, radius );
+ 	}
+ 	inline	void	PlayLocalSound(sfxHandle_t sfxHandle, int entchannel)
+ 	{
+@@ -131,45 +130,6 @@ public:
+ 		tr = td->mResult;
+ 	}
+ 
+-	inline	void	G2Trace( trace_t &tr, vec3_t start, vec3_t min, vec3_t max, vec3_t end, int skipEntNum, int flags )
+-	{
+-		TCGTrace		*td = (TCGTrace *)cl.mSharedMemory;
+-
+-		if ( !min )
+-		{
+-			min = vec3_origin;
+-		}
+-
+-		if ( !max )
+-		{
+-			max = vec3_origin;
+-		}
+-
+-		memset(td, sizeof(*td), 0);
+-		VectorCopy(start, td->mStart);
+-		VectorCopy(min, td->mMins);
+-		VectorCopy(max, td->mMaxs);
+-		VectorCopy(end, td->mEnd);
+-		td->mSkipNumber = skipEntNum;
+-		td->mMask = flags;
+-
+-		VM_Call( cgvm, CG_G2TRACE );
+-
+-		tr = td->mResult;
+-	}
+-
+-	inline	void	AddGhoul2Decal(int shader, vec3_t start, vec3_t dir, float size)
+-	{
+-		TCGG2Mark		*td = (TCGG2Mark *)cl.mSharedMemory;
+-
+-		td->size = size;
+-		td->shader = shader;
+-		VectorCopy(start, td->start);
+-		VectorCopy(dir, td->dir);
+-
+-		VM_Call(cgvm, CG_G2MARK);
+-	}
+-
+ 	inline	void	AddFxToScene( refEntity_t *ent )
+ 	{
+ #ifdef _DEBUG
+diff --git a/codemp/client/cl_cgame.cpp b/codemp/client/cl_cgame.cpp
+index ed10e15..f910993 100644

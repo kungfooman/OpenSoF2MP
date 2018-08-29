@@ -1,0 +1,31 @@
+--- a/codemp/icarus/Q3_Interface.h
++++ b/codemp/icarus/Q3_Interface.h
+@@ -178,7 +178,6 @@ typedef enum //# setType_e
+ 	SET_TREASONED,//## %t="BOOL_TYPES" # Player has turned on his own- scripts will stop, NPCs will turn on him and level changes load the brig
+ 	SET_DISABLE_SHADER_ANIM,//## %t="BOOL_TYPES" # Allows turning off an animating shader in a script
+ 	SET_SHADER_ANIM,//## %t="BOOL_TYPES" # Sets a shader with an image map to be under frame control
+-	SET_SABERACTIVE,//## %t="BOOL_TYPES" # Turns saber on/off
+ 	SET_ADJUST_AREA_PORTALS,//## %t="BOOL_TYPES" # Only set this on things you move with script commands that you *want* to open/close area portals.  Default is off.
+ 	SET_DMG_BY_HEAVY_WEAP_ONLY,//## %t="BOOL_TYPES" # When true, only a heavy weapon class missile/laser can damage this ent.
+ 	SET_SHIELDED,//## %t="BOOL_TYPES" # When true, ion_cannon is shielded from any kind of damage.
+@@ -217,18 +216,6 @@ typedef enum //# setType_e
+ 	SET_ITEM,//## %t="ITEM_NAMES" # Give items
+ 	SET_MUSIC_STATE,//## %t="MUSIC_STATES" # Set the state of the dynamic music
+ 
+-	SET_FORCE_HEAL_LEVEL,//## %t="FORCE_LEVELS" # Change force power level
+-	SET_FORCE_JUMP_LEVEL,//## %t="FORCE_LEVELS" # Change force power level
+-	SET_FORCE_SPEED_LEVEL,//## %t="FORCE_LEVELS" # Change force power level
+-	SET_FORCE_PUSH_LEVEL,//## %t="FORCE_LEVELS" # Change force power level
+-	SET_FORCE_PULL_LEVEL,//## %t="FORCE_LEVELS" # Change force power level
+-	SET_FORCE_MINDTRICK_LEVEL,//## %t="FORCE_LEVELS" # Change force power level
+-	SET_FORCE_GRIP_LEVEL,//## %t="FORCE_LEVELS" # Change force power level
+-	SET_FORCE_LIGHTNING_LEVEL,//## %t="FORCE_LEVELS" # Change force power level
+-	SET_SABER_THROW,//## %t="FORCE_LEVELS" # Change force power level
+-	SET_SABER_DEFENSE,//## %t="FORCE_LEVELS" # Change force power level
+-	SET_SABER_OFFENSE,//## %t="FORCE_LEVELS" # Change force power level
+-
+ 	SET_OBJECTIVE_SHOW,	//## %t="OBJECTIVES" # Show objective on mission screen
+ 	SET_OBJECTIVE_HIDE,	//## %t="OBJECTIVES" # Hide objective from mission screen
+ 	SET_OBJECTIVE_SUCCEEDED,//## %t="OBJECTIVES" # Mark objective as completed
+diff --git a/codemp/icarus/Q3_Registers.cpp b/codemp/icarus/Q3_Registers.cpp
+index bc0c713..26eeb9a 100644

@@ -1,0 +1,40 @@
+--- a/codemp/qcommon/RoffSystem.cpp
++++ b/codemp/qcommon/RoffSystem.cpp
+@@ -889,7 +889,7 @@ qboolean CROFFSystem::ApplyROFF( SROFFEntity *roff_ent, CROFFSystem::CROFF *roff
+ 	SetLerp( angleTrajectory, TR_LINEAR, angle, 
+ 				roff->mMoveRotateList[roff_ent->mROFFFrame].mRotateOffset, svs.time, roff->mLerp );
+ 
+-	if (roff->mMoveRotateList[roff_ent->mROFFFrame].mStartNote >= 0)
++	/*if (roff->mMoveRotateList[roff_ent->mROFFFrame].mStartNote >= 0)
+ 	{
+ 		int		i;
+ 
+@@ -897,7 +897,7 @@ qboolean CROFFSystem::ApplyROFF( SROFFEntity *roff_ent, CROFFSystem::CROFF *roff
+ 		{
+ 			ProcessNote(roff_ent, roff->mNoteTrackIndexes[roff->mMoveRotateList[roff_ent->mROFFFrame].mStartNote + i]);
+ 		}
+-	}
++	}*/
+ 
+ 	// Advance ROFF frames and lock to a 10hz cycle
+ 	roff_ent->mROFFFrame++;
+@@ -924,7 +924,7 @@ qboolean CROFFSystem::ApplyROFF( SROFFEntity *roff_ent, CROFFSystem::CROFF *roff
+  *    none                                                                                      *
+  *                                                                                              *
+  ************************************************************************************************/
+-void CROFFSystem::ProcessNote(SROFFEntity *roff_ent, char *note)
++/*void CROFFSystem::ProcessNote(SROFFEntity *roff_ent, char *note)
+ {
+ 	char	temp[1024];
+ 	int		pos, size;
+@@ -958,7 +958,7 @@ void CROFFSystem::ProcessNote(SROFFEntity *roff_ent, char *note)
+ 			}
+ 		}
+ 	}
+-}
++}*/
+ 
+ //---------------------------------------------------------------------------
+ // CROFFSystem::ClearLerp
+diff --git a/codemp/qcommon/RoffSystem.h b/codemp/qcommon/RoffSystem.h
+index 669ea88..230c883 100644

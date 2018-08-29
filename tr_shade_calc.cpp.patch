@@ -1,0 +1,32 @@
+--- a/codemp/rd-vanilla/tr_shade_calc.cpp
++++ b/codemp/rd-vanilla/tr_shade_calc.cpp
+@@ -1257,7 +1257,7 @@ void RB_CalcDiffuseEntityColor( unsigned char *colors )
+ }
+ 
+ //---------------------------------------------------------
+-void RB_CalcDisintegrateColors( unsigned char *colors )
++/*void RB_CalcDisintegrateColors( unsigned char *colors )
+ {
+ 	int			i, numVertexes;
+ 	float		dis, threshold;
+@@ -1348,10 +1348,10 @@ void RB_CalcDisintegrateColors( unsigned char *colors )
+ 			}
+ 		}
+ 	}
+-}
++}*/
+ 
+ //---------------------------------------------------------
+-void RB_CalcDisintegrateVertDeform( void )
++/*void RB_CalcDisintegrateVertDeform( void )
+ {
+ 	float	*xyz = ( float * ) tess.xyz;
+ 	float	*normal = ( float * ) tess.normal;
+@@ -1383,3 +1383,4 @@ void RB_CalcDisintegrateVertDeform( void )
+ 		}
+ 	}
+ }
++*/
+\ No newline at end of file
+diff --git a/codemp/rd-vanilla/tr_shader.cpp b/codemp/rd-vanilla/tr_shader.cpp
+index 30e2c16..60e3b0b 100644

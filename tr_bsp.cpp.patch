@@ -1,0 +1,13 @@
+--- a/codemp/rd-vanilla/tr_bsp.cpp
++++ b/codemp/rd-vanilla/tr_bsp.cpp
+@@ -2012,7 +2012,7 @@ void RE_LoadWorldMap_Actual( const char *name, world_t &worldData, int index )
+ 
+ 	if (!index)
+ 	{
+-		skyboxportal = 0;
++		//skyboxportal = 0;
+ 
+ 		// set default sun direction to be used if it isn't
+ 		// overridden by a shader
+diff --git a/codemp/rd-vanilla/tr_font.cpp b/codemp/rd-vanilla/tr_font.cpp
+index 96dbb5f..ff9e699 100644

@@ -1,0 +1,71 @@
+--- a/codemp/rd-vanilla/tr_main.cpp
++++ b/codemp/rd-vanilla/tr_main.cpp
+@@ -403,14 +403,14 @@ static void SetFarClip( void )
+ 	// if not rendering the world (icons, menus, etc)
+ 	// set a 2k far clip plane
+ 	if ( tr.refdef.rdflags & RDF_NOWORLDMODEL ) {
+-		if (tr.refdef.rdflags & RDF_AUTOMAP)
++		/*if (tr.refdef.rdflags & RDF_AUTOMAP)
+ 		{ //override the zfar then
+ 			tr.viewParms.zFar = 32768.0f;
+ 		}
+ 		else
+-		{
++		{*/
+ 			tr.viewParms.zFar = 2048.0f;
+-		}
++		//}
+ 		return;
+ 	}
+ 
+@@ -1224,15 +1224,6 @@ void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader,
+ 				   int fogIndex, int dlightMap ) {
+ 	int			index;
+ 
+-	if (tr.refdef.rdflags & RDF_NOFOG)
+-	{
+-		fogIndex = 0;
+-	}
+-	else
+-	{
+-		fogIndex = fogIndex;
+-	}
+-
+ 	// instead of checking for overflow, we just mask the index
+ 	// so it wraps around
+ 	index = tr.refdef.numDrawSurfs & DRAWSURF_MASK;
+@@ -1253,7 +1244,7 @@ void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader,
+ 					 int *fogNum, int *dlightMap ) {
+ 	*fogNum = ( sort >> QSORT_FOGNUM_SHIFT ) & 31;
+ 	*shader = tr.sortedShaders[ ( sort >> QSORT_SHADERNUM_SHIFT ) & (MAX_SHADERS-1) ];
+-	*entityNum = ( sort >> QSORT_ENTITYNUM_SHIFT ) & (MAX_ENTITIES-1);
++	*entityNum = ( sort >> QSORT_ENTITYNUM_SHIFT ) & (MAX_GENTITIES-1);
+ 	*dlightMap = sort & 3;
+ }
+ 
+@@ -1358,7 +1349,6 @@ void R_AddEntitySurfaces (void) {
+ 		case RT_LINE:
+ 		case RT_ORIENTEDLINE:
+ 		case RT_CYLINDER:
+-		case RT_SABER_GLOW:
+ 			// self blood sprites, talk balloons, etc should not be drawn in the primary
+ 			// view.  We can't just do this check for all entities, because md3
+ 			// entities may still want to cast shadows from them
+@@ -1395,13 +1385,13 @@ Ghoul2 Insert Start
+ 					}
+   					break;
+ 				case MOD_BAD:		// null model axis
+-					if ( (ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal)
++					/*if ( (ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal)
+ 					{
+ 						if (!(ent->e.renderfx & RF_SHADOW_ONLY))
+ 						{
+ 							break;
+ 						}
+-					}
++					}*/
+ 
+   					if (ent->e.ghoul2 && G2API_HaveWeGhoul2Models(*((CGhoul2Info_v *)ent->e.ghoul2)))
+   					{
+diff --git a/codemp/rd-vanilla/tr_model.cpp b/codemp/rd-vanilla/tr_model.cpp
+index 7599856..a8621c9 100644

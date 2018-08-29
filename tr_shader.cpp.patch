@@ -1,0 +1,173 @@
+--- a/codemp/rd-vanilla/tr_shader.cpp
++++ b/codemp/rd-vanilla/tr_shader.cpp
+@@ -5,7 +5,7 @@
+ 
+ // tr_shader.c -- this file deals with the parsing and definition of shaders
+ 
+-#define USE_NEW_SHADER_HASH
++//#define USE_NEW_SHADER_HASH
+ 
+ 
+ /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+@@ -358,7 +358,7 @@ static void Shader_SkipRestOfLine ( const char **data ) {
+ #define Shader_GetCurrentParseLine COM_GetCurrentParseLine
+ #define Shader_Parse COM_Parse
+ #define Shader_Shader_SkipWhitespace SkipWhitespace
+-#define Shader_Compress COM_Comress
++#define Shader_Compress COM_Compress
+ #define Shader_ParseExt COM_ParseExt
+ #define Shader_SkipBracedSection SkipBracedSection
+ #define Shader_SkipRestOfLine SkipRestOfLine
+@@ -2754,6 +2754,76 @@ static qboolean ParseShader( const char **text )
+ 			ParseSort( text );
+ 			continue;
+ 		}
++/*
++Ghoul2 Insert Start
++*/
++
++		// 
++		// location hit mesh load
++		//
++		else if ( !Q_stricmp( token, "hitLocation" ) )
++		{
++		   
++			// grab the filename of the hit location texture
++			token = COM_ParseExt( text, qfalse );
++			if ( token[0] == 0 )
++				break;
++			Q_strncpyz(shader.hitLocation, token, MAX_QPATH);
++			continue;
++		}
++		// 
++		// location hit material mesh load
++		//
++		else if ( !Q_stricmp( token, "hitMaterial" ) )
++		{
++
++			// grab the filename of the hit location texture
++			token = COM_ParseExt( text, qfalse );
++			if ( token[0] == 0 )
++				break;
++			Q_strncpyz(shader.hitMaterial, token, MAX_QPATH);
++			continue;
++
++		}
++		//
++		// damage shader
++		//
++		else if ( !Q_stricmp( token, "damageShader" ) )
++		{
++			token = COM_ParseExt( text, qfalse );
++			if ( !token[0] )
++			{
++				Com_Printf( S_COLOR_YELLOW "WARNING: missing param for 'damageShader' keyword in shader '%s'\n", shader.name );
++				continue;
++			}
++
++			//SOF2 TODO
++			/*CCMShader *damageShader = CM_GetShaderInfo(token);
++			if(damageShader)
++			{
++				shader.damageShaderNum = damageShader - cm.shaders;
++			}*/
++
++			token = COM_ParseExt( text, qfalse );
++			if (token)
++			{
++				shader.damage = atof(token);
++			}
++			continue;
++		}
++		//
++		// alias shader
++		//
++		else if ( !Q_stricmp( token, "aliasShader" ) )
++		{
++			token = COM_ParseExt( text, qfalse );
++			if ( token[0] == 0 )
++				break;
++			//SOF2 TODO
++		}
++/*
++Ghoul2 Insert End
++*/
+ 		else
+ 		{
+ 			Com_Printf (S_COLOR_YELLOW  "WARNING: unknown general shader parameter '%s' in '%s'\n", token, shader.name );
+@@ -3131,7 +3201,6 @@ what it is supposed to look like.
+   OUTPUT:  Number of stages after the collapse (in the case of surfacesprites this isn't one).
+ =================
+ */
+-//rww - no longer used, at least for now. destroys alpha shaders completely.
+ #if 0
+ static int VertexLightingCollapse( void ) {
+ 	int		stage, nextopenstage;
+@@ -3169,7 +3238,7 @@ static int VertexLightingCollapse( void ) {
+ 			}
+ 
+ 			// SurfaceSprites are most certainly NOT desireable as the collapsed surface texture.
+-			if ( pStage->ss && pstage->ss->surfaceSpriteType)
++			if ( pStage->ss && pStage->ss->surfaceSpriteType)
+ 			{
+ 				rank -= 1000;
+ 			}
+@@ -3216,7 +3285,7 @@ static int VertexLightingCollapse( void ) {
+ 			break;
+ 		}
+ 
+-		if ( pStage->ss && pstage->ss->surfaceSpriteType)
++		if ( pStage->ss && pStage->ss->surfaceSpriteType)
+ 		{
+ 			// Copy this stage to the next open stage list (that is, we don't want any inactive stages before this one)
+ 			if (nextopenstage != stage)
+@@ -3527,7 +3596,6 @@ static shader_t *FinishShader( void ) {
+ 	//
+ 	if ( stage > 1 && (r_vertexLight->integer && !r_uiFullScreen->integer) ) {
+ 		//stage = VertexLightingCollapse();
+-		//rww - since this does bad things, I am commenting it out for now. If you want to attempt a fix, feel free.
+ 		hasLightmapStage = qfalse;
+ 	}
+ 
+@@ -3748,8 +3816,8 @@ most world construction surfaces.
+ */
+ shader_t *R_FindShader( const char *name, const int *lightmapIndex, const byte *styles, qboolean mipRawImage ) 
+ {
+-	char		strippedName[MAX_QPATH];
+-	char		fileName[MAX_QPATH];
++	char		strippedName[MAX_OSPATH];
++	char		fileName[MAX_OSPATH];
+ 	int			hash;
+ 	const char	*shaderText;
+ 	image_t		*image;
+@@ -4074,8 +4142,8 @@ For menu graphics that should never be picmiped
+ qhandle_t RE_RegisterShaderNoMip( const char *name ) {
+ 	shader_t	*sh;
+ 
+-	if ( strlen( name ) >= MAX_QPATH ) {
+-		Com_Printf( "Shader name exceeds MAX_QPATH\n" );
++	if ( strlen( name ) >= MAX_OSPATH ) {
++		Com_Printf( "Shader name exceeds MAX_OSPATH\n" );
+ 		return 0;
+ 	}
+ 
+@@ -4339,7 +4407,7 @@ static void ScanAndLoadShaderFiles( const char *path )
+ 		ri.Printf( PRINT_DEVELOPER, "...loading '%s'\n", filename );
+ 		summand = ri.FS_ReadFile( filename, (void **)&buffers[i] );
+ 		if ( !buffers[i] ) {
+-			ri.Com_Error( ERR_DROP, "Couldn't load %s", filename );
++			Com_Error( ERR_DROP, "Couldn't load %s", filename );
+ 		}
+ 
+ 		// Do a simple check on the shader structure in that file to make sure one bad shader file cannot fuck up all other shaders.
+@@ -4712,7 +4780,7 @@ R_InitShaders
+ */
+ void R_InitShaders(qboolean server)
+ {
+-	//Com_Printf ("Initializing Shaders\n" );
++	Com_Printf ("Initializing Shaders\n" );
+ 
+ #if defined(USE_NEW_SHADER_HASH) && !(DEDICATED)
+ 	int time, mem;
+diff --git a/codemp/rd-vanilla/tr_sky.cpp b/codemp/rd-vanilla/tr_sky.cpp
+index ebe9e0a..b317fe3 100644

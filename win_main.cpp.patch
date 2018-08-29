@@ -1,0 +1,50 @@
+--- a/codemp/win32/win_main.cpp
++++ b/codemp/win32/win_main.cpp
+@@ -12,7 +12,6 @@
+ #include <direct.h>
+ #include <io.h>
+ #include <conio.h>
+-#include "qcommon/stringed_ingame.h"
+ 
+ #define	CD_BASEDIR	"gamedata\\gamedata"
+ #define	CD_EXE		"jamp.exe"
+@@ -594,7 +593,7 @@ void * QDECL Sys_LoadGameDll( const char *name, int (QDECL **entryPoint)(int, ..
+ 	char	*fn;
+ 	char	filename[MAX_QPATH];
+ 
+-	Com_sprintf( filename, sizeof( filename ), "%sx86.dll", name );
++	Com_sprintf( filename, sizeof( filename ), "mp/%sx86.dll", name );
+ 
+ 	if (!Sys_UnpackDLL(filename))
+ 	{
+@@ -1152,28 +1151,6 @@ void QuickMemTest(void)
+ 		{
+ 			free(pvData);
+ 		}
+-		else
+-		{
+-			// err...
+-			//
+-			LPCSTR psContinue = re.Language_IsAsian() ? 
+-								"Your machine failed to allocate %dMB in a memory test, which may mean you'll have problems running this game all the way through.\n\nContinue anyway?"
+-								: 
+-								SE_GetString("CON_TEXT_FAILED_MEMTEST");
+-								// ( since it's too much hassle doing MBCS code pages and decodings etc for MessageBox command )
+-
+-			#define GetYesNo(psQuery)	(!!(MessageBox(NULL,psQuery,"Query",MB_YESNO|MB_ICONWARNING|MB_TASKMODAL)==IDYES))
+-			if (!GetYesNo(va(psContinue,iMemTestMegs)))
+-			{
+-				LPCSTR psNoMem = re.Language_IsAsian() ?
+-								"Insufficient memory to run this game!\n"
+-								:
+-								SE_GetString("CON_TEXT_INSUFFICIENT_MEMORY");
+-								// ( since it's too much hassle doing MBCS code pages and decodings etc for MessageBox command )
+-
+-				Com_Error( ERR_FATAL, psNoMem );
+-			}
+-		}
+ 	}
+ }
+ 
+diff --git a/codemp/win32/win_qgl.cpp b/codemp/win32/win_qgl.cpp
+index 0f0e59f..28a4291 100644

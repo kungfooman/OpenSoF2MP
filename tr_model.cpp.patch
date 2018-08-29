@@ -1,0 +1,63 @@
+--- a/codemp/rd-vanilla/tr_model.cpp
++++ b/codemp/rd-vanilla/tr_model.cpp
+@@ -856,7 +856,7 @@ qboolean ServerLoadMDXM( model_t *mod, void *buffer, const char *mod_name, qbool
+ 	}
+ 		
+ 	// first up, go load in the animation file we need that has the skeletal animation info for this model
+-	mdxm->animIndex = RE_RegisterServerModel(va ("%s.gla",mdxm->animName));
++	mdxm->animIndex = RE_RegisterServerModel(va ("%s_mp.gla",mdxm->animName));
+ 	if (!mdxm->animIndex) 
+ 	{
+ 		return qfalse;
+@@ -1200,6 +1200,10 @@ Ghoul2 Insert Start
+ 	//
+ 	for (mh=mhHashTable[hash]; mh; mh=mh->next) {
+ 		if (Q_stricmp(mh->name, name) == 0) {
++			if (tr.models[mh->handle]->type == MOD_BAD)
++			{
++				return 0;
++			}
+ 			return mh->handle;
+ 		}
+ 	}
+@@ -1235,7 +1239,7 @@ Ghoul2 Insert Start
+ 
+ 	if (name[0] == '*')
+ 	{	// don't create a bad model for a bsp model
+-		if (Q_stricmp(name, "*default.gla"))
++		if (Q_stricmp(name, "*default_mp.gla"))
+ 		{
+ 			return 0;
+ 		}
+@@ -1256,7 +1260,7 @@ Ghoul2 Insert End
+ 	Q_strncpyz( mod->name, name, sizeof( mod->name ) );
+ 
+ 	// make sure the render thread is stopped
+-	R_SyncRenderThread();
++	//R_SyncRenderThread();
+ 
+ 	int iLODStart = 0;
+ 	if (strstr (name, ".md3")) {
+@@ -1359,14 +1363,14 @@ Ghoul2 Insert Start
+ */
+ 
+ #ifdef _DEBUG
+-	if (r_noPrecacheGLA && r_noPrecacheGLA->integer && ident == MDXA_IDENT)
+-	{ //I expect this will cause leaks, but I don't care because it's a debugging utility.
+-		return mod->index;
+-	}
++		if (r_noPrecacheGLA && r_noPrecacheGLA->integer && ident == MDXA_IDENT)
++		{ //I expect this will cause leaks, but I don't care because it's a debugging utility.
++			return mod->index;
++		}
+ #endif
+ 
+-	RE_InsertModelIntoHash(name, mod);
+-	return mod->index;
++		RE_InsertModelIntoHash(name, mod);
++		return mod->index;
+ /*
+ Ghoul2 Insert End
+ */
+diff --git a/codemp/rd-vanilla/tr_scene.cpp b/codemp/rd-vanilla/tr_scene.cpp
+index 86ae183..3d5cb3f 100644

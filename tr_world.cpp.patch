@@ -1,0 +1,13 @@
+--- a/codemp/rd-vanilla/tr_world.cpp
++++ b/codemp/rd-vanilla/tr_world.cpp
+@@ -976,7 +976,7 @@ qboolean R_WriteWireframeMapToFile(void)
+ 	}
+ 	
+ 
+-	f = ri.FS_FOpenFileWrite("blahblah.bla");
++	f = ri.FS_FOpenFileWrite("blahblah.bla", false);
+ 	if (!f)
+ 	{ //can't create?
+ 		return qfalse;
+diff --git a/codemp/renderer/mdx_format.h b/codemp/renderer/mdx_format.h
+index 2230b27..1600a7e 100644

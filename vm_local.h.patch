@@ -1,0 +1,14 @@
+--- a/codemp/qcommon/vm_local.h
++++ b/codemp/qcommon/vm_local.h
+@@ -132,6 +132,9 @@ struct vm_s {
+ 
+ 	byte		*dataBase;
+ 	int			dataMask;
++	int			localPoolStart;
++	int			localPoolSize;
++	int			localPoolTail;
+ 
+ 	int			stackBottom;		// if programStack < stackBottom, error
+ 
+diff --git a/codemp/qcommon/vm_x86.cpp b/codemp/qcommon/vm_x86.cpp
+index 7acb3f0..a9a22be 100644

@@ -1,0 +1,13 @@
+--- a/codemp/client/snd_mix.cpp
++++ b/codemp/client/snd_mix.cpp
+@@ -427,7 +427,7 @@ void S_PaintChannels( int endtime ) {
+ 				continue;
+ 			}
+ 
+-			if ( ch->entchannel == CHAN_VOICE || ch->entchannel == CHAN_VOICE_ATTEN || ch->entchannel == CHAN_VOICE_GLOBAL )
++			if ( ch->entchannel == CHAN_VOICE/* || ch->entchannel == CHAN_VOICE_ATTEN || ch->entchannel == CHAN_VOICE_GLOBAL */)
+ 				snd_vol = voice_vol;
+ 			else
+ 				snd_vol = normal_vol;
+diff --git a/codemp/client/snd_public.h b/codemp/client/snd_public.h
+index c49231c..e929d6f 100644

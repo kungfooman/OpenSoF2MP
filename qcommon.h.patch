@@ -1,0 +1,64 @@
+--- a/codemp/qcommon/qcommon.h
++++ b/codemp/qcommon/qcommon.h
+@@ -198,18 +198,15 @@ PROTOCOL
+ ==============================================================
+ */
+ 
+-#define	PROTOCOL_VERSION	26
++#define	PROTOCOL_VERSION	2004
+ 
+-#define	UPDATE_SERVER_NAME			"updatejk3.ravensoft.com"
+-#define MASTER_SERVER_NAME			"masterjk3.ravensoft.com"
++#define	UPDATE_SERVER_NAME			"master.sof2.ravensoft.com"
++#define MASTER_SERVER_NAME			"master.sof2.ravensoft.com"
+ 
+-#define JKHUB_MASTER_SERVER_NAME	"master.jkhub.org"
+-#define JKHUB_UPDATE_SERVER_NAME	"update.jkhub.org"
++#define	PORT_MASTER			20110
++#define	PORT_UPDATE			20112
+ 
+-#define	PORT_MASTER			29060
+-#define	PORT_UPDATE			29061
+-//#define	PORT_AUTHORIZE		29062
+-#define	PORT_SERVER			29070	//...+9 more for multiple servers
++#define	PORT_SERVER			20100	//...+9 more for multiple servers
+ #define	NUM_SERVER_PORTS	4		// broadcast scan this many ports after PORT_SERVER so a single machine can run multiple servers
+ 
+ // the svc_strings[] array in cl_parse.c should mirror this
+@@ -225,7 +222,6 @@ enum svc_ops_e {
+ 	svc_serverCommand,			// [string] to be executed by client game module
+ 	svc_download,				// [short] size [size bytes]
+ 	svc_snapshot,
+-	svc_setgame,
+ 	svc_mapchange,
+ 	svc_EOF
+ };
+@@ -293,9 +289,15 @@ int		QDECL VM_Call( vm_t *vm, int callNum, ... );
+ 
+ void	VM_Debug( int level );
+ 
++void	*VM_Shift(void * mem);
++void	*VM_Local_Alloc(int size);
++void	*VM_Local_AllocUnaligned(int size);
++void	*VM_Local_TempAlloc(int size);
++void	VM_Local_TempFree(int size);
++char	*VM_Local_StringAlloc(const char *source);
++
+ void	VM_Shifted_Alloc(void **ptr, int size);
+ void	VM_Shifted_Free(void **ptr);
+-
+ void	*VM_ArgPtr( int intValue );
+ void	*VM_ExplicitArgPtr( vm_t *vm, int intValue );
+ 
+@@ -543,7 +545,7 @@ int		FS_LoadStack();
+ int		FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize );
+ int		FS_GetModList(  char *listbuf, int bufsize );
+ 
+-fileHandle_t	FS_FOpenFileWrite( const char *qpath );
++fileHandle_t	FS_FOpenFileWrite( const char *qpath, const bool astext = false );
+ // will properly create any needed paths and deal with seperater character issues
+ 
+ int		FS_filelength( fileHandle_t f );
+diff --git a/codemp/qcommon/stringed_ingame.cpp b/codemp/qcommon/stringed_ingame.cpp
+deleted file mode 100644
+index 2fd4cdc..0000000
